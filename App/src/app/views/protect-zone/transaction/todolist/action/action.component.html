@@ -1,0 +1,55 @@
+<div class="modal-header">
+  <h4 class="modal-title">Action of KPI Objective ({{data.topic}})</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+<div class="d-flex">
+  <div class="flex-fill" style="width:60%; padding: 0 5px 0 5px;">
+    <div class="d-flex">
+      <div class="flex-fill" style="width:24%; padding: 0 5px 0 5px;">
+        <div class="form-group">
+          <label for="title" class="d-flex justify-content-center" style="font-weight: Bold;font-size: 14px;margin-top: 52px;">My Objective</label>
+          <textarea id="title" rows="10" type="text" [(ngModel)]="objective"
+          placeholder="Type something!" class="form-control"></textarea>
+        </div>
+
+      </div>
+      <div class="flex-fill" style="width:24%; padding: 0 5px 0 0px;">
+        <div class="form-group">
+          <label for="title" class="d-flex justify-content-center" style="font-weight: Bold;font-size: 14px;margin-top: 52px;">Target</label>
+          <textarea id="title" rows="10" type="text" [(ngModel)]="target"
+          placeholder="Type something!" class="form-control"></textarea>
+        </div>
+      </div>
+      <div class="flex-fill" style="width:12%; padding: 0 5px 0 0px;" id='deadline'>
+        <div class="form-group">
+          <label for="title" class="d-flex justify-content-center" style="font-weight: Bold;font-size: 14px;margin-top: 52px;">Deadline</label>
+         <ejs-datepicker [(value)]='deadline' format='yyyy/MM/dd' ></ejs-datepicker>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-fill" style="width:40%; padding: 5px 5px 5px 0;">
+  <ejs-grid #grid [dataSource]='gridData' [allowResizing]='true'  (actionBegin)="actionBegin($event)"
+    [toolbar]='toolbarOptions' allowTextWrap='true' [editSettings]='editSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' [allowEditing]='false' textAlign='Center' width=20 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='id' headerText='Id' [visible]='false'  type='number'>
+      </e-column>
+      <e-column field='action' textAlign='Left' headerTextAlign='Center' headerText='Action'>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+  </div>
+</div>
+</div>
+<div class="modal-footer justify-content-end">
+  <button type="button" class="btn btn-danger" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+  <button type="button" class="btn btn-success" (click)="finish()">{{'Finish' }}</button>
+</div>

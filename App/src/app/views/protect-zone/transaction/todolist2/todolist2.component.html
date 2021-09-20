@@ -1,0 +1,276 @@
+<div class="row">
+  <div class="col-md-3 d-flex justify-content-center">
+    <div class="form-group">
+      <label for="exampleInputEmail1">Change System Date</label>
+      <kendo-datepicker style="width: 100%;" [(ngModel)]="currentTime" (valueChange)="onChangeReportTime($event)">
+      </kendo-datepicker>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="card-body">
+    <ejs-tab id="element" (selected)='selected($event)'>
+      <e-tabitems>
+        <ng-container *ngFor="let item of accountGroupData">
+          <e-tabitem [content]='getGridTemplate(item.position)'>
+            <ng-template #headerText>
+              <div> {{item.name}} </div>
+            </ng-template>
+          </e-tabitem>
+        </ng-container>
+      </e-tabitems>
+    </ejs-tab>
+  </div>
+</div>
+
+<!-- L0 -->
+<ng-template #GridtemplateRef name='1'>
+  <div *ngIf="isAllowAccess(1)">
+
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='topic' headerText='KPI Objective' type='string'>
+        <ng-template #template let-data>
+          <span>{{data.topic}}</span> <span *ngIf="data.isReject && data.isDisplayAction"
+            class="badge badge-danger">Rejected</span>
+            <span class="badge badge-success" *ngIf="data.isUpdatedResult">Done</span>
+        </ng-template>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-success mr-2" *ngIf="data.type == 'Action'"
+              (click)='openActionModalComponent(data)'>Action</button>
+            <button type="button" class="btn btn-sm btn-success mr-2" *ngIf="data.type == 'UpdatePDCA'"
+              (click)='openUpdatePdcaModalComponent(data)'>Update PDCA</button>
+            <button type="button" class="btn btn-sm btn-success mr-2" *ngIf="data.isDisplaySelfScore"
+              (click)='openSelfScoreModalComponent(data)'>Self-score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+</div>
+
+  <div *ngIf="!isAllowAccess(1)">
+    <p style="text-align: center; color: red; font-size: xx-large;">
+      No authority to view.
+    </p>
+  </div>
+</ng-template>
+<!-- L1 -->
+<ng-template #GridtemplateRef name='2'>
+
+  <div *ngIf="isAllowAccess(2)">
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='objective' headerText='KPI Objective' type='string'>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" *ngIf="data.type == KPI" class="btn btn-sm btn-success mr-2"
+              (click)='openKPIScoreModalComponent(data)'>KPI Score</button>
+            <button type="button" *ngIf="data.type == Attitude" class="btn btn-sm btn-success mr-2"
+              (click)='openAttitudeScoreModalComponent(data)'>Attitude Score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+</div>
+
+  <div *ngIf="!isAllowAccess(2)">
+    <p style="text-align: center; color: red; font-size: xx-large;">
+      No authority to view.
+    </p>
+  </div>
+</ng-template>
+
+<!-- L2 -->
+<ng-template #GridtemplateRef name='3'>
+  <div *ngIf="isAllowAccess(3)">
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='objective' headerText='KPI Objective' type='string'>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" *ngIf="data.type == KPI" class="btn btn-sm btn-success mr-2"
+              (click)='openKPIScoreL2ModalComponent(data)'>KPI Score</button>
+            <button type="button" *ngIf="data.type == Attitude" class="btn btn-sm btn-success mr-2"
+              (click)='openAttitudeScoreL2ModalComponent(data)'>Attitude Score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+</div>
+
+  <div *ngIf="!isAllowAccess(3)">
+    <p style="text-align: center; color: red; font-size: xx-large;">
+      No authority to view.
+    </p>
+  </div>
+</ng-template>
+
+<!-- Updater -->
+<ng-template #GridtemplateRef name='4'>
+  <div >
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+  gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+  <e-columns>
+    <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+      <ng-template #template let-data>
+        {{NO(data.index)}}
+      </ng-template>
+    </e-column>
+    <e-column field='title' headerText='KPI Objective' type='string'>
+    </e-column>
+    <e-column field='option' headerText='Option'>
+      <ng-template #template let-data>
+        <div class="btn-group">
+          <button type="button" class="btn btn-sm btn-success mr-2"
+            (click)='gotoUpdate()'>Update</button>
+        </div>
+      </ng-template>
+    </e-column>
+  </e-columns>
+</ejs-grid>
+  </div>
+</ng-template>
+
+<!-- GHR -->
+<ng-template #GridtemplateRef name='5'>
+  <div *ngIf="isAllowAccess(5)">
+    <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='objective' headerText='KPI Objective' type='string'>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" *ngIf="data.type == KPI" class="btn btn-sm btn-success mr-2"
+              (click)='openKPIScoreGHRModalComponent(data)'>SMART Score</button>
+            <button type="button" *ngIf="data.type == Attitude" class="btn btn-sm btn-success mr-2"
+              (click)='openAttitudeScoreGHRModalComponent(data)'>Attitude Score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+  </div>
+
+  <div *ngIf="!isAllowAccess(5)">
+    <p style="text-align: center; color: red; font-size: xx-large;">
+      No authority to view.
+    </p>
+  </div>
+</ng-template>
+<!-- Functional Leader -->
+<ng-template #GridtemplateRef name='6'>
+  <div *ngIf="isAllowAccess(6)">
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='objective' headerText='Objective' type='string'>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-secondary mr-2"
+              (click)='openAttitudeScoreFunctionalLeaderModalComponent(data)'>Attitude Score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+</div>
+
+  <div *ngIf="!isAllowAccess(6)">
+    <p style="text-align: center; color: red; font-size: xx-large;">
+      No authority to view.
+    </p>
+  </div>
+</ng-template>
+<!-- GM -->
+<ng-template #GridtemplateRef>
+  <ejs-grid #grid [dataSource]='gridData' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+    gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+    <e-columns>
+      <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+        <ng-template #template let-data>
+          {{NO(data.index)}}
+        </ng-template>
+      </e-column>
+      <e-column field='objective' headerText='KPI Objective' type='string'>
+      </e-column>
+      <e-column field='option' headerText='Option'>
+        <ng-template #template let-data>
+          <div class="btn-group">
+            <button type="button" class="btn btn-sm btn-success mr-2" (click)='openKPIScoreGMModalComponent(data)'>KPI
+              Score</button>
+          </div>
+        </ng-template>
+      </e-column>
+    </e-columns>
+  </ejs-grid>
+</ng-template>
+<ng-template #importModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> Import Excel
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="Name">Select File (*Notice: Excel file must be followed a system template. If you do not have a
+            template, please <a [href]="excelDownloadUrl">click here</a> to download. Thank you!)</label>
+          <input (change)="fileProgress($event)" name="file" type="file" class="form-control" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-primary" (click)="uploadFile()">Upload File</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
+  </div>
+
+</ng-template>

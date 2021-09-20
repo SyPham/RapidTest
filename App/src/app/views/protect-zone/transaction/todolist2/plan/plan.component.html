@@ -1,0 +1,81 @@
+<div class="modal-header">
+  <h4 class="modal-title">中心主管收到KPI項目後新增第一個P (Center head update the first Plan of 2nd KPI) </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <div class="row">
+    <div class="col-12">
+      <p>
+        <label class="font-weight-bold">Policy: </label> <span>{{policy}}</span>
+      </p>
+      <p>
+        <label class="font-weight-bold">KPI: </label> <span>{{kpi}}</span>
+      </p>
+      <p>
+        <label class="font-weight-bold">PIC: </label> <span>{{pic}}</span>
+      </p>
+    </div>
+
+    <div class="col-12 d-flex align-items-start">
+      <div class="input-group mb-3" style="width:300px">
+        <div class="input-group-prepend">
+          <span class="input-group-text font-weight-bold" id="target">Next month Target</span>
+        </div>
+        <input type="text" class="form-control" (ngModelChange)="onChangeTarget($event)" [(ngModel)]="targetValue" id="next-month-target" aria-describedby="target">
+      </div>
+
+      <div class="input-group mb-3 ml-5" style="width:300px">
+        <div class="input-group-prepend">
+          <span class="input-group-text font-weight-bold" id="ytd">Target YTD</span>
+        </div>
+        <input type="text" class="form-control" (ngModelChange)="onChangeTargetYTD($event)" [(ngModel)]="targetYTDValue" id="target-ytd" aria-describedby="ytd">
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <ejs-grid #grid [dataSource]='actions' [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true'
+      gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' [editSettings]='editSettings' [allowExcelExport]='true'>
+      <e-columns>
+        <e-column field='#' headerText='#' [allowEditing]='false' textAlign='Center' width=80 type='number'>
+          <ng-template #template let-data>
+            {{NO(data.index)}}
+          </ng-template>
+        </e-column>
+        <e-column field='content' headerText='Content' type='string'>
+        </e-column>
+        <e-column field='target' headerText='Target' type='string'>
+        </e-column>
+        <e-column field='deadline' headerText='Deadline' type='date' format='MM/dd/yyyy' editType='datepickeredit'>
+        </e-column>
+      </e-columns>
+    </ejs-grid>
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer d-flex justify-content-end">
+  <button type="button"
+  class="btn btn-secondary mr-2"
+
+  (click)="back()">{{'Back' }}
+</button>
+  <button type="button"
+  class="btn btn-success"
+
+  (click)="submit()">{{'Submit' }}</button>
+</div>
+<!--
+data-toggle="tooltip"
+data-placement="top"
+title="Save data & Submit then close the window. In L0 tab hide this row."
+ data-toggle="tooltip"
+  data-placement="top"
+  title="Save data & close the window."
+-->
+

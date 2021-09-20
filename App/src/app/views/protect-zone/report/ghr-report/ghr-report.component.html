@@ -1,0 +1,640 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+     <div class="card-header">
+        <h3 class="card-title">GHR Report
+        </h3>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [locale]='locale'
+          [toolbar]='toolbarOptions'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="ID" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="oc" textAlign='Center' headerText="Dept."> </e-column>
+            <e-column field="fullName" textAlign='Center' headerText="Name"> </e-column>
+            <e-column field="score" textAlign='Center' headerText="Score"> </e-column>
+            <!-- <e-column field="position" textAlign='Center' headerText="Position"> </e-column> -->
+            <e-column field="#" textAlign='Center' headerText="Option">
+              <ng-template #template let-data>
+                <button class="btn btn-sm btn-success" (click)='openModal(data,detailH1Modal,"H1")'>H1</button> |
+                <button class="btn btn-sm btn-success" (click)='openModal(data,detailH2Modal,"H2")'>H2</button>
+              </ng-template>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+
+</div>
+
+
+<ng-template #detailH1Modal let-modal>
+  <a #top></a>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> GHR Report
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="font-size: 15px;">
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col">Dept.  {{dept}}</div>
+              <div class="col">Name: {{name}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-start">
+          <span>{{title}}</span>
+        </div>
+        <ejs-grid #grid height="300px" [dataSource]='gridDataH1' allowTextWrap='true'  [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true' gridLines='Both'
+          [toolbar]='toolbarOptions' (queryCellInfo)='queryCellInfoEvent($event)' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+          <e-columns>
+            <e-column field='#' headerText='#' textAlign='Center' width=30 type='number'>
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+            </e-column>
+            <e-column field='objective' headerText='KPI Objective' type='string'></e-column>
+            <e-column field='l0TargetList' headerText='L0 Target' type='string'>
+            </e-column>
+            <e-column field='l0ActionList' headerText='L0 Action' type='string'>
+              <ng-template #template let-data>
+                <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of data.l0ActionList">{{item}}</li>
+                </ul>
+              </ng-template>
+            </e-column>
+            <e-column field='l0ActionList' headerText='H1' textAlign='Center' width=100>
+              <ng-template #template let-data>
+                <tr *ngFor="let item of columns"  class="e-row"  >
+                  <td class="e-rowcell" style="text-align: center;">{{item.headerText}}</td>
+                </tr>
+
+                <!-- <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of columns">{{item.headerText}}</li>
+                </ul> -->
+              </ng-template>
+            </e-column>
+            <e-column field='l0ActionList' headerText='Result Of Month.' type='string'>
+              <ng-template #template let-data>
+                <tr *ngFor="let item of Resultcolumns"  class="e-row"  >
+                  <td class="e-rowcell" style="text-align: center;">{{item.headerText}}</td>
+                </tr>
+                <!-- <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of Resultcolumns">{{item.headerText}}</li>
+                </ul> -->
+              </ng-template>
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>KPI 評語</span>
+        </div>
+
+        <ejs-grid #gridKpicomment
+        id="grid"
+        allowTextWrap='true'
+        (actionComplete)="actionCompleteKPIComment($event)"
+        (actionBegin)="actionBeginKPIComment($event)"
+        [dataSource]='kpicommentH1'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        [editSettings]='editCommentSettings'
+        (recordDoubleClick)='onDoubleClickKPIComment($event)'
+        gridLines='Both'
+          >
+          <e-columns>
+            <e-column field='kpiComment' isPrimaryKey='true' headerText='KPI Comments' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.kpiComment}}
+              </ng-template>
+            </e-column>
+            <e-column field='q1' headerText='Q1' type='string'>
+
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.q1 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.q1 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.q1" name="q1"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.q1"  name="q1">
+                  </ng-template>
+                </span>
+              </ng-template>
+
+
+            </e-column>
+            <e-column field='q2' headerText='Q2' type='string'>
+
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.q2 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.q2 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.q2"  name="q2" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.q2" name="q2" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>態度評語</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteAtComment($event)"
+        (actionBegin)="actionBeginAtComment($event)"
+        [dataSource]='attitudecommentData'
+        [showColumnMenu]='true' gridLines='Both'
+         >
+          <e-columns>
+            <e-column field='attitudeComment' isPrimaryKey='true' headerText='Attitude Comments' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.attitudeComment}}
+
+              </ng-template>
+            </e-column>
+            <e-column field='h1' headerText='H1' type='string'>
+
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.h1 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.h1 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.h1" name="h1" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.h1" name="h1">
+                  </ng-template>
+                </span>
+              </ng-template>
+
+
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>Attitude Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        [dataSource]='atScoreData'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteAtScore($event)"
+        (actionBegin)="actionBeginAtScore($event)"
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        gridLines='Both'
+           >
+          <e-columns>
+            <e-column field='l1' textAlign='Center' headerText='L1' type='string'>
+
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.l1 === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.l1 === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.l1" name="l1" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.l1" name="l1">
+                  </ng-template>
+                </span>
+              </ng-template>
+
+
+            </e-column>
+            <e-column field='l2' textAlign='Center' headerText='L2' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.l2 === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.l2 === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.l2" name="l2" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.l2" name="l2" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+            <e-column field='fl' textAlign='Center' headerText='Functional leader' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.fl === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.fl === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.fl" name="fl"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.fl" name="fl" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>KPI Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [dataSource]='kpiScoreData'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        gridLines='Both'
+          >
+          <e-columns>
+            <e-column field='self' textAlign='Center' headerText='Self' type='string'></e-column>
+            <e-column field='l1' textAlign='Center' headerText='L1' type='string'>
+            </e-column>
+            <e-column field='l2' textAlign='Center' headerText='L2' type='string'></e-column>
+            <e-column field='ghrSmartScore' headerText='GHR SMART Score' textAlign='Center' width=100>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>Special Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [dataSource]='specialScoreData'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteSpeScore($event)"
+        (actionBegin)="actionBeginSpeScore($event)"
+        [showColumnMenu]='true'
+        gridLines='Both'
+            >
+          <e-columns>
+            <e-column field='score' headerText='Special score' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.score}}
+              </ng-template>
+
+            </e-column>
+            <e-column field='comment' headerText='Special Contribution or Mistake (If any) 重大貢獻或錯誤(如有)' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.comment === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.comment === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.comment" name="comment"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.comment" name="comment" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+        <hr>
+        <span>{{titles}} Score: {{h1Score}}</span>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Back</button> |
+          <button type="button" class="btn btn-primary" (click)="save()" >Submit</button>
+          <span style="color: transparent;">| |</span>
+          <a class="btn btn-outline-warning" (click)="scroll(top)" ><i class="fas fa-chevron-up"></i></a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</ng-template>
+
+<ng-template #detailH2Modal let-modal>
+  <a #top></a>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> GHR Report
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body" style="font-size: 15px;">
+    <div class="row">
+
+      <div class="col-md-12">
+        <div class="row">
+          <div class="col-md-12">
+            <div class="row">
+              <div class="col">Dept.  {{dept}}</div>
+              <div class="col">Name: {{name}}</div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-start">
+          <span>{{title}}</span>
+        </div>
+        <ejs-grid #grid height="300px" [dataSource]='gridDataH1' allowTextWrap='true'  [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true' gridLines='Both'
+          [toolbar]='toolbarOptions' (queryCellInfo)='queryCellInfoEvent($event)' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+          <e-columns>
+            <e-column field='#' headerText='#' textAlign='Center' width=30 type='number'>
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+            </e-column>
+            <e-column field='objective' headerText='KPI Objective' type='string'></e-column>
+            <e-column field='l0TargetList' headerText='L0 Target' type='string'>
+            </e-column>
+            <e-column field='l0ActionList' headerText='L0 Action' type='string'>
+              <ng-template #template let-data>
+                <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of data.l0ActionList">{{item}}</li>
+                </ul>
+              </ng-template>
+            </e-column>
+            <e-column field='l0ActionList' headerText='H2' textAlign='Center' width=100>
+              <ng-template #template let-data>
+                <tr *ngFor="let item of columns"  class="e-row"  >
+                  <td class="e-rowcell" style="text-align: center;">{{item.headerText}}</td>
+                </tr>
+
+                <!-- <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of columns">{{item.headerText}}</li>
+                </ul> -->
+              </ng-template>
+            </e-column>
+            <e-column field='l0ActionList' headerText='Result Of Month.' type='string'>
+              <ng-template #template let-data>
+                <tr *ngFor="let item of Resultcolumns"  class="e-row"  >
+                  <td class="e-rowcell" style="text-align: center;">{{item.headerText}}</td>
+                </tr>
+                <!-- <ul style="padding: 0 0 0 8px;">
+                  <li *ngFor="let item of Resultcolumns">{{item.headerText}}</li>
+                </ul> -->
+              </ng-template>
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>KPI 評語</span>
+        </div>
+
+        <ejs-grid #gridKpicomment
+        id="grid"
+        allowTextWrap='true'
+        (actionComplete)="actionCompleteKPIComment($event)"
+        (actionBegin)="actionBeginKPIComment($event)"
+        [dataSource]='kpicommentH1'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        [editSettings]='editCommentSettings'
+        (recordDoubleClick)='onDoubleClickKPIComment($event)'
+        gridLines='Both'
+          >
+          <e-columns>
+            <e-column field='kpiComment' isPrimaryKey='true' headerText='KPI Comments' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.kpiComment}}
+
+              </ng-template>
+            </e-column>
+            <e-column field='q1' headerText='Q3' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.q1 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.q1 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.q1" name="q1" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.q1" name="q1">
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+            <e-column field='q2' headerText='Q4' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.q2 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.q2 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.q2" name="q2"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.q2" name="q2" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>態度評語</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteAtComment($event)"
+        (actionBegin)="actionBeginAtComment($event)"
+        [dataSource]='attitudecommentData'
+        [showColumnMenu]='true' gridLines='Both'
+         >
+          <e-columns>
+            <e-column field='attitudeComment' isPrimaryKey='true' headerText='Attitude Comments' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.attitudeComment}}
+
+              </ng-template>
+            </e-column>
+            <e-column field='h1' headerText='H2' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.h1 === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.h1 === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.h1" name="h1"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.h1" name="h1" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>Attitude Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        [dataSource]='atScoreData'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteAtScore($event)"
+        (actionBegin)="actionBeginAtScore($event)"
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        gridLines='Both'
+           >
+           <e-columns>
+            <e-column field='l1' textAlign='Center' headerText='L1' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.l1 === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.l1 === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.l1" name="l1"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.l1" name="l1" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+            <e-column field='l2' textAlign='Center' headerText='L2' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.l2 === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.l2 === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.l2" name="l2"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.l2" name="l2" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+            <e-column field='fl' textAlign='Center' headerText='Functional leader' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.fl === 0 ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.fl === 0; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.fl"  name="fl" style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.fl" name="fl" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>KPI Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [dataSource]='kpiScoreData'
+        [allowResizing]='true'
+        [showColumnMenu]='true'
+        gridLines='Both'
+          >
+          <e-columns>
+            <e-column field='self' textAlign='Center' headerText='Self' type='string'></e-column>
+            <e-column field='l1' textAlign='Center' headerText='L1' type='string'>
+            </e-column>
+            <e-column field='l2' textAlign='Center' headerText='L2' type='string'></e-column>
+            <e-column field='ghrSmartScore' headerText='GHR SMART Score' textAlign='Center' width=100>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+
+        <hr>
+        <div class="d-flex justify-content-start">
+          <span>Special Score {{titles}}</span>
+        </div>
+        <ejs-grid #grid
+        allowTextWrap='true'
+        [allowResizing]='true'
+        [dataSource]='specialScoreData'
+        [editSettings]='editCommentSettings'
+        (actionComplete)="actionCompleteSpeScore($event)"
+        (actionBegin)="actionBeginSpeScore($event)"
+        [showColumnMenu]='true'
+        gridLines='Both'
+            >
+          <e-columns>
+            <e-column field='score' headerText='Special score' type='string'>
+              <ng-template #editTemplate let-data>
+                {{data.score}}
+              </ng-template>
+
+            </e-column>
+            <e-column field='comment' headerText='Special Contribution or Mistake (If any) 重大貢獻或錯誤(如有)' type='string'>
+              <ng-template #editTemplate let-data>
+                <span [ngClass]="data.comment === '' ? 'e-input-group e-control-wrapper e-valid-input e-disabled' : 'e-input-group e-control-wrapper e-valid-input' "  >
+                  <ng-container *ngIf="data.comment === ''; else elseTemplate">
+                    <input class="e-field e-input e-defaultcell" disabled="disabled" type="text" [value]="data.comment" name="comment"  style="text-align:Center">
+                  </ng-container>
+                  <ng-template #elseTemplate>
+                    <input class="e-field e-input e-defaultcell" type="text" [value]="data.comment" name="comment" >
+                  </ng-template>
+                </span>
+              </ng-template>
+
+            </e-column>
+
+          </e-columns>
+        </ejs-grid>
+        <hr>
+        <span>{{titles}} Score: {{h1Score}}</span>
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Back</button> |
+          <button type="button" class="btn btn-primary" (click)="save()" >Submit</button>
+          <span style="color: transparent;">| |</span>
+          <a class="btn btn-outline-warning" (click)="scroll(top)" ><i class="fas fa-chevron-up"></i></a>
+        </div>
+
+      </div>
+
+
+    </div>
+
+  </div>
+
+</ng-template>
+

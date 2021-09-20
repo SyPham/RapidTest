@@ -1,0 +1,109 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <!-- <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-users"></i> User List
+        </h3>
+      </div> -->
+      <!-- /.card-header -->
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [locale]='locale'
+          (actionBegin)="actionBegin($event)"
+          (actionComplete)="actionComplete($event)"
+          [toolbar]='toolbarOptions'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          (recordDoubleClick)='onDoubleClick($event)'
+          (toolbarClick)='toolbarClick($event)'
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="ID" textAlign='Center' width="80" isPrimaryKey="true" headerText="ID">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="name" textAlign='Center' headerText="{{ 'Name' | translate}}"> </e-column>
+              <e-column field="Option" isPrimaryKey="true" headerText="{{'Option' | translate}}" textAlign='Center'>
+                <ng-template #template let-data>
+                  <div class="btn-group" >
+                    <button type="button" (click)='showModal(periodModal,data)' class="btn btn-xs btn-info"> <i
+                        class="fa fa-plus"></i> {{'Create Report Time' | translate}} </button>
+                  </div>
+                </ng-template>
+              </e-column>
+
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+
+<ng-template #periodModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> {{ 'Create Report Time' | translate}}
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <ejs-grid #grid
+          [dataSource]='periodReportTimeData'
+          allowPaging='true'
+          showColumnMenu='true'
+          [allowSorting]='true'
+          allowResizing= 'true'
+          [allowExcelExport]='true'
+          allowFiltering='true'
+          [filterSettings]='filterSettings'
+          gridLines='Both'
+          rowHeight='38'
+          (actionBegin)="actionBeginPeriodsGrid($event)" [editSettings]='editSettings' [toolbar]='toolbarOptions'>
+          <e-columns>
+            <e-column field='period' headerText='Period' isPrimaryKey='true' width='60'>
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+              </ng-template>
+            </e-column>
+
+            <e-column field='reportTime' textAlign='Center'
+              headerText='Report Time' >
+              <ng-template #template let-data>
+                {{data.reportTime | date: 'MM-dd-YYYY'}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                <kendo-datepicker style="width: 100%;"
+                (valueChange)="onChangeReportTime($event)"
+              >
+              </kendo-datepicker>
+              </ng-template>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
+  </div>
+
+</ng-template>

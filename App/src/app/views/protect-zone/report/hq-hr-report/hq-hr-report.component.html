@@ -1,0 +1,46 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"> HQ HR Report 年中考核名單
+        </h3>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [locale]='locale'
+          [toolbar]='toolbarOptions'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="ID" textAlign='Center' width="80" isPrimaryKey="true" headerText="ID">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="fullName" textAlign='Center' headerText="Name"> </e-column>
+            <!-- <e-column field="position" textAlign='Center' headerText="Position"> </e-column> -->
+            <e-column field="#" textAlign='Center' headerText="Option">
+              <ng-template #template let-data>
+                <button class="btn btn-sm btn-success">Export</button>
+              </ng-template>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+

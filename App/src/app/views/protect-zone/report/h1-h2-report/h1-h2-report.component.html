@@ -1,0 +1,360 @@
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+     <div class="card-header">
+        <h3 class="card-title">H1 & H2 Report
+        </h3>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [locale]='locale'
+          [toolbar]='toolbarOptions'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="ID" textAlign='Center' width="80" isPrimaryKey="true" headerText="ID">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="fullName" textAlign='Center' headerText="Name"> </e-column>
+            <!-- <e-column field="position" textAlign='Center' headerText="Position"> </e-column> -->
+            <e-column field="#" textAlign='Center' headerText="Option">
+              <ng-template #template let-data>
+                <button class="btn btn-sm btn-success" (click)='openModal(data,detailModal)'>Detail</button>
+              </ng-template>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+
+
+<ng-template #detailModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> H1 & H2 Report
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-7">翔鑫堡工業股份有限公司第二事業部</div>
+          <div class="col-md-5">工作考核表</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+
+        <div class="row">
+          <div class="col">Dept. {{detailH1 !== undefined ? detailH1.oc : ""}}</div>
+          <div class="col">Name: {{detailH1 !== undefined ? detailH1.fullName : ""}}</div>
+          <div class="col">Position:</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <div class="d-flex justify-content-end">
+          <span>H1：Q1-Q2</span>
+        </div>
+        <table class="table table-bordered small-table">
+          <tbody>
+            <tr>
+              <th scope="row" colspan="2"> </th>
+              <th scope="row" colspan="2"> </th>
+              <td>L1</td>
+              <td>L2</td>
+              <td>FL</td>
+            </tr>
+            <tr>
+              <th class="hover-box" scope="row" colspan="2">
+                Attitude: 20
+                <table class="table table-bordered tooltip-attitude-table" style="width: 800px;">
+                  <thead>
+                    <tr>
+                      <th scope="col">工作態度 = 主動積極 + 溝通及EQ + 配合度</th>
+                      <th scope="col">非常好 10 分</th>
+                      <th scope="col">較好 8-9 分</th>
+                      <th scope="col">一般 6-7 分</th>
+                      <th scope="col">較差 4-5 分</th>
+                      <th scope="col">極差 3 分以下</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Attitude = Proactiveness + Communication & EQ + Cooperation</td>
+                      <td>Excellent 10 points</td>
+                      <td>Good 8-9 points</td>
+                      <td>Normal 6-7 points</td>
+                      <td>Not goo 4-5 points</td>
+                      <td>Poor 3 points or below</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </th>
+              <th scope="row" colspan="2">H1得分: {{detailH1 !== undefined ? detailH1.a_total : "N/A"}}</th>
+              <td>{{detailH1 !== undefined ? detailH1.l1Score : "N/A"}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.l2Score : "N/A"}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.flScore : "N/A"}}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex justify-content-end">
+          <span>H2：Q3-Q4</span>
+        </div>
+        <table class="table table-bordered small-table">
+          <tbody>
+            <tr>
+              <th scope="row" colspan="2"> </th>
+              <th scope="row" colspan="2"> </th>
+              <td>L1 </td>
+              <td>L2 </td>
+              <td>FL </td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="2">Attitude: 20</th>
+              <th scope="row" colspan="2">H2得分: {{detailH2 !== undefined ? detailH2.a_total : "N/A"}}</th>
+              <td>{{detailH2 !== undefined ? detailH2.l1Score : "N/A"}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.l2Score : "N/A"}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.flScore : "N/A"}}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+
+      <div class="col-md-12">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" style="width:10%">L0 Self-Evaluation</th>
+              <th scope="col" style="width:40%">H1: {{detailH1 !== undefined ? detailH1.l0SelfScoreComment : ""}}</th>
+              <th scope="col" style="width:10%">L0 Self-Evaluation</th>
+              <th scope="col" style="width:40%">H2: {{detailH2 !== undefined ? detailH2.l0SelfScoreComment : ""}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="3">L1 Comment</td>
+              <td>Q1 KPI: {{detailH1 !== undefined ? detailH1.l1Q1Comment : ""}}</td>
+              <td rowspan="3">L1 Comment</td>
+              <td>Q3 KPI: {{detailH2 !== undefined ? detailH2.l1Q1Comment : ""}}</td>
+            </tr>
+
+            <tr>
+              <td>Q2 KPI: {{detailH1 !== undefined ? detailH1.l1Q2Comment : ""}}</td>
+              <td>Q4 KPI: {{detailH2 !== undefined ? detailH2.l1Q2Comment : ""}}</td>
+
+            </tr>
+
+            <tr>
+              <td>H1 Attitude: {{detailH1 !== undefined ? detailH1.l1HComment : ""}}</td>
+              <td>H2 Attitude: {{detailH2 !== undefined ? detailH2.l1HComment : ""}}</td>
+
+            </tr>
+
+            <tr>
+              <td rowspan="3">L2 Comment</td>
+              <td>Q1 KPI: {{detailH1 !== undefined ? detailH1.l2Q1Comment : ""}}</td>
+              <td rowspan="3">L2 Comment</td>
+              <td>Q3 KPI: {{detailH2 !== undefined ? detailH2.l2Q1Comment : ""}}</td>
+            </tr>
+
+            <tr>
+              <td>Q2 KPI: {{detailH1 !== undefined ? detailH1.l2Q2Comment : ""}}</td>
+              <td>Q4 KPI: {{detailH2 !== undefined ? detailH2.l2Q2Comment : ""}}</td>
+            </tr>
+
+            <tr>
+              <td>H1 Attitude: {{detailH1 !== undefined ? detailH1.l2HComment : ""}}</td>
+              <td>H2 Attitude: {{detailH2 !== undefined ? detailH2.l2HComment : ""}}</td>
+
+            </tr>
+
+            <tr>
+              <td>FL Comment</td>
+              <td>H1 Attitude: {{detailH1 !== undefined ? detailH1.flhComment : ""}}</td>
+              <td>FL Comment: {{""}}</td>
+              <td>H2 Attitude: {{detailH2 !== undefined ? detailH2.flhComment : ""}}</td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-md-6">
+        <table class="table table-bordered small-table">
+          <tbody>
+            <tr>
+              <th scope="row" colspan="3"> </th>
+              <th scope="row" colspan="3"> </th>
+              <td>Self-Score (10)</td>
+              <td>L1 (30)</td>
+              <td>L2 (20)</td>
+              <td>SMART (20)</td>
+            </tr>
+            <tr>
+              <th class="hover-box" scope="row" colspan="3">KPI: 80
+
+                <table class="table table-bordered tooltip-kpi-table" style="width: 800px;">
+                  <thead>
+                    <tr>
+                      <th scope="col">5>= X >=4.5 超出預期</th>
+                      <th scope="col">4.5> X >=4 符合預期</th>
+                      <th scope="col">4 > X >=3 大部分符合預期</th>
+                      <th scope="col">3> X >=2 部分符合預期</th>
+                      <th scope="col">2> X >= 0 不佳不符合預期</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Exceed expectation</td>
+                      <td>Meet expectation</td>
+                      <td>Mostly meet expectation</td>
+                      <td>Partly meet expectation</td>
+                      <td>Poorly or not meet expectation</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </th>
+              <th scope="row" colspan="3">H1得分: {{detailH1 !== undefined ? detailH1.b_total : 0}}</th>
+              <td>{{detailH1 !== undefined ? detailH1.selfScore : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.l1 : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.l2 : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.smart : 0}}</td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="3"> </th>
+              <th scope="row" colspan="3"> </th>
+              <td>{{detailH1 !== undefined ? detailH1.b_selfScore : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.b_L1 : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.b_L2 : 0}}</td>
+              <td>{{detailH1 !== undefined ? detailH1.b_Smart : 0}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-md-6">
+         <table class="table table-bordered small-table">
+          <tbody>
+            <tr>
+              <th scope="row" colspan="3"> </th>
+              <td>Self-Score (10)</td>
+              <td>L1 (30)</td>
+              <td>L2 (20)</td>
+              <td>SMART (20)</td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="3">H2得分: {{detailH2 !== undefined ? detailH2.b_total : 0}}</th>
+              <td>{{detailH2 !== undefined ? detailH2.selfScore : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.l1 : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.l2 : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.smart : 0}}</td>
+            </tr>
+            <tr>
+              <th scope="row" colspan="3"> </th>
+              <td>{{detailH2 !== undefined ? detailH2.b_selfScore : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.b_L1 : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.b_L2 : 0}}</td>
+              <td>{{detailH2 !== undefined ? detailH2.b_Smart : 0}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="row mb-2">
+
+      <div class="col-md-12">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" style="width:10%">Special contribution or mistake</th>
+              <th scope="col" style="width:40%">
+                <tr>
+                  <td>H1: {{detailH1 !== undefined ? detailH1.c_total : 0}}</td>
+                  <td>{{detailH1 !== undefined ? detailH1.specialScore : 0}}</td>
+                </tr>
+
+              </th>
+              <th scope="col" style="width:10%">Special contribution or mistake</th>
+              <th scope="col" style="width:40%">
+                <tr>
+                  <td>H2: {{detailH2 !== undefined ? detailH2.c_total : 0}}</td>
+                  <td>{{detailH2 !== undefined ? detailH2.specialScore : 0}}</td>
+                </tr>
+              </th>
+
+            </tr>
+            <tr>
+              <th scope="col" style="width:10%">Special contribution or mistake comment</th>
+              <span style="vertical-align: top;">
+                {{detailH1 !== undefined ? detailH1.specialComment : ""}}
+              </span>
+
+              <th scope="col" style="width:10%">Special contribution or mistake comment</th>
+              <span style="vertical-align: top;">
+                {{detailH2 !== undefined ? detailH2.specialComment : ""}}
+              </span>
+
+
+            </tr>
+          </thead>
+
+        </table>
+      </div>
+    </div>
+
+    <div class="row mb-2">
+      <div class="col-md-6 text-center">
+        <p>H1得分: {{detailH1 !== undefined ? detailH1.d_total : 0}}</p>
+        <p>年度得分: {{avg}}</p>
+      </div>
+      <div class="col-md-6 text-center">
+        <span>H2得分: {{detailH2 !== undefined ? detailH2.d_total : 0}}</span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-primary" (click)="exportExcel()" >Export Excel</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
+  </div>
+
+
+
+</ng-template>
+
+

@@ -1,0 +1,137 @@
+<div class="modal-header">
+  <h4 class="modal-title">Self-score of KPI Objective ({{data.objective}}) - L2</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+  <ejs-grid #grid [dataSource]='gridData' allowTextWrap='true'  [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true' gridLines='Both'
+  [toolbar]='toolbarOptions' (queryCellInfo)='queryCellInfoEvent($event)' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+  <e-columns>
+    <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+      <ng-template #template let-data>
+        {{NO(data.index)}}
+      </ng-template>
+    </e-column>
+    <e-column field='objective' headerText='KPI Objective' type='string'></e-column>
+    <e-column field='l0TargetList' headerText='L0 Target'>
+    </e-column>
+    <e-column field='l0ActionList' headerText='L0 Action'>
+      <ng-template #template let-data>
+        <ul style="padding: 0 0 0 15px;">
+          <li *ngFor="let item of data.l0ActionList">{{item}}</li>
+        </ul>
+       </ng-template>
+    </e-column>
+    <ng-template #template ngFor let-column [ngForOf]="columns">
+      <e-column [field]="column.field"
+                [headerText]="column.headerText"
+               >
+     </e-column>
+</ng-template>
+  </e-columns>
+</ejs-grid>
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">5>= X >=4.5 超出預期</th>
+          <th scope="col">4.5> X >=4 符合預期</th>
+          <th scope="col">4 > X >=3 大部分符合預期</th>
+          <th scope="col">3> X >=2 部分符合預期</th>
+          <th scope="col">2> X >= 0 不佳不符合預期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Exceed expectation</td>
+          <td>Meet expectation</td>
+          <td>Mostly meet expectation</td>
+          <td>Partly meet expectation</td>
+          <td>Poorly or not meet expectation</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <!-- Nếu có Functional Leader -->
+    <!-- <table class="table" *ngIf="hasFunctionalLeader && isQuarter2Or4 === true">
+      <thead>
+        <tr>
+          <th scope="col" style="width:20%">Functional leader comment<br> 功能主管評語</th>
+          <th scope="col" style="width:50%">{{functionalLeaderCommentContent || ""}}</th>
+          <th scope="col" style="width:20%">Functional leader score<br>功能主管評分</th>
+          <th scope="col" style="width:10%;text-align: center; font-size: xx-large;">
+            {{functionalLeaderAttitudeScoreData || 0}}</th>
+        </tr>
+      </thead>
+    </table>
+    <div class="alert alert-danger text-center" role="alert"
+      *ngIf="hasFunctionalLeader && functionalLeaderScored === false">
+      <strong class="text-center"> Please ask functional leader to score attitude score L0!</strong>
+    </div> -->
+    <!-- self-score -->
+    <table class="table" *ngIf="isQuarter2Or4">
+      <thead>
+        <tr>
+          <th scope="col" style="width:20%">Self - Evaluation<br>自我評價</th>
+          <th scope="col" style="width:50%; text-align: left">{{selfEvaluationCommentContent}}</th>
+          <th scope="col" style="width:30%; text-align: left">{{data?.fullName || ""}} Self-Score<br>自評分數：{{selfPoint}}</th>
+        </tr>
+      </thead>
+    </table>
+    <div class="alert alert-danger text-center" role="alert" *ngIf="isQuarter2Or4 && selfScored === false">
+      <strong class="text-center"> Please ask L0 to self-score!</strong>
+    </div>
+    <!-- L1 -->
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col" style="width:20%">L1 comment<br>直屬主管評語：</th>
+          <th scope="col" style="width:50%">{{l1CommentContent || ""}}</th>
+          <th scope="col" style="width:20%">L1 score<br>直屬主管評分</th>
+          <th scope="col" style="width:10%;text-align: center; font-size: xx-large;">{{l1Point || 0}}</th>
+        </tr>
+      </thead>
+    </table>
+    <div class="alert alert-danger text-center" role="alert" *ngIf="l1Scored === false">
+      <strong class="text-center"> Please ask L1 to score attitude score L0!</strong>
+    </div>
+    <table class="table " style="border: none;">
+      <thead>
+        <tr>
+          <th style="border: none; width: 70%;padding: 0" scope="col" class="text-center">Comment</th>
+          <th style="border: none; width: 30%;padding: 0;" scope="col" class="text-center">KPI Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border: none;">
+            <div class="form-group">
+              <textarea id="comment" rows="6" type="text" [(ngModel)]="content"
+              placeholder="Type something!" class="form-control"></textarea>
+            </div>
+          </td>
+          <td style="border: none;">
+            <div class="form-group">
+              <ejs-dropdownlist #accountGroupDropdownlist [dataSource]='kpiData' [(value)]='point'
+              [fields]='fields' [allowFiltering]='true'>
+            </ejs-dropdownlist>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="modal-footer justify-content-end">
+    <button type="button" class="btn btn-danger" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+    <button [disabled]='l1Scored === false || (isQuarter2Or4 && selfScored === false) ' type="button" class="btn btn-success" (click)="finish()" >{{'Finish' }}</button>
+</div>

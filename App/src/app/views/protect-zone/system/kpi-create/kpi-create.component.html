@@ -1,0 +1,100 @@
+<div class="row">
+  <div class="col-md-3">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-building-o"></i> Organization Chart
+        </h3>
+      </div>
+      <!-- /.card-header -->
+
+      <div class="card-body table-responsive p-0">
+        <ejs-treegrid #treegridBuilding [dataSource]="data"
+          [treeColumnIndex]='1'
+          allowSorting='true'
+          gridLines='Both'
+          (created)='created()'
+          [toolbar]='toolbarBuilding'
+          childMapping="childNodes"
+          (rowSelected)="rowSelected($event)"
+        >
+          <e-columns>
+            <e-column field="entity.level" width="80" textAlign='Center' isPrimaryKey="true" headerText="Level">
+            </e-column>
+            <e-column field="entity.name" headerText="OC Name"> </e-column>
+          </e-columns>
+        </ejs-treegrid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+  <div class="col-md-9">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-list-ol"></i> KPI
+        </h3>
+      </div>
+      <!-- /.card-header -->
+
+      <div class="card-body table-responsive p-0">
+
+        <ejs-grid #grid id='grid' [dataSource]="kpiData"
+          allowSorting='true'
+          gridLines='Both'
+          (created)='createdUsers()'
+          [toolbar]='toolbarUser'
+          [allowPaging]='true'
+          (toolbarClick)='toolbarClick($event)'
+          (actionBegin)="actionBegin($event)"
+          [pageSettings]='pageSettings'
+          [toolbar]='toolbarOptions'
+          [editSettings]='editSettingOCs'
+        >
+          <e-columns>
+            <!-- <e-column field="ID" width="80" isPrimaryKey="true" textAlign='Center' headerText="#">
+              <ng-template #template let-data>
+              <ejs-switch onLabel="ON" offLabel="OFF" (change)='onChangeMap($event, data)' [(ngModel)]="data.Status" [checked]="data.Status"></ejs-switch>
+              </ng-template>
+            </e-column> -->
+            <e-column field="name" headerText="KPI Name" width="200" textAlign='Center'> </e-column>
+            <e-column field="policyName" headerText="Policy" textAlign='Center'>
+              <ng-template #template let-data>
+                {{data.policyName}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='policyId' [allowFiltering]='true' [fields]="policyFields" placeholder='Select a policy' [dataSource]='policyData'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
+            <e-column field="typeName" headerText="Type" textAlign='Center'>
+              <ng-template #template let-data>
+                {{data.typeName}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='typeId' [allowFiltering]='true' [fields]="typeFields" placeholder='Select a Type' [dataSource]='typeData'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
+            <e-column field="picName" headerText="PIC" textAlign='Center'>
+              <ng-template #template let-data>
+                {{data.picName}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='picId' [allowFiltering]='true' [fields]="picFields" placeholder='Select a manager' [dataSource]='accountData'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
+            <e-column field="updateName" headerText="The last editor" textAlign='Center'>
+              <ng-template #editTemplate let-data>
+                {{data.updateName}}
+              </ng-template>
+            </e-column>
+            <e-column field="updateDate" headerText="The last edit date" textAlign='Center'>
+              <ng-template #editTemplate let-data>
+                {{data.updateDate}}
+              </ng-template>
+            </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+
+</div>

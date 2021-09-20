@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <h4 class="modal-title">Upload multiple file </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+  <div class="row">
+    <div class="col-12">
+      <div class="control_wrapper">
+      <ejs-uploader [allowedExtensions]='allowExtensions'
+      (selected)='onSelected($event)'
+      #defaultupload id='defaultfileupload'
+      (failure)='beforeUpload($event)'
+      [asyncSettings]='path'
+      [dropArea]='dropElement' (removing)='onFileRemove($event)'></ejs-uploader>
+    </div>
+  </div>
+  </div>
+</div>
+
+<div class="modal-footer d-flex justify-content-end">
+  <button type="button" class="btn btn-secondary mr-2" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+</div>
+

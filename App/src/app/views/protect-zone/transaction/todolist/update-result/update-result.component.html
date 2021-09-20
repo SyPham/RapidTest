@@ -1,0 +1,70 @@
+<div class="modal-header">
+  <h4 class="modal-title">Update result of KPI Objective ({{data.topic}})</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+  <div class="d-flex">
+    <div class="flex-fill" style="width:70%; padding: 5px 0 5px 5px;">
+      <ejs-grid #grid [dataSource]='gridData'
+      allowTextWrap='true' allowTextWrap='true'
+      [allowResizing]='true'
+      [showColumnMenu]='true'
+      [allowExcelExport]='true'
+      gridLines='Both'
+      [toolbar]='toolbarOptions'
+      >
+      <e-columns>
+        <e-column field='entity.action' headerText='Your Objective' type='string'>
+        </e-column>
+        <e-column field='action' headerText='Action'>
+          <ng-template #template let-data>
+            <ul style="padding: 0 0 0 15px;">
+              <li *ngFor="let item of data.childNodes[0].childNodes">{{item.entity.action}}</li>
+            </ul>
+           </ng-template>
+        </e-column>
+      </e-columns>
+    </ejs-grid>
+    <table class="table " style="border: none;" *ngIf="isReject">
+      <thead>
+        <tr>
+          <th style="border: none; width: 70%;padding: 0" scope="col" class="text-center">GHR Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border: none;">
+            <div class="form-group">
+              <textarea id="comment" rows="6" type="text" [(ngModel)]="content"
+              placeholder="Type something!" class="form-control"></textarea>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    </div>
+    <div class="flex-fill " style="width:30%; padding: 0 5px 0 5px;">
+      <div class="form-group">
+        <label for="title" class="d-flex justify-content-center" style="font-weight: Bold;font-size: 14px;margin-top: 52px;">Result of {{data.topic.split(' - ')[0]}}</label>
+        <textarea id="title" rows="10" type="text" [(ngModel)]="title"
+        placeholder="Type something!" class="form-control"></textarea>
+      </div>
+      <!-- <ejs-grid #grid [dataSource]='gridResultOfMonthData' allowTextWrap='true' [allowResizing]='true' gridLines='Both'
+       [editSettings]='editSettings' [toolbar]='toolbarOptions2' [allowExcelExport]='true'>
+      <e-columns>
+        <e-column field='title' headerText='Result of month'>
+        </e-column>
+      </e-columns>
+      </ejs-grid> -->
+    </div>
+  </div>
+
+
+</div>
+<div class="modal-footer justify-content-end">
+  <button type="button" class="btn btn-danger" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+    <button type="button" class="btn btn-success" (click)="finish()" >{{'Finish' }}</button>
+</div>

@@ -1,0 +1,99 @@
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-building-o"></i> Organization Chart
+        </h3>
+      </div>
+      <!-- /.card-header -->
+
+      <div class="card-body table-responsive p-0">
+        <ejs-treegrid #treegridBuilding [dataSource]="data"
+          [treeColumnIndex]='1'
+          allowSorting='true'
+          gridLines='Both'
+          (created)='created()'
+          [toolbar]='toolbarBuilding'
+          childMapping="childNodes"
+          (rowSelected)="rowSelected($event)"
+        >
+          <e-columns>
+            <e-column field="entity.level" width="80" textAlign='Center' isPrimaryKey="true" headerText="Level">
+            </e-column>
+            <e-column field="entity.name" headerText="OC Name"> </e-column>
+          </e-columns>
+        </ejs-treegrid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fa fa-list-ol"></i> User List
+        </h3>
+      </div>
+      <!-- /.card-header -->
+
+      <div class="card-body table-responsive p-0">
+
+        <ejs-grid #grid id='grid' [dataSource]="userData"
+          allowSorting='true'
+          gridLines='Both'
+          (created)='createdUsers()'
+          [toolbar]='toolbarUser'
+          [allowPaging]='true'
+          (toolbarClick)='toolbarClick($event)'
+          (actionBegin)="actionBegin($event)"
+          [pageSettings]='pageSettings'
+          [toolbar]='toolbarOptions'
+          [editSettings]='editSettingOCs'
+        >
+          <e-columns>
+            <!-- <e-column field="ID" width="80" isPrimaryKey="true" textAlign='Center' headerText="#">
+              <ng-template #template let-data>
+              <ejs-switch onLabel="ON" offLabel="OFF" (change)='onChangeMap($event, data)' [(ngModel)]="data.Status" [checked]="data.Status"></ejs-switch>
+              </ng-template>
+            </e-column> -->
+            <e-column field="fullName" headerText="Username" textAlign='Center'> </e-column>
+            <e-column field="email" headerText="Email" textAlign='Center'> </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+  <ng-template #addUserOc let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title">
+        <i class="fas fa-plus"></i>
+        <span >
+          Add OC User
+        </span>
+
+      </h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="form-group">
+            <label for="">Choose User</label>
+            <ejs-multiselect id='glueDropdownlist' #accountDropdownlist mode='Box' [dataSource]='accountData' [fields]='fields'
+              [allowFiltering]='true' [value]="this.accountIdList" (removing)='removing($event)' (select)="onSelect($event)"
+              placeholder='Choose User'>
+            </ejs-multiselect>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">{{'Close' | translate}}</button>
+      <button type="button" class="btn btn-success"  (click)="create()">{{'Finish' | translate}}</button>
+    </div>
+
+  </ng-template>
+</div>

@@ -1,0 +1,29 @@
+#title {
+  // border-color: #ffc107!important;
+  color: #212529!important;
+  font-size: 14px!important;
+  border: 2px solid #ffc107!important;
+  font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif, "-apple-system", "BlinkMacSystemFont";
+}
+
+#title.form-control:focus {
+  color: #212529!important;
+  font-size: 14px!important;
+  background-color: #fff!important;
+  border-color: #ffc107!important;
+  outline: 0!important;
+  box-shadow: 0 0 0 0.2rem rgb(32 168 216 / 25%);
+}
+#deadline {
+  .e-input-group
+  {
+    border: 2px solid #ffc107!important;
+
+    .e-control-wrapper {
+      .e-date-wrapper {
+        border: 2px solid #ffc107!important;
+      }
+    }
+  }
+}
+

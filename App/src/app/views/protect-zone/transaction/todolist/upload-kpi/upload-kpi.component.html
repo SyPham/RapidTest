@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="col-md-12 d-flex justify-content-between my-2">
+    <button type="button" class="btn btn-success" style="cursor: pointer;" routerLink='/transaction/todolist'>Back</button>
+    <button type="button" class="btn btn-secondary" style="cursor: pointer;" (click)="submit()">Submit</button>
+
+  </div>
+</div>
+<ejs-spreadsheet #remoteDataBinding (contextMenuBeforeOpen)="contextMenuBeforeOpen($event)" [height]="500" [showRibbon]="false" [showSheetTabs]="false"  >
+<e-sheets>
+    <e-sheet [name]="'Upload Details'">
+        <e-ranges>
+            <e-range [showFieldAsHeader]="false" startCell="A2" [dataSource]="data" >
+            </e-range>
+        </e-ranges>
+        <e-rows>
+            <e-row>
+                <e-cells>
+                    <e-cell value="KPI Objective 一階KPI" [style]="{ fontWeight: 'bold', textAlign: 'center', backgroundColor: '#4b5366', color: '#ffffff', fontSize: '12pt' }" ></e-cell>
+                    <e-cell value="Monthly Performance" format='@' [style]="{ fontWeight: 'bold', textAlign: 'center', backgroundColor: '#4b5366', color: '#ffffff', fontSize: '12pt' }" ></e-cell>
+                    <e-cell value="Upload date / time" [style]="{ fontWeight: 'bold', textAlign: 'center', backgroundColor: '#4b5366', color: '#ffffff', fontSize: '12pt' }" ></e-cell>
+                </e-cells>
+            </e-row>
+        </e-rows>
+        <e-columns>
+            <e-column [width]=200></e-column>
+            <e-column [width]=150  format='@' [style]="{ textAlign: 'center'}" ></e-column>
+            <e-column [width]=200 [style]="{ textAlign: 'center'}" ></e-column>
+        </e-columns>
+    </e-sheet>
+</e-sheets>
+
+</ejs-spreadsheet>

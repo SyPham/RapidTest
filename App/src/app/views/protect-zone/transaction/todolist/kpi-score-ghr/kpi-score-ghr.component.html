@@ -1,0 +1,96 @@
+<div class="modal-header">
+  <h4 class="modal-title">Self-score of KPI Objective ({{data.objective}})</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+  <ejs-grid #grid [dataSource]='gridData' allowTextWrap='true'  [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true' gridLines='Both'
+  [toolbar]='toolbarOptions' (queryCellInfo)='queryCellInfoEvent($event)' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+  <e-columns>
+    <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+      <ng-template #template let-data>
+        {{NO(data.index)}}
+      </ng-template>
+    </e-column>
+    <e-column field='objective' headerText='KPI Objective' type='string'></e-column>
+    <e-column field='l0TargetList' headerText='L0 Target'>
+    </e-column>
+    <e-column field='l0ActionList' headerText='L0 Action'>
+      <ng-template #template let-data>
+        <ul style="padding: 0 0 0 15px;">
+          <li *ngFor="let item of data.l0ActionList">{{item}}</li>
+        </ul>
+       </ng-template>
+    </e-column>
+    <e-column field='deadline' format='yyyy/MM/dd' type='Date' textAlign='Center' headerText='Deadline'>
+    </e-column>
+    <!-- <e-column field='isReject' headerText='Reject' textAlign='Center'>
+      <ng-template #template let-data>
+        <input type="checkbox" name="isReject" id="isReject" (ngModelChange)='onchangeReject($event, data)' [(ngModel)]="data.isReject" />
+       </ng-template>
+    </e-column> -->
+  </e-columns>
+</ejs-grid>
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">5>= X >=4.5 超出預期</th>
+          <th scope="col">4.5> X >=4 符合預期</th>
+          <th scope="col">4 > X >=3 大部分符合預期</th>
+          <th scope="col">3> X >=2 部分符合預期</th>
+          <th scope="col">2> X >= 0 不佳不符合預期</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Exceed expectation</td>
+          <td>Meet expectation</td>
+          <td>Mostly meet expectation</td>
+          <td>Partly meet expectation</td>
+          <td>Poorly or not meet expectation</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <table class="table " style="border: none;">
+      <thead>
+        <tr>
+          <th style="border: none; width: 70%;padding: 0" scope="col" class="text-center">Comment</th>
+          <th style="border: none; width: 30%;padding: 0;" scope="col" class="text-center">SMART Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border: none;">
+            <div class="form-group">
+              <textarea id="comment" rows="6" type="text" [(ngModel)]="content"
+              placeholder="Type something!" class="form-control"></textarea>
+            </div>
+          </td>
+          <td style="border: none;">
+            <div class="form-group">
+              <ejs-dropdownlist #accountGroupDropdownlist (change)='onChangeSmartScore($event)' [dataSource]='smartScoreData' [(value)]='point'
+              [fields]='fields' [allowFiltering]='true'>
+            </ejs-dropdownlist>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="modal-footer justify-content-end">
+  <button type="button" class="btn btn-success" (click)="release()" >{{'Release' }}</button>
+  <!-- <button type="button" class="btn btn-warning" (click)="reject()" >{{'Reject' }}</button> -->
+    <button type="button" class="btn btn-danger" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+</div>

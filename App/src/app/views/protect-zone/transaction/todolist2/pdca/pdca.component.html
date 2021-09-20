@@ -1,0 +1,197 @@
+<div class="modal-header">
+  <h4 class="modal-title">Monthly update PDCA ({{month}}) </h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+    <div class="row">
+      <div class="col-12">
+        <p>
+          <label class="font-weight-bold">Policy: </label> <span>{{policy}}</span>
+        </p>
+        <p>
+          <label class="font-weight-bold">KPI: </label> <span>{{kpi}}</span>
+        </p>
+        <p>
+          <label class="font-weight-bold">PIC: </label> <span>{{pic}}</span>
+        </p>
+      </div>
+
+      <div class="col-8 d-flex align-items-start">
+        <table class="table table-bordered" style="width: 300px; margin-right: 50px;">
+          <tbody>
+            <tr>
+              <th scope="row">This month Performance
+              </th>
+              <td>
+                <div class="input-group" style="width: 80px;">
+                  <input type="text" class="form-control" (ngModelChange)="onChangeThisMonthPerformance($event)" [(ngModel)]="performanceValue" >
+                  <div class="input-group-append">
+                    <span class="input-group-text" >%</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">This month Target
+              </th>
+              <td>
+                <div class="input-group" style="width: 80px;">
+                  <input type="text" class="form-control" (ngModelChange)="onChangeThisMonthTarget($event)" [(ngModel)]="thisMonthTargetValue" >
+                  <div class="input-group-append">
+                    <span class="input-group-text" >%</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Next month Target
+              </th>
+              <td>
+                <div class="input-group" style="width: 80px;">
+                  <input type="text" class="form-control" (ngModelChange)="onChangeNextMonthTarget($event)" [(ngModel)]="nextMonthTargetValue" >
+                  <div class="input-group-append">
+                    <span class="input-group-text" >%</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table table-bordered" style="width: 300px; margin-right: 50px;">
+          <tbody>
+            <tr>
+              <th scope="row">This month YTD
+
+              </th>
+              <td>
+                <div class="input-group" style="width: 80px;">
+                  <input type="text" class="form-control" (ngModelChange)="onChangeThisMonthYTD($event)" [(ngModel)]="thisMonthYTDValue" >
+                  <div class="input-group-append">
+                    <span class="input-group-text" >%</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Target YTD
+              </th>
+              <td>
+                <div class="input-group" style="width: 80px;">
+                  <input type="text" class="form-control" (ngModelChange)="onChangeTargetYTD($event)" [(ngModel)]="ytdValue" >
+                  <div class="input-group-append">
+                    <span class="input-group-text" >%</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+      <div class="col-4 ">
+        <button type="button" class="btn btn-secondary ml-2" (click)='download()'>{{'Download' }}</button>
+        <button type="button" class="btn btn-secondary" (click)='openUploadModalComponent()' >{{'Upload file' }}</button>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col" rowspan="2" class="text-center align-middle">月份</th>
+              <th scope="col" rowspan="2" class="text-center align-middle">#</th>
+              <th scope="col" class="text-center">P</th>
+              <th scope="col" class="text-center">Target</th>
+              <th scope="col" class="text-center">Deadline</th>
+              <th scope="col" class="text-center">D</th>
+              <th scope="col" class="text-center">Achievement</th>
+              <th scope="col" class="text-center">Status</th>
+              <th scope="col" class="text-center">C</th>
+            </tr>
+            <tr>
+              <th scope="col" class="text-center">Content</th>
+              <th scope="col" class="text-center">目標值 </th>
+              <th scope="col" class="text-center">完成期限</th>
+              <th scope="col" class="text-center">執行狀況</th>
+              <th scope="col" class="text-center">實績</th>
+              <th scope="col" class="text-center">狀態</th>
+              <th scope="col" class="text-center">執行分析檢討</th>
+            </tr>
+
+
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let item of gridData; let i= index;">
+            <tr>
+              <th scope="row" [attr.rowspan]="gridData.length" *ngIf="i == 0"  class="text-center align-middle">{{month}}</th>
+              <th scope="row">{{item.stt}}</th>
+              <td>{{item.content}}</td>
+              <td>{{item.target}}</td>
+              <td>{{item.deadline}}</td>
+              <td >
+                <input type="text" class="form-control" (ngModelChange)="onChangeContent($event, i)" [(ngModel)]='item.doContent'>
+              </td>
+              <td>
+                <input type="text" class="form-control" (ngModelChange)="onChangeArchivement($event, i)" [(ngModel)]='item.achievement'>
+              </td>
+              <td>
+                <select class="custom-select" [(ngModel)]="item.statusId"  (ngModelChange)="onChangeStatus($event, i)">
+                  <option [value]="null">Chose status</option>
+                  <option *ngFor="let item of status" [value]="item.id">{{item.name}}</option>
+                </select>
+              </td>
+            <td scope="row" [attr.rowspan]="gridData.length"  *ngIf="i == 0" class="text-center align-middle">
+              <textarea [(ngModel)]="content"  (ngModelChange)="onChangeResult($event)"  id="result" cols="30" rows="10" class="form-control"></textarea>
+            </td>
+            </tr>
+          </ng-container>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <ejs-grid #grid [dataSource]='actions' [allowPaging]='true' [allowResizing]='true' [editSettings]='editSettings'
+        gridLines='Both' [toolbar]='toolbarOptions' [pageSettings]='pageSettings' >
+        <e-columns>
+          <e-column field='#' headerText='#' [allowEditing]='false' textAlign='Center' headerTextAlign='Center' width=30 type='number'>
+            <ng-template #template let-data>
+              {{NO(data.index)}}
+            </ng-template>
+          </e-column>
+          <e-column field='content' headerText='Content' headerTextAlign='Center' type='string'>
+          </e-column>
+          <e-column field='target' headerText='Target' width=80 headerTextAlign='Center' type='string'>
+          </e-column>
+          <e-column field='deadline' headerText='Deadline' type='date' format='MM/dd/yyyy' editType='datepickeredit'>
+          </e-column>
+        </e-columns>
+      </ejs-grid>
+      </div>
+    </div>
+
+
+</div>
+<div class="modal-footer d-flex justify-content-end">
+  <button type="button"
+  class="btn btn-secondary mr-2"
+  (click)="back()">{{'Back' }}
+</button>
+  <button type="button"
+  class="btn btn-success"
+
+  (click)="submit()">{{'Submit' }}</button>
+</div>
+<!-- data-toggle="tooltip"
+data-placement="top"
+title="Save data & Submit then close the window. In L0 tab hide this row."
+ data-toggle="tooltip"
+  data-placement="top"
+  title="Save data & close the window."
+
+-->

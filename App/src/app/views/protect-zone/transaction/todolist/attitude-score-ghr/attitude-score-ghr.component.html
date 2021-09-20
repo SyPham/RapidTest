@@ -1,0 +1,97 @@
+<div class="modal-header">
+  <h4 class="modal-title">Self-score of KPI Objective ({{data.objective}})</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body p-0">
+  <ejs-grid #grid [dataSource]='gridData' allowTextWrap='true'  [allowPaging]='true' [allowResizing]='true' [showColumnMenu]='true' gridLines='Both'
+  [toolbar]='toolbarOptions' (queryCellInfo)='queryCellInfoEvent($event)' [pageSettings]='pageSettings' [allowExcelExport]='true'>
+  <e-columns>
+    <e-column field='#' headerText='#' textAlign='Center' width=80 type='number'>
+      <ng-template #template let-data>
+        {{NO(data.index)}}
+      </ng-template>
+    </e-column>
+    <e-column field='objective' headerText='KPI Objective' type='string'></e-column>
+    <e-column field='l0TargetList' headerText='L0 Target' type='string'>
+    </e-column>
+    <e-column field='l0ActionList' headerText='L0 Action' type='string'>
+      <ng-template #template let-data>
+        <ul style="padding: 0 0 0 8px;">
+          <li *ngFor="let item of data.l0ActionList">{{item}}</li>
+        </ul>
+       </ng-template>
+    </e-column>
+    <ng-template #template ngFor let-column [ngForOf]="columns">
+      <e-column [field]="column.field"
+                [headerText]="column.headerText"
+               >
+     </e-column>
+</ng-template>
+  </e-columns>
+</ejs-grid>
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th scope="col">工作態度 = 主動積極 + 溝通及EQ + 配合度</th>
+          <th scope="col">非常好 10 分</th>
+          <th scope="col">較好 8-9 分</th>
+          <th scope="col">一般 6-7 分</th>
+          <th scope="col">較差 4-5 分</th>
+          <th scope="col">極差 3 分以下</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Attitude = Proactiveness + Communication & EQ + Cooperation</td>
+          <td>Excellent 10 points</td>
+          <td>Good 8-9 points</td>
+          <td>Normal 6-7 points</td>
+          <td>Not goo 4-5 points</td>
+          <td>Poor 3 points or below</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+
+<div class="row mt-2 d-flex justify-content-center">
+  <div class="col-md-12">
+    <table class="table " style="border: none;">
+      <thead>
+        <tr>
+          <th style="border: none; width: 70%;padding: 0" scope="col" class="text-center"></th>
+          <th style="border: none; width: 30%;padding: 0;" scope="col" class="text-center">Attitude</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="border: none;">
+            <!-- <div class="form-group">
+              <textarea id="comment" rows="6" type="text" [(ngModel)]="content"
+              placeholder="Type something!" class="form-control"></textarea>
+            </div> -->
+          </td>
+          <td style="border: none;">
+            <div class="form-group">
+              <ejs-dropdownlist #accountGroupDropdownlist [dataSource]='attitudeData' [(value)]='point'
+              [fields]='fields' [allowFiltering]='true'>
+            </ejs-dropdownlist>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<div class="modal-footer justify-content-end">
+    <button type="button" class="btn btn-danger" (click)="activeModal.close('Close click')">{{'Close' }}</button>
+    <button type="button" class="btn btn-success" (click)="finish()" >{{'Finish' }}</button>
+</div>

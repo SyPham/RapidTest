@@ -1,0 +1,93 @@
+
+<ngx-spinner [fullScreen]="false" type="square-jelly-box" size="medium">
+  <p class="loading">Loading data...</p>
+</ngx-spinner>
+<div class="row">
+  <div class="col-md-12 mb-2">
+    <button type="button" class="btn btn-secondary mr-2" (click)='showModal()'>Import Excel</button>
+    <button type="button" class="btn btn-secondary" (click)='printData()'>Print Out Qr Code ( {{selectedData.length}} )</button>
+  </div>
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [showColumnMenu]='true'
+          [allowSelection]="true"
+          [enableHover]="false"
+          [toolbar]='toolbarOptions'
+          [selectionSettings]="selectOptions"
+          gridLines='Both'
+          (checkBoxChange)='checkBoxChange($event)'
+          (rowSelected)='rowSelected($event)'        >
+          <e-columns>
+            <e-column type='checkbox' width='30'></e-column>
+            <e-column field="id" textAlign='Center' [visible]="false" isPrimaryKey="true" headerText="{{ 'ID'}}"> </e-column>
+            <e-column field="factoryName" textAlign='Center' headerText="{{ 'Factory'}}"> </e-column>
+            <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
+            <e-column field="code" textAlign='Center' headerText="{{ 'Code'}}"> </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+
+  <div class="col-md-12">
+    <table class="table table-hover" id="qrcode" height='450' style="position: absolute; left: -9999px;">
+      <thead class="thead-dark">
+        <tr>
+          <th colspan="2">QR Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let item of selectedData">
+          <tr *ngIf="selectedData.length > 0">
+            <td class="text-center">
+                <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
+                  width="100px" height="130px" mode="SVG"
+                  value="{{item.code}}"></ejs-qrcodegenerator>
+            </td>
+            <td class="text-algin-left">
+                <div><label>Factory:</label> {{item.factoryName}}</div>
+                <div><label>QR Code: </label> -{{item.code}}</div>
+
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ng-template #importModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> Import Excel
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="Name">Select File (*Notice: Excel file must be followed a system template. If you do not have a
+            template, please <a [href]="excelDownloadUrl">click here</a> to download. Thank you!)</label>
+          <input (change)="fileProgress($event)" name="file" type="file" class="form-control" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-primary" (click)="uploadFile()">Upload File</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
+  </div>
+
+</ng-template>

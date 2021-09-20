@@ -1,0 +1,25 @@
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Check In</h2>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-12">
+        <form class="w3-container w3-card-4  w3-text-black ">
+          <h2 class="w3-center">Scan QR Code</h2>
+          <div class="w3-row w3-section">
+            <div class="w3-col" style="width:100px">
+              <img src="../../../../assets/img/gif/1981.gif" height="40px" width="80%" alt="">
+            </div>
+            <div class="w3-rest">
+              <!-- [autofocusSearch]="true" -->
+              <input [ngClass]="test" name="qrcode" autocomplete="off" autofocusSearch [ngModel]="qrcodeChange"
+                (ngModelChange)='onNgModelChangeScanQRCode($event)' type="text">
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  </div>
