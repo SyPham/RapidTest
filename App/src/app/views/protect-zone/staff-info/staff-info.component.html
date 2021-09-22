@@ -5,7 +5,10 @@
 <div class="row">
   <div class="col-md-12 mb-2">
     <button type="button" class="btn btn-secondary mr-2" (click)='showModal()'>Import Excel</button>
-    <button type="button" class="btn btn-secondary" (click)='printData()'>Print Out Qr Code ( {{selectedData.length}} )</button>
+    <button type="button" class="btn btn-secondary" (click)='printData()'>
+      Print Out Qr Code ( {{selectedData.length}} {{selectedData.length > 1 ? "staffs" : "staff"}} )
+
+    </button>
   </div>
   <div class="col-md-12">
     <div class="card">
@@ -29,6 +32,11 @@
             <e-column field="factoryName" textAlign='Center' headerText="{{ 'Factory'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
             <e-column field="code" textAlign='Center' headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="seaInform" textAlign='Center' headerText="{{ 'SEA Inform'}}">
+              <ng-template #template let-data>
+                <ejs-switch [checked]="data.seaInform" (change)='onChange($event, data)'></ejs-switch>
+              </ng-template>
+            </e-column>
           </e-columns>
         </ejs-grid>
       </div>

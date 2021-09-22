@@ -28,14 +28,19 @@
                 #
               </ng-template>
             </e-column>
-            <e-column field="username" textAlign='Center' headerText="{{ 'Username'}}"> </e-column>
-            <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
+            <e-column field="fullName" textAlign='Center' headerText="{{ 'Username'}}"> </e-column>
+            <e-column field="username" textAlign='Center' headerText="{{ 'Account'}}"> </e-column>
             <e-column field="password" textAlign='Center' headerText="{{ 'Password'}}">
               <ng-template #template let-data>
                 ************
               </ng-template>
             </e-column>
             <e-column field="email" textAlign='Center' headerText="Email"> </e-column>
+            <e-column field="accountTypeName" textAlign='Center' headerText="Role">
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='accountTypeId' [fields]="accountTypeFields" placeholder='Select account type' [dataSource]='accountTypes'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
 
             <e-column field="option" width="100" textAlign='Center' headerText="{{ 'Option'}}">
               <ng-template #template let-data>

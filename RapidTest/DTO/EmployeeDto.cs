@@ -12,6 +12,7 @@ namespace RapidTest.DTO
         public string FactoryName { get; set; }
         public string Code { get; set; }
         public int FactoryId { get; set; }
+        public bool SEAInform { get; set; }
 
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
@@ -25,6 +26,7 @@ namespace RapidTest.DTO
         public string FullName { get; set; }
         public string Code { get; set; }
         public int CreatedBy { get; set; }
-       
+        public bool SEAInform { get; set; }
+
     }
 }

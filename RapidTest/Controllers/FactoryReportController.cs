@@ -19,13 +19,21 @@ namespace RapidTest.Controllers
         {
             _service = service;
         }
-       
+        [HttpGet]
+        public async Task<ActionResult> AccessControl(string code)
+        {
+            return Ok(await _service.AccessControl(code));
+        }
         [HttpGet]
         public async Task<ActionResult> GetAllAsync()
         {
             return Ok(await _service.GetAllAsync());
         }
-
+        [HttpGet]
+        public async Task<ActionResult> Filter(DateTime startDate, DateTime endDate, string code)
+        {
+            return Ok(await _service.Filter(startDate, endDate, code));
+        }
         [HttpPost]
         public async Task<ActionResult> AddAsync([FromBody] FactoryReportDto model)
         {

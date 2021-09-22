@@ -15,6 +15,7 @@ namespace RapidTest.DTO
         public string Email { get; set; }
         public bool IsLock { get; set; }
         public int? AccountTypeId { get; set; }
+        public string AccountTypeName { get; set; }
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get; set; }

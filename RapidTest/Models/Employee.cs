@@ -16,7 +16,7 @@ namespace RapidTest.Models
         public string FullName { get; set; }
         public string Code { get; set; }
         public int FactoryId { get; set; }
-
+        public bool SEAInform { get; set; }
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get ; set ; }

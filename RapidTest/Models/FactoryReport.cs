@@ -26,6 +26,7 @@ namespace RapidTest.Models
 
         [ForeignKey(nameof(EmployeeId))]
         public virtual Employee Employee { get; set; }
-
+        [ForeignKey(nameof(TestKindId))]
+        public virtual TestKind TestKind { get; set; }
     }
 }

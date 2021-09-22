@@ -7,6 +7,7 @@ import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { EmployeeService } from 'src/app/_core/_service/employee.service';
 import { environment } from 'src/environments/environment';
 import { DisplayTextModel } from '@syncfusion/ej2-angular-barcode-generator';
+import { MessageConstants } from 'src/app/_core/_constants/system';
 
 @Component({
   selector: 'app-staff-info',
@@ -47,6 +48,14 @@ export class StaffInfoComponent implements OnInit {
   fileProgress(event) {
     this.file = event.target.files[0];
   }
+  toggleSEAInform(id, callBack): void {
+    this.service.toggleSEAInform(id).subscribe(
+      (res) => {
+        callBack(res);
+      },
+      (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
+    );
+  }
   loadData() {
     this.spinner.show();
     this.service.getAll().subscribe(data => {
@@ -54,7 +63,24 @@ export class StaffInfoComponent implements OnInit {
       this.spinner.hide();
     }, (err) => this.spinner.hide());
   }
-
+  onChange(args, data) {
+    console.log(args);
+    data.seaInform = args.checked;
+    this.toggleSEAInform(data.id, (res)=> {
+      if (res.success === true) {
+        const message = res.message;
+        const item = res.data;
+        const dataSource = this.grid.dataSource as Employee[];
+        const index = dataSource.findIndex(x=> x.id == item.id);
+        dataSource[index].seaInform = args.checked;
+        this.grid.refresh();
+        this.refresh();
+        this.alertify.success(message);
+      } else {
+         this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+      }
+    })
+  }
   uploadFile() {
     this.spinner.show();
     this.service

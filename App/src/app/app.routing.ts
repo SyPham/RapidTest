@@ -1,3 +1,4 @@
+import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 
@@ -107,6 +108,13 @@ export const routes: Routes = [
         component: AccessControlComponent,
         data: {
           title: 'Access control'
+        }
+      },
+      {
+        path: 'test-kind',
+        component: TestKindComponent,
+        data: {
+          title: 'Test Kind'
         }
       },
     ]

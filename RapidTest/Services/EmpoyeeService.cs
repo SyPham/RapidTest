@@ -3,13 +3,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
 using OfficeOpenXml;
+using RapidTest.Constants;
 using RapidTest.Data;
 using RapidTest.DTO;
+using RapidTest.Helpers;
 using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace RapidTest.Services
@@ -17,19 +20,30 @@ namespace RapidTest.Services
     public interface IEmployeeService : IServiceBase<Employee, EmployeeDto>
     {
         Task<bool> ImportExcel();
+        Task<OperationResult> ToggleSEAInformAsync(int id);
+
+        Task<OperationResult> CheckIn(string code);
+        Task<OperationResult> CheckIn(string code, int testKindId );
 
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
         private readonly IRepositoryBase<Employee> _repo;
+        private readonly IRepositoryBase<CheckIn> _repoCheckIn;
+        private readonly IRepositoryBase<Report> _repoReport;
+        private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Factory> _repoFactory;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly MapperConfiguration _configMapper;
+        private OperationResult operationResult;
 
         public EmployeeService(
             IRepositoryBase<Employee> repo,
+            IRepositoryBase<CheckIn> repoCheckIn,
+            IRepositoryBase<Report> repoReport,
+            IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Factory> repoFactory,
             IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -39,11 +53,99 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoCheckIn = repoCheckIn;
+            _repoReport = repoReport;
+            _repoSetting = repoSetting;
             _repoFactory = repoFactory;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
             _configMapper = configMapper;
+        }
+
+
+        public async Task<OperationResult> CheckIn(string code)
+        {
+            var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+            if (employee == null)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Not found this person. No entry.Please establish data in Staff info page!",
+                    Success = true,
+                    Data = null
+                };
+        
+            if (!employee.SEAInform)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No entry.Please wait for SEA inform !",
+                    Success = true,
+                    Data = null
+                };
+
+            try
+            {
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Successfully!",
+                    Success = true,
+                    Data = employee
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
+        }
+
+        public async Task<OperationResult> CheckIn(string code, int testKindId)
+        {
+            var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+            if (employee == null)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "Not found this person. No entry.Please establish data in Staff info page!",
+                    Success = true,
+                    Data = null
+                };
+
+            if (!employee.SEAInform)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No entry.Please wait for SEA inform !",
+                    Success = true,
+                    Data = null
+                };
+
+            var data = new CheckIn
+            {
+                TestKindId = testKindId,
+                EmployeeId = employee.Id
+            };
+
+            _repoCheckIn.Add(data);
+            await _unitOfWork.SaveChangeAsync();
+            try
+            {
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Successfully!",
+                    Success = true,
+                    Data = employee
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
         }
 
         public async Task<bool> ImportExcel()
@@ -69,9 +171,10 @@ namespace RapidTest.Services
                         var factoryName = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
                         var fullName = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
                         var code = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
-                      
+                        var SEAInform = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
 
-                        if (!factoryName.IsNullOrEmpty() && !fullName.IsNullOrEmpty() && !code.IsNullOrEmpty())
+
+                        if (!factoryName.IsNullOrEmpty() && !fullName.IsNullOrEmpty() && !code.IsNullOrEmpty() && !SEAInform.IsNullOrEmpty())
                         {
                             // kiểm tra đẫ tồn tại trong db chưa
                             int factoryId = 0;
@@ -95,7 +198,8 @@ namespace RapidTest.Services
                                     FactoryId = factoryId,
                                     FullName = fullName,
                                     Code = code,
-                                    CreatedBy = createdBy.ToInt()
+                                    CreatedBy = createdBy.ToInt(),
+                                    SEAInform = SEAInform.ToLower() == "true" ? true : false
                                 });
                             }
 
@@ -120,6 +224,33 @@ namespace RapidTest.Services
             {
                 return false;
             }
+        }
+
+        public async Task<OperationResult> ToggleSEAInformAsync(int id)
+        {
+            var item = await _repo.FindByIdAsync(id);
+            if (item == null)
+            {
+                return new OperationResult { StatusCode = HttpStatusCode.NotFound, Message = "Không tìm thấy nhân viên này!", Success = false };
+            }
+            item.SEAInform = !item.SEAInform;
+            try
+            {
+                _repo.Update(item);
+                await _unitOfWork.SaveChangeAsync();
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = "Successfully!",
+                    Success = true,
+                    Data = item
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
         }
     }
 }

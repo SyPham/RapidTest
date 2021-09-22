@@ -1,3 +1,4 @@
+import { AccountTypeConstant } from './../../_core/_constants/system.constant';
 
 import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
 import { AuthService } from '../../_core/_service/auth.service';
@@ -20,7 +21,7 @@ import { VersionService } from 'src/app/_core/_service/version.service';
 declare var require: any;
 import * as signalr from '../../../assets/js/ec-client.js';
 import { HubConnectionState } from '@microsoft/signalr';
-import { navItems } from 'src/app/_nav';
+import { navItems, navItemsManager, navItemsUser } from 'src/app/_nav';
 import { Authv2Service } from 'src/app/_core/_service/authv2.service';
 
 @Component({
@@ -53,6 +54,7 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
   zh: any;
   menus: any;
   modalReference: any;
+  accountType: any;
   @HostListener('window:scroll', ['$event'])
   onScroll(e) {
     console.log('window', e);
@@ -125,6 +127,13 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
 
     // this.getAvatar();
     this.currentUser = JSON.parse(localStorage.getItem('user')).fullName;
+    this.accountType = JSON.parse(localStorage.getItem('user')).accountType;
+
+    if (this.accountType == AccountTypeConstant.MANAGER) {
+      this.navItems = navItemsManager
+    } else if (this.accountType == AccountTypeConstant.USER) {
+      this.navItems = navItemsUser
+    }
     this.page = 1;
     this.pageSize = 10;
 
@@ -166,16 +175,20 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     const lang = args.itemData.id;
     localStorage.removeItem('lang');
     localStorage.setItem('lang', lang);
+    this.translate.addLangs(['vi', 'en']);
+    this.translate.use(lang);
     this.dataService.setValueLocale(lang);
-    this.permissionService.getMenuByLangID(this.userid, lang).subscribe((navs: []) => {
-      this.navItems = navs;
-      localStorage.setItem('navs', JSON.stringify(navs));
-      this.spinner.hide();
-      window.location.reload();
+    window.location.reload();
 
-    }, (err) => {
-      this.spinner.hide();
-    });
+    // this.permissionService.getMenuByLangID(this.userid, lang).subscribe((navs: []) => {
+    //   this.navItems = navs;
+    //   localStorage.setItem('navs', JSON.stringify(navs));
+    //   this.spinner.hide();
+    //   window.location.reload();
+
+    // }, (err) => {
+    //   this.spinner.hide();
+    // });
   }
   getBuilding() {
     const userID = JSON.parse(localStorage.getItem('user')).user.id;

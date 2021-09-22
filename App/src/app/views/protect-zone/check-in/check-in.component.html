@@ -1,19 +1,30 @@
 <div class="card">
-  <div class="card-header">
-    <h2 class="card-title">Check In</h2>
-  </div>
   <div class="card-body">
     <div class="row">
       <div class="col-md-12">
         <form class="w3-container w3-card-4  w3-text-black ">
-          <h2 class="w3-center">Scan QR Code</h2>
+          <h1 class="w3-center my-3">
+            Check In
+          </h1>
+
+          <h5 class="w3-center">Rapid Test Kind: </h5>
+          <div class="d-flex justify-content-center">
+            <ul style="padding: 0; list-style: none;">
+              <li *ngFor="let item of testKindData">
+                <input type="radio" [id]="item.id" [(ngModel)]="kindId" [value]="item.id" name="kindId">
+                <label [for]="item.id">{{item.name}}</label>
+              </li>
+
+            </ul>
+        </div>
+
           <div class="w3-row w3-section">
             <div class="w3-col" style="width:100px">
               <img src="../../../../assets/img/gif/1981.gif" height="40px" width="80%" alt="">
             </div>
             <div class="w3-rest">
               <!-- [autofocusSearch]="true" -->
-              <input [ngClass]="test" name="qrcode" autocomplete="off" autofocusSearch [ngModel]="qrcodeChange"
+              <input [ngClass]="test" name="qrcode" autocomplete="off" autofocusSearch [ngModel]="QRCode"
                 (ngModelChange)='onNgModelChangeScanQRCode($event)' type="text">
             </div>
 
@@ -22,4 +33,28 @@
       </div>
     </div>
   </div>
+
+  <div class="card-body d-flex justify-content-center">
+
+    <div class="card" style="width: 60%;" *ngIf="success == 200">
+      <div class="card-body bg-success">
+       <h2>HỌ TÊN: {{fullName}}</h2>
+       <h2>SỐ THẺ: {{QRCode}}</h2>
+       <h2>Arrive & Recorded successfully</h2>
+      </div>
+    </div>
+
+    <div class="card" style="width: 60%;" *ngIf="success == 404">
+      <div class="card-body bg-danger">
+       <h2>Not found this person. No entry. <br>Please establish data in Staff info page ! </h2>
+      </div>
+    </div>
+
+    <div class="card" style="width: 60%;" *ngIf="success == 400">
+      <div class="card-body bg-danger">
+       <h2>No entry. <br>Please wait for SEA inform ! </h2>
+      </div>
+    </div>
+
   </div>
+</div>

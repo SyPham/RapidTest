@@ -11,11 +11,11 @@ using RapidTest.Constants;
 
 namespace RapidTest.Controllers
 {
-    public class ReportController : ApiControllerBase
+    public class TestKindController : ApiControllerBase
     {
-        private readonly IReportService _service;
+        private readonly ITestKindService _service;
 
-        public ReportController(IReportService service)
+        public TestKindController(ITestKindService service)
         {
             _service = service;
         }
@@ -27,17 +27,21 @@ namespace RapidTest.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> AddAsync([FromBody] ReportDto model)
+        public async Task<ActionResult> AddAsync([FromBody] TestKindDto model)
         {
             return StatusCodeResult(await _service.AddAsync(model));
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateAsync([FromBody] ReportDto model)
+        public async Task<ActionResult> UpdateAsync([FromBody] TestKindDto model)
         {
             return StatusCodeResult(await _service.UpdateAsync(model));
         }
-
+        [HttpPut]
+        public async Task<ActionResult> ToggleIsDefault(int id)
+        {
+            return StatusCodeResult(await _service.ToggleIsDefault(id));
+        }
         [HttpDelete]
         public async Task<ActionResult> DeleteAsync(int id)
         {
@@ -49,21 +53,12 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetByIdAsync(id));
         }
-        [HttpGet]
-        public async Task<ActionResult> Filter(DateTime startDate, DateTime endDate, string code)
-        {
-            return Ok(await _service.Filter(startDate, endDate, code));
-        }
 
         [HttpGet]
         public async Task<ActionResult> GetWithPaginationsAsync(PaginationParams paramater)
         {
             return Ok(await _service.GetWithPaginationsAsync(paramater));
         }
-        [HttpPost]
-        public async Task<ActionResult> ScanQRCode([FromBody] ScanQRCodeRequestDto request)
-        {
-            return StatusCodeResult(await _service.ScanQRCode(request));
-        }
+
     }
 }

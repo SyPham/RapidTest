@@ -6,6 +6,7 @@ export interface Employee {
   createdBy: number;
   modifiedBy: number | null;
   factoryName: string;
+  seaInform: string;
   createdTime: string;
   modifiedTime: string | null;
 }

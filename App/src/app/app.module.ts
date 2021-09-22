@@ -1,3 +1,4 @@
+import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
 import { CheckInComponent } from './views/protect-zone/check-in/check-in.component';
 import { AccessControlComponent } from './views/protect-zone/access-control/access-control.component';
@@ -79,6 +80,15 @@ export function tokenGetter() {
   return localStorage.getItem('token');
 }
 import { QRCodeGeneratorAllModule } from '@syncfusion/ej2-angular-barcode-generator';
+import { SwitchModule } from '@syncfusion/ej2-angular-buttons';
+const lang = localStorage.getItem('lang');
+let defaultLang: string;
+
+if (lang === 'vi') {
+  defaultLang = lang;
+} else {
+  defaultLang = 'en';
+}
 const rapidTestComponent = [
   AccountComponent,
   StaffInfoComponent,
@@ -86,7 +96,8 @@ const rapidTestComponent = [
   ReportFactoryComponent,
   AccessControlComponent,
   CheckInComponent,
-  CheckOutComponent
+  CheckOutComponent,
+  TestKindComponent
 ];
 @NgModule({
   imports: [
@@ -110,13 +121,14 @@ const rapidTestComponent = [
     NgxSpinnerModule,
     DatePickerModule ,
     QRCodeGeneratorAllModule,
+    SwitchModule ,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
       },
-      defaultLanguage: 'vi'
+      defaultLanguage: defaultLang
     }),
     JwtModule.forRoot({
       config: {

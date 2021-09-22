@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RapidTest.Data;
 
 namespace RapidTest.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210921025321_UpdateEmployeeTbl")]
+    partial class UpdateEmployeeTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -142,40 +144,6 @@ namespace RapidTest.Migrations
                     b.ToTable("AccountTypes");
                 });
 
-            modelBuilder.Entity("RapidTest.Models.CheckIn", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("TestKindId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("TestKindId");
-
-                    b.ToTable("CheckIn");
-                });
-
             modelBuilder.Entity("RapidTest.Models.Employee", b =>
                 {
                     b.Property<int>("Id")
@@ -270,8 +238,6 @@ namespace RapidTest.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.HasIndex("TestKindId");
-
                     b.ToTable("FactoryReports");
                 });
 
@@ -310,8 +276,6 @@ namespace RapidTest.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.HasIndex("TestKindId");
-
                     b.ToTable("Reports");
                 });
 
@@ -342,36 +306,6 @@ namespace RapidTest.Migrations
                     b.ToTable("Settings");
                 });
 
-            modelBuilder.Entity("RapidTest.Models.TestKind", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("CreatedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ModifiedBy")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("ModifiedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TestKinds");
-                });
-
             modelBuilder.Entity("RapidTest.Models.Account", b =>
                 {
                     b.HasOne("RapidTest.Models.AccountType", "AccountType")
@@ -400,25 +334,6 @@ namespace RapidTest.Migrations
                     b.Navigation("AccountGroup");
                 });
 
-            modelBuilder.Entity("RapidTest.Models.CheckIn", b =>
-                {
-                    b.HasOne("RapidTest.Models.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RapidTest.Models.TestKind", "TestKind")
-                        .WithMany()
-                        .HasForeignKey("TestKindId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("TestKind");
-                });
-
             modelBuilder.Entity("RapidTest.Models.Employee", b =>
                 {
                     b.HasOne("RapidTest.Models.Factory", "Factory")
@@ -438,15 +353,7 @@ namespace RapidTest.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RapidTest.Models.TestKind", "TestKind")
-                        .WithMany()
-                        .HasForeignKey("TestKindId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Employee");
-
-                    b.Navigation("TestKind");
                 });
 
             modelBuilder.Entity("RapidTest.Models.Report", b =>
@@ -457,15 +364,7 @@ namespace RapidTest.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RapidTest.Models.TestKind", "TestKind")
-                        .WithMany()
-                        .HasForeignKey("TestKindId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Employee");
-
-                    b.Navigation("TestKind");
                 });
 
             modelBuilder.Entity("RapidTest.Models.Account", b =>

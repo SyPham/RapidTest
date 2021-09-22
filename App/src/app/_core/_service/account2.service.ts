@@ -25,5 +25,8 @@ export class Account2Service extends CURDService<Account> {
   getAccounts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}Account/GetAccounts`);
   }
+  getAccountType(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}AccountType/getall`);
+  }
 
 }

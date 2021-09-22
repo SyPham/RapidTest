@@ -1,23 +1,57 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
+import { AlertifyService } from 'src/app/_core/_service/alertify.service';
+import { FactoryReportService } from 'src/app/_core/_service/factory.report.service';
 
 @Component({
   selector: 'app-access-control',
   templateUrl: './access-control.component.html',
   styleUrls: ['./access-control.component.scss']
 })
-export class AccessControlComponent implements OnInit {
+export class AccessControlComponent implements OnInit, OnDestroy {
   test: any = 'form-control w3-light-grey';
-  qrcodeChange: any;
-  checkout = false;
-  checkin = true;
-
-  constructor() { }
-
+  subject = new Subject<string>();
+  subscription: Subscription[] = [];
+  QRCode: string;
+  success = 0;
+  fullName: any;
+  constructor(
+    private alertify: AlertifyService,
+    private service: FactoryReportService
+  ) { }
+  ngOnDestroy(): void {
+    this.subscription.forEach(item => item.unsubscribe());
+  }
   ngOnInit() {
+    this.checkQRCode();
   }
   // sau khi scan input thay doi
   async onNgModelChangeScanQRCode(args) {
-
+    this.QRCode = args;
+    this.subject.next(args);
   }
-
+  private checkQRCode() {
+    this.subscription.push(this.subject
+      .pipe(debounceTime(500))
+      .subscribe(async (res) => {
+        this.QRCode = res;
+        this.scanQRCode();
+      }));
+  }
+  scanQRCode() {
+    this.service.accessControl(this.QRCode).subscribe(
+      (res) => {
+        if (res.success && res.statusCode == 200) {
+          this.success = res.statusCode;
+          this.fullName = res.data.fullName;
+        } else if (res.success && res.statusCode == 404) {
+          this.success = res.statusCode;
+        }
+      },
+      (error) => {
+        this.success = 0;
+      }
+    );
+  }
 }

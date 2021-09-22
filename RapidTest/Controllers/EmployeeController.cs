@@ -26,7 +26,16 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
-
+        [HttpGet]
+        public async Task<ActionResult> CheckIn(string code)
+        {
+            return Ok(await _service.CheckIn(code));
+        }
+        [HttpGet]
+        public async Task<ActionResult> CheckIn2(string code, int testKindId)
+        {
+            return Ok(await _service.CheckIn(code, testKindId));
+        }
         [HttpPost]
         public async Task<ActionResult> AddAsync([FromBody] EmployeeDto model)
         {
@@ -61,7 +70,11 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.ImportExcel());
         }
-
+        [HttpPut]
+        public async Task<ActionResult> ToggleSEAInformAsync(int id)
+        {
+            return Ok(await _service.ToggleSEAInformAsync(id));
+        }
         [HttpGet]
         public async Task<IActionResult> ExcelExport()
         {

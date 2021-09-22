@@ -13,6 +13,7 @@ namespace RapidTest.DTO.auth
         public string Email { get; set; }
         public List<int> AccountGroupPositions { get; set; }
         public int? AccountTypeId { get; set; }
+        public string AccountType { get; set; }
         public bool IsManager { get; set; }
         public bool IsLeader { get; set; }
     }

@@ -38,6 +38,9 @@ export class AccountComponent extends BaseComponent implements OnInit {
   leaderId: number;
   managerId: number;
   accounts: any[];
+  accountTypeFields: object = { text: 'name', value: 'id' };
+  accountTypeId: any;
+  accountTypes: any[];
   constructor(
     private service: Account2Service,
     private accountGroupService: AccountGroupService,
@@ -50,7 +53,14 @@ export class AccountComponent extends BaseComponent implements OnInit {
     // this.Permission(this.route);
     this.loadData();
     this.getAccounts();
+    this.getAccountType();
     this.loadAccountGroupData();
+  }
+
+  getAccountType() {
+    this.service.getAccountType().subscribe(data => {
+      this.accountTypes = data;
+    });
   }
   // life cycle ejs-grid
   createdManager($event, data) {
@@ -65,16 +75,14 @@ export class AccountComponent extends BaseComponent implements OnInit {
     this.setFocus = args.column; // Get the column from Double click event
   }
   initialModel() {
-    this.accountGroupItem = [];
-    this.leaderId = 0;
-    this.managerId = 0;
+    this.accountTypeId = 0;
     this.accountCreate = {
       id: 0,
       username: null,
       password: null,
       fullName: null,
       email: null,
-      accountTypeId: 2,
+      accountTypeId: this.accountTypeId,
       isLock: false,
       createdBy: 0,
       createdTime: new Date().toLocaleDateString(),
@@ -91,9 +99,7 @@ export class AccountComponent extends BaseComponent implements OnInit {
 
   }
   updateModel(data) {
-    this.accountGroupItem = data.accountGroupIds;
-    this.managerId = data.manager;
-    this.leaderId = data.leader;
+    this.accountTypeId = data.accountTypeId;
   }
   actionBegin(args) {
     if (args.requestType === 'add') {
