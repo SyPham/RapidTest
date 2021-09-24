@@ -1,0 +1,34 @@
+<div class="row d-flex justify-content-center">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"><i class="fas fa-cogs"></i> Setting
+        </h3>
+      </div>
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          gridLines='Both'
+          (actionBegin)="actionBegin($event)"
+          (actionComplete)="actionComplete($event)"
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="day" textAlign='Center' headerText="{{ 'Day' | translate}}"> </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+

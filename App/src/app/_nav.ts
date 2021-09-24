@@ -2,12 +2,17 @@ import { INavData } from '@coreui/angular'
 export const navItems: INavData[] = [
   {
     name: 'Dashboard',
-    url: '/dashboard',
+    url: '/account',
     icon: 'icon-speedometer'
   },
   {
     name: 'Account',
     url: '/account',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Setting',
+    url: '/setting',
     icon: 'icon-puzzle',
   },
   {
@@ -50,7 +55,7 @@ export const navItems: INavData[] = [
 export const navItemsManager: INavData[] = [
   {
     name: 'Dashboard',
-    url: '/dashboard',
+    url: '/staff-info',
     icon: 'icon-speedometer'
   },
   {
@@ -73,7 +78,7 @@ export const navItemsManager: INavData[] = [
 export const navItemsUser: INavData[] = [
   {
     name: 'Dashboard',
-    url: '/dashboard',
+    url: '/access-control',
     icon: 'icon-speedometer'
   },
   {

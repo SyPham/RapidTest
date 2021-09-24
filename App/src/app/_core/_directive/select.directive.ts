@@ -1,7 +1,6 @@
 import { Directive, AfterViewInit, ElementRef, OnDestroy, OnChanges, HostListener, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
-import { IScanner } from 'src/app/_core/_model/IToDoList';
 
 @Directive({
   // tslint:disable-next-line:directive-selector
@@ -13,7 +12,13 @@ export class AutoSelectDirective implements AfterViewInit, OnInit, OnDestroy {
   @HostListener('focus') onFocus() {
     setTimeout( () => {
       this.host.nativeElement.select();
-    }, 0);
+    }, 300);
+  }
+  @HostListener('focusout') onFocusout() {
+    setTimeout(() => {
+      this.host.nativeElement.focus();
+      this.host.nativeElement.select();
+    }, 5000);
   }
   @HostListener('ngModelChange', ['$event']) onChange(value) {
     this.subject.next(value);
@@ -22,7 +27,7 @@ export class AutoSelectDirective implements AfterViewInit, OnInit, OnDestroy {
   ngAfterViewInit() {
     setTimeout(() => {
       this.host.nativeElement.focus();
-    }, 300);
+    }, 100);
   }
   ngOnInit() {
     this.subscription.push(this.subject
@@ -34,20 +39,20 @@ export class AutoSelectDirective implements AfterViewInit, OnInit, OnDestroy {
   ngOnDestroy() {
     this.subscription.forEach(item => item.unsubscribe());
   }
-  @HostListener('document:keydown.enter', ['$event'])
-  onKeydownHandler(event: KeyboardEvent) {
-    event.preventDefault();
-    this.host.nativeElement.value = this.host.nativeElement.value + '    ';
-  }
-  @HostListener('document:keydown.tab', ['$event'])
-  onKeydownTabHandler(event: KeyboardEvent) {
-    event.preventDefault();
-    this.host.nativeElement.value = this.host.nativeElement.value + '    ';
-  }
+  // @HostListener('document:keydown.enter', ['$event'])
+  // onKeydownHandler(event: KeyboardEvent) {
+  //   event.preventDefault();
+  //   this.host.nativeElement.value = this.host.nativeElement.value + '    ';
+  // }
+  // @HostListener('document:keydown.tab', ['$event'])
+  // onKeydownTabHandler(event: KeyboardEvent) {
+  //   event.preventDefault();
+  //   this.host.nativeElement.value = this.host.nativeElement.value + '    ';
+  // }
 
-  @HostListener('document:keydown', ['$event']) keyDown(event: KeyboardEvent) {
-    if ( event.ctrlKey && (event.keyCode === 13 || event.keyCode === 17 || event.keyCode === 74)) {
-      event.preventDefault();
-    }
-  }
+  // @HostListener('document:keydown', ['$event']) keyDown(event: KeyboardEvent) {
+  //   if ( event.ctrlKey && (event.keyCode === 13 || event.keyCode === 17 || event.keyCode === 74)) {
+  //     event.preventDefault();
+  //   }
+  // }
 }

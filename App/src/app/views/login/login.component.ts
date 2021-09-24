@@ -13,6 +13,9 @@ import { Subscription } from 'rxjs';
 import { FunctionSystem } from 'src/app/_core/_model/application-user';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Authv2Service } from 'src/app/_core/_service/authv2.service';
+import { AccountTypeConstant } from 'src/app/_core/_constants';
+import { navItems, navItemsManager, navItemsUser } from 'src/app/_nav';
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -59,14 +62,32 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.login();
       }
     }
-    this.uri = this.route.snapshot.queryParams.uri || '/account';
+    const accountType = JSON.parse(localStorage.getItem('user'))?.accountType || '';
+    let backUrl = '/login';
+    if (accountType == AccountTypeConstant.MANAGER) {
+      backUrl = '/staff-info';
+    } else if (accountType == AccountTypeConstant.USER) {
+      backUrl = '/access-control';
+    } else if (accountType == AccountTypeConstant.SYSTEM) {
+      backUrl = '/account';
+    }
+    this.uri = this.route.snapshot.queryParams.uri || backUrl;
   }
   role: number;
   ngOnInit(): void {
     const accessToken = localStorage.getItem('token');
     const refreshToken = localStorage.getItem('refresh_token');
     if (accessToken && refreshToken && this.route.routeConfig.path === 'login') {
-      const uri = decodeURI(this.uri) || '/account';
+      const accountType = JSON.parse(localStorage.getItem('user'))?.accountType || '';
+      let backUrl = '/login';
+      if (accountType == AccountTypeConstant.MANAGER) {
+        backUrl = '/staff-info';
+      } else if (accountType == AccountTypeConstant.USER) {
+        backUrl = '/access-control';
+      } else if (accountType == AccountTypeConstant.SYSTEM) {
+        backUrl = '/account';
+      }
+      const uri = decodeURI(this.uri) || backUrl;
       this.router.navigate([uri]);
     }
   }
@@ -127,18 +148,35 @@ export class LoginComponent implements OnInit, OnDestroy {
       // });
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
-      this.router.navigate(['/account']);
+      const check = this.checkLocalRole();
+      if (check) {
+        const uri = decodeURI(this.uri);
+        this.router.navigate([uri]);
+      } else {
+        const accountType = JSON.parse(localStorage.getItem('user'))?.accountType || '';
+        let backUrl = '/login';
+        if (accountType == AccountTypeConstant.MANAGER) {
+          backUrl = '/staff-info';
+        } else if (accountType == AccountTypeConstant.USER) {
+          backUrl = '/access-control';
+        } else if (accountType == AccountTypeConstant.SYSTEM) {
+          backUrl = '/account';
+        }
+        this.router.navigate([backUrl]);
+      }
 
-      // console.log('end getActionInFunctionByRoleID');
       this.alertifyService.success('Login Success!!');
       this.busy = false;
       this.spinner.hide();
+
+
     } catch (error) {
       this.spinner.hide();
       this.busy = true;
       this.loginError = true;
     }
   }
+
   getMenu(userid) {
     this.permissionService.getMenuByUserPermission(userid).toPromise();
   }
@@ -155,6 +193,24 @@ export class LoginComponent implements OnInit, OnDestroy {
       }
     }
     return false;
-
+  }
+  checkLocalRole(): boolean {
+    let navs = [];
+    const accountType = JSON.parse(localStorage.getItem('user'))?.accountType || '';
+    if (accountType == AccountTypeConstant.MANAGER) {
+      navs = navItemsManager;
+    } else if (accountType == AccountTypeConstant.USER) {
+      navs = navItemsUser;
+    } else if (accountType == AccountTypeConstant.SYSTEM) {
+      navs = navItems;
+    }
+    const uri = decodeURI(this.uri);
+    const permissions = navs.map(x => x.url);
+    for (const url of permissions) {
+      if (uri.includes(url)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

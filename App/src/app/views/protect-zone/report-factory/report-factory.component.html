@@ -11,7 +11,7 @@
     <div class="e-toolbar-item e-search-wrapper" aria-disabled="false" title="Search">
       <div class="e-input-group e-search" role="search">
         <input id="grid_1706664052_0_searchbar" [(ngModel)]="code" (keyup.enter)="filter()" class="e-input" name="input" type="search" placeholder="Search">
-        <span id="grid_1706664052_0_searchbutton" class="e-input-group-icon e-search-icon e-icons" tabindex="-1" title="Search" aria-label="search">
+        <span id="grid_1706664052_0_searchbutton" (click)='filter()' class="e-input-group-icon e-search-icon e-icons" tabindex="-1" title="Search" aria-label="search">
           <i class="fa fa-search"></i>
         </span>
       </div>
@@ -33,8 +33,11 @@
           [allowExcelExport]='true'
         >
           <e-columns>
+            <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
-            <e-column field="code" textAlign='Center' headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}"> </e-column>
+            <e-column field="birthDate" textAlign='Center' headerText="{{ 'Birth Date'}}"> </e-column>
             <e-column field="testKindId" textAlign='Center' headerText="{{ 'Test Kind'}}"> </e-column>
             <e-column field="result" textAlign='Center' headerText="{{ 'Rapid-Test result'}}"> </e-column>
             <e-column field="rapidTestTime" textAlign='Center' headerText="{{ 'Rapid-Test date'}}"> </e-column>

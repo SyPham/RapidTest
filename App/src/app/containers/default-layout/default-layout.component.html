@@ -1,6 +1,6 @@
 <ngx-spinner [fullScreen]="true" type="square-jelly-box" size="medium">
 </ngx-spinner>
-<app-header [navbarBrandRouterLink]="['/account']" [fixed]="true"
+<app-header [navbarBrandRouterLink]="[index()]" [fixed]="true"
   [navbarBrandFull]="{src: 'assets/img/logo.png', width: 50, height: 25, alt: 'Logo'}"
   [navbarBrandMinimized]="{src: 'assets/img/logo.png', width: 25, height: 25, alt: 'Logo'}" [sidebarToggler]="'lg'"
   [asideMenuToggler]="'lg'"
@@ -9,7 +9,7 @@
   >
   <ul class="nav navbar-nav nav-link-dark d-md-down-none">
     <li class="nav-item">
-      <a class="nav-link font-2xl" routerLink="/account">Rapid Test System</a>
+      <a class="nav-link font-2xl" [routerLink]="index()">Rapid Test System</a>
     </li>
   </ul>
   <ul class="nav navbar-nav ml-auto p-0">

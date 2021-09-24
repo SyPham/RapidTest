@@ -23,6 +23,7 @@ namespace RapidTest.Data
         public DbSet<Factory> Factory { get; set; }
         public DbSet<CheckIn> CheckIn { get; set; }
         public DbSet<TestKind> TestKinds { get; set; }
+        public DbSet<Department> Departments { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder) {

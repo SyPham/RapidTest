@@ -146,7 +146,15 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     // this.getBuilding();
   }
-
+  index() {
+    if (this.accountType == AccountTypeConstant.MANAGER) {
+      return '/staff-info';
+    } else if (this.accountType == AccountTypeConstant.USER) {
+      return '/access-control';
+    }else if (this.accountType == AccountTypeConstant.SYSTEM) {
+      return '/account';
+    }
+  }
   getMenu() {
     const navs = JSON.parse(localStorage.getItem('navs'));
     if (navs === null) {

@@ -10,6 +10,9 @@ namespace RapidTest.DTO
         public int Id { get; set; }
         public int EmployeeId { get; set; } // Leo
         public string FullName { get; set; } // Leo
+        public string Department { get; set; } // Leo
+        public string Gender { get; set; } // Leo
+        public string BirthDate { get; set; } // Leo
         public string Code { get; set; } // Leo
         public string TestKindId { get; set; } // RapidTest
         public string Result { get; set; } // Negative

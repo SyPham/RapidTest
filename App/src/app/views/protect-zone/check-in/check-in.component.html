@@ -24,7 +24,7 @@
             </div>
             <div class="w3-rest">
               <!-- [autofocusSearch]="true" -->
-              <input [ngClass]="test" name="qrcode" autocomplete="off" autofocusSearch [ngModel]="QRCode"
+              <input [ngClass]="test" name="qrcode" autocomplete="off" autoselect [ngModel]="QRCode"
                 (ngModelChange)='onNgModelChangeScanQRCode($event)' type="text">
             </div>
 

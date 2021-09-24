@@ -13,7 +13,9 @@ namespace RapidTest.DTO
         public string Code { get; set; }
         public int FactoryId { get; set; }
         public bool SEAInform { get; set; }
-
+        public string Department { get; set; } // Leo
+        public string Gender { get; set; } // Leo
+        public string BirthDate { get; set; } // Leo
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get; set; }
@@ -23,6 +25,9 @@ namespace RapidTest.DTO
     public class EmployeeImportExcelDto
     {
         public int FactoryId { get; set; }
+        public int DepartmentId { get; set; }
+        public bool? Gender { get; set; }
+        public DateTime BirthDate { get; set; }
         public string FullName { get; set; }
         public string Code { get; set; }
         public int CreatedBy { get; set; }

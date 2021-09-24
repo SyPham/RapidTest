@@ -1,3 +1,4 @@
+import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
@@ -17,6 +18,7 @@ import { ReportFactoryComponent } from './views/protect-zone/report-factory/repo
 import { AccessControlComponent } from './views/protect-zone/access-control/access-control.component';
 import { CheckInComponent } from './views/protect-zone/check-in/check-in.component';
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
+import { AuthLocalGuard } from './_core/_guards/auth-local.guard';
 
 export const routes: Routes = [
   {
@@ -66,56 +68,72 @@ export const routes: Routes = [
         component: AccountComponent,
         data: {
           title: 'Account'
-        }
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'setting',
+        component: SettingComponent,
+        data: {
+          title: 'Setting'
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'staff-info',
         component: StaffInfoComponent,
         data: {
           title: 'Staff Info'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'report1',
         component: RapidTestReportComponent,
         data: {
           title: 'Report 1'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'report-factory',
         component: ReportFactoryComponent,
         data: {
           title: 'Report 2'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'check-out',
         component: CheckOutComponent,
         data: {
           title: 'Check Out'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'check-in',
         component: CheckInComponent,
         data: {
           title: 'Check In'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'access-control',
         component: AccessControlComponent,
         data: {
           title: 'Access control'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
       {
         path: 'test-kind',
         component: TestKindComponent,
         data: {
           title: 'Test Kind'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
     ]
   }, // otherwise redirect to home

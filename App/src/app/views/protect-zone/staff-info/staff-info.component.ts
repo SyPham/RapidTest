@@ -18,7 +18,7 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 })
 export class StaffInfoComponent implements OnInit {
   data;
-  toolbarOptions = ['Search'];
+  toolbarOptions = ['ExcelExport', 'Search'];
   pageSettings = { pageCount: 20, pageSizes: true, pageSize: 12 };
   @ViewChild('grid') public grid: GridComponent;
   excelDownloadUrl: string;

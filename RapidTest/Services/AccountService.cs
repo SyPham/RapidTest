@@ -96,6 +96,7 @@ namespace RapidTest.Services
                 item.Username = model.Username;
                 item.FullName = model.FullName;
                 item.Email = model.Email;
+                item.AccountTypeId = model.AccountTypeId;
                 _repo.Update(item);
                 await _unitOfWork.SaveChangeAsync();
                 var removingList = await _repoAccountGroupAccount.FindAll(x => x.AccountId == item.Id).ToListAsync();

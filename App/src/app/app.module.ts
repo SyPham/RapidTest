@@ -1,3 +1,4 @@
+import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
 import { CheckInComponent } from './views/protect-zone/check-in/check-in.component';
@@ -73,7 +74,6 @@ import { AuthGuard } from './_core/_guards/auth.guard';
 import { AlertifyService } from './_core/_service/alertify.service';
 import { Authv2Service } from './_core/_service/authv2.service';
 import { HttpLoaderFactory } from './views/protect-zone/system/system.module';
-import * as $ from "jquery";
 import { AccountComponent } from './views/protect-zone/account/account.component';
 import { DatePickerModule } from '@syncfusion/ej2-angular-calendars';
 export function tokenGetter() {
@@ -81,6 +81,24 @@ export function tokenGetter() {
 }
 import { QRCodeGeneratorAllModule } from '@syncfusion/ej2-angular-barcode-generator';
 import { SwitchModule } from '@syncfusion/ej2-angular-buttons';
+import { AutoSelectDirective } from './_core/_directive/select.directive';
+import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
+
+declare var require: any;
+loadCldr(
+  require('cldr-data/supplemental/numberingSystems.json'),
+  require('cldr-data/main/en/ca-gregorian.json'),
+  require('cldr-data/main/en/numbers.json'),
+  require('cldr-data/main/en/timeZoneNames.json'),
+  require('cldr-data/supplemental/weekdata.json')); // To load the culture based first day of week
+
+loadCldr(
+  require('cldr-data/supplemental/numberingSystems.json'),
+  require('cldr-data/main/vi/ca-gregorian.json'),
+  require('cldr-data/main/vi/numbers.json'),
+  require('cldr-data/main/vi/timeZoneNames.json'),
+  require('cldr-data/supplemental/weekdata.json')); // To load the culture based first day of week
+
 const lang = localStorage.getItem('lang');
 let defaultLang: string;
 
@@ -97,7 +115,8 @@ const rapidTestComponent = [
   AccessControlComponent,
   CheckInComponent,
   CheckOutComponent,
-  TestKindComponent
+  TestKindComponent,
+  SettingComponent
 ];
 @NgModule({
   imports: [
@@ -161,7 +180,8 @@ const rapidTestComponent = [
     LoginComponent,
     LayoutComponent,
     ScrollToTopComponent,
-    RegisterComponent
+    RegisterComponent,
+    AutoSelectDirective
   ],
   providers: [
     AuthGuard,
@@ -179,4 +199,22 @@ const rapidTestComponent = [
   ],
   bootstrap: [ AppComponent ]
 })
-export class AppModule { }
+export class AppModule {
+  vi: any;
+  en: any;
+  constructor() {
+    if (lang === 'vi') {
+      defaultLang = 'vi';
+      setTimeout(() => {
+        L10n.load(require('../assets/ej2-lang/vi.json'));
+        setCulture('vi');
+      });
+    } else {
+      defaultLang = 'en';
+      setTimeout(() => {
+        L10n.load(require('../assets/ej2-lang/en.json'));
+        setCulture('en');
+      });
+    }
+  }
+}

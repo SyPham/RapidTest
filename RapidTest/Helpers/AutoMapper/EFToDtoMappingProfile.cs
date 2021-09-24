@@ -23,17 +23,28 @@ namespace RapidTest.Helpers.AutoMapper
             CreateMap<Account, UserForDetailDto > ().ForMember(d => d.AccountType, o => o.MapFrom(s => s.AccountType.Code));
 
             CreateMap<Setting, SettingDto>();
-            CreateMap<Employee, EmployeeDto>().ForMember(d => d.FactoryName, o => o.MapFrom(s => s.Factory.Name));
+            CreateMap<Employee, EmployeeDto>()
+                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Gender == true ? "NAM" : "NỮ"))
+                .ForMember(d => d.Department, o => o.MapFrom(s => s.Department.Code))
+                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.BirthDate.ToString("MM/dd/yyyy")))
+                .ForMember(d => d.FactoryName, o => o.MapFrom(s => s.Factory.Name));
             CreateMap<Report, ReportDto>()
                 .ForMember(d => d.Result, o => o.MapFrom(s => s.Result == 2 ? nameof(Result.Negative) : nameof(Result.Positive)))
                 .ForMember(d => d.TestKindId, o => o.MapFrom(s => s.TestKind.Name))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
+                .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
+                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.ExpiryTime, o => o.MapFrom(s => s.ExpiryTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
             CreateMap<FactoryReport, FactoryReportDto>()
                 .ForMember(d => d.Result, o => o.MapFrom(s => s.Result == 2 ? nameof(Result.Negative) : nameof(Result.Positive)))
                 .ForMember(d => d.TestKindId, o => o.MapFrom(s => s.TestKind.Name))
+                .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+                .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM": "NỮ"))
+                .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
+                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
                 .ForMember(d => d.ExpiryTime, o => o.MapFrom(s => s.ExpiryTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.RapidTestTime, o => o.MapFrom(s => s.RapidTestTime.ToString("MM/dd/yyyy")))

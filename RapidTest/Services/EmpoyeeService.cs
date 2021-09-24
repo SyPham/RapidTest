@@ -29,6 +29,7 @@ namespace RapidTest.Services
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
         private readonly IRepositoryBase<Employee> _repo;
+        private readonly IRepositoryBase<Department> _repoDepartment;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IRepositoryBase<Report> _repoReport;
         private readonly IRepositoryBase<Setting> _repoSetting;
@@ -41,6 +42,7 @@ namespace RapidTest.Services
 
         public EmployeeService(
             IRepositoryBase<Employee> repo,
+            IRepositoryBase<Department> repoDepartment,
             IRepositoryBase<CheckIn> repoCheckIn,
             IRepositoryBase<Report> repoReport,
             IRepositoryBase<Setting> repoSetting,
@@ -53,6 +55,7 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoDepartment = repoDepartment;
             _repoCheckIn = repoCheckIn;
             _repoReport = repoReport;
             _repoSetting = repoSetting;
@@ -169,17 +172,28 @@ namespace RapidTest.Services
                     for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
                     {
                         var factoryName = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
-                        var fullName = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
-                        var code = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
-                        var SEAInform = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
+                        var code = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
+                        var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
+                        var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
+                        var gender = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
+                        var birthDate = workSheet.Cells[rowIterator, 6].Value.ToSafetyString();
+                        var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
 
-
-                        if (!factoryName.IsNullOrEmpty() && !fullName.IsNullOrEmpty() && !code.IsNullOrEmpty() && !SEAInform.IsNullOrEmpty())
+                        if (!factoryName.IsNullOrEmpty() 
+                            && !fullName.IsNullOrEmpty() 
+                            && !code.IsNullOrEmpty() 
+                            && !departmentName.IsNullOrEmpty() 
+                            && !gender.IsNullOrEmpty()
+                            && !birthDate.IsNullOrEmpty()
+                            && !SEAInform.IsNullOrEmpty())
                         {
                             // kiểm tra đẫ tồn tại trong db chưa
                             int factoryId = 0;
-                            var factory = await _repoFactory.FindAll(x => x.Name == factoryName).FirstOrDefaultAsync();
+                            int departmentId = 0;
 
+                            var factory = await _repoFactory.FindAll(x => x.Name == factoryName).FirstOrDefaultAsync();
+                            var department = await _repoDepartment.FindAll(x => x.Code == departmentName).FirstOrDefaultAsync();
+                            
                             if (factory == null)
                             {
                                 var factoryItem = new Factory { Name = factoryName };
@@ -189,6 +203,18 @@ namespace RapidTest.Services
                             }
                             else
                                 factoryId = factory.Id;
+
+
+                            if (department == null)
+                            {
+                                var departmentItem = new Department { Code = departmentName };
+                                _repoDepartment.Add(departmentItem);
+                                await _unitOfWork.SaveChangeAsync();
+                                departmentId = departmentItem.Id;
+                            }
+                            else
+                                departmentId = department.Id;
+
                             var item = await _repo.FindAll(x => x.Code == code).AnyAsync();
                             if (!item)
                             {
@@ -198,6 +224,9 @@ namespace RapidTest.Services
                                     FactoryId = factoryId,
                                     FullName = fullName,
                                     Code = code,
+                                    BirthDate = DateTime.Parse(birthDate),
+                                    DepartmentId = departmentId,
+                                    Gender = gender.ToLower() ==  "nam"? true : false,
                                     CreatedBy = createdBy.ToInt(),
                                     SEAInform = SEAInform.ToLower() == "true" ? true : false
                                 });
