@@ -29,7 +29,7 @@ export class StaffInfoComponent implements OnInit {
   selectOptions = { persistSelection: true };
   selectedData: Employee[] = [];
   displayTextMethod: DisplayTextModel = {
-    visibility: false
+    visibility: true
   };
   constructor(
     public modalService: NgbModal,
@@ -80,6 +80,15 @@ export class StaffInfoComponent implements OnInit {
          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
       }
     })
+  }
+  toolbarClick(args) {
+    switch (args.item.id) {
+      case 'grid_excelexport':
+        this.grid.excelExport({ hierarchyExportMode: 'All' });
+        break;
+      default:
+        break;
+    }
   }
   uploadFile() {
     this.spinner.show();
@@ -177,10 +186,6 @@ export class StaffInfoComponent implements OnInit {
        ${content.innerHTML}
        </div>
         <div class='info'>
-        <ul>
-        <li class='subInfo'>Factory: ${item.factoryName}</li>
-        <li class='subInfo'>Card Number: ${item.code}</li>
-        </ul>
        </div>
     </div>
     `;

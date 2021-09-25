@@ -21,11 +21,13 @@
           [showColumnMenu]='true'
           [allowSelection]="true"
           [enableHover]="false"
+          [allowExcelExport]='true'
           [toolbar]='toolbarOptions'
           [selectionSettings]="selectOptions"
           [pageSettings]="pageSettings"
           gridLines='Both'
           (checkBoxChange)='checkBoxChange($event)'
+          (toolbarClick)='toolbarClick($event)'
           (rowSelected)='rowSelected($event)'        >
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>
@@ -61,8 +63,8 @@
           <tr *ngIf="selectedData.length > 0">
             <td class="text-center">
                 <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
-                  width="100px" height="130px" mode="SVG"
-                  value="{{item.code}}"></ejs-qrcodegenerator>
+                  width="110px" height="140px" mode="SVG"
+                  value="#:{{item.code}}"></ejs-qrcodegenerator>
             </td>
             <td class="text-algin-left">
                 <div><label>Factory:</label> {{item.factoryName}}</div>

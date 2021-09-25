@@ -156,6 +156,7 @@ namespace RapidTest.Services
             IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files["UploadedFile"];
             object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
             var datasList = new List<EmployeeImportExcelDto>();
+            var updateList = new List<Employee>();
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
@@ -215,8 +216,8 @@ namespace RapidTest.Services
                             else
                                 departmentId = department.Id;
 
-                            var item = await _repo.FindAll(x => x.Code == code).AnyAsync();
-                            if (!item)
+                            var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                            if (item == null)
                             {
 
                                 datasList.Add(new EmployeeImportExcelDto()
@@ -230,6 +231,11 @@ namespace RapidTest.Services
                                     CreatedBy = createdBy.ToInt(),
                                     SEAInform = SEAInform.ToLower() == "true" ? true : false
                                 });
+                            } else {
+                                item.SEAInform = SEAInform.ToLower() == "true" ? true : false;
+                                item.Gender  = gender.ToLower() ==  "nam"? true : false;
+                                item.FullName  = fullName;
+                                updateList.Add(item);
                             }
 
                         }
@@ -240,6 +246,7 @@ namespace RapidTest.Services
                 {
                     var data = _mapper.Map<List<Employee>>(datasList);
                     _repo.AddRange(data);
+                    _repo.UpdateRange(updateList);
                     await _unitOfWork.SaveChangeAsync();
                     return true;
                 }

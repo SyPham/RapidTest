@@ -6,13 +6,15 @@
           <h1 class="w3-center my-3">Check Out</h1>
           <h5 class="w3-center">Rapid Test Kind: </h5>
           <div class="d-flex justify-content-center">
-            <ul style="padding: 0; list-style: none;">
+
+            <ul style="padding: 0; list-style: none; margin-right: 20px;">
               <li *ngFor="let item of testKindData">
                 <input type="radio" [id]="item.id" [(ngModel)]="kindId" [value]="item.id" name="kindId">
                 <label [for]="item.id">{{item.name}}</label>
               </li>
 
             </ul>
+
         </div>
           <div class="w3-row w3-section">
             <div class="w3-col" style="width:100px">

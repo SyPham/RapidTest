@@ -11,7 +11,7 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
-    name: 'Setting',
+    name: 'Access days',
     url: '/setting',
     icon: 'icon-puzzle',
   },
@@ -26,27 +26,27 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
-    name: 'Check In',
+    name: '1.Check In',
     url: '/check-in',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Check Out',
+    name: '2.Check Out',
     url: '/check-out',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Access Control',
+    name: '3.Access Control',
     url: '/access-control',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Report 1',
+    name: 'Rapid Test Report',
     url: '/report1',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Report 2',
+    name: 'Access Control Report',
     url: '/report-factory',
     icon: 'icon-puzzle',
   },
@@ -64,12 +64,12 @@ export const navItemsManager: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
-    name: 'Report 1',
+    name: 'Rapid Test Report',
     url: '/report1',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Report 2',
+    name: 'Access Control Report',
     url: '/report-factory',
     icon: 'icon-puzzle',
   },
@@ -82,17 +82,17 @@ export const navItemsUser: INavData[] = [
     icon: 'icon-speedometer'
   },
   {
-    name: 'Check In',
+    name: '1.Check In',
     url: '/check-in',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Check Out',
+    name: '2.Check Out',
     url: '/check-out',
     icon: 'icon-puzzle',
   },
   {
-    name: 'Access Control',
+    name: '3.Access Control',
     url: '/access-control',
     icon: 'icon-puzzle',
   }

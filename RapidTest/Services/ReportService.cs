@@ -27,6 +27,7 @@ namespace RapidTest.Services
         private readonly IRepositoryBase<Report> _repo;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Employee> _repoEmployee;
+        private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly MapperConfiguration _configMapper;
@@ -36,6 +37,7 @@ namespace RapidTest.Services
             IRepositoryBase<Report> repo,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Employee> repoEmployee,
+            IRepositoryBase<CheckIn> repoCheckIn,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             MapperConfiguration configMapper
@@ -45,6 +47,7 @@ namespace RapidTest.Services
             _repo = repo;
             _repoSetting = repoSetting;
             _repoEmployee = repoEmployee;
+            _repoCheckIn = repoCheckIn;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _configMapper = configMapper;
@@ -63,6 +66,17 @@ namespace RapidTest.Services
         {
             var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode).FirstOrDefaultAsync();
             if (employee == null)
+            {
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.NotFound,
+                    Message = "The QRCode not exist!",
+                    Success = true,
+                    Data = null
+                };
+            }
+            var checkIn = await _repoCheckIn.FindAll(x=> x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).FirstOrDefaultAsync();
+            if (checkIn == null)
             {
                 return new OperationResult
                 {
