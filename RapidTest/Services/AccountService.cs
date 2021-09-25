@@ -127,7 +127,7 @@ namespace RapidTest.Services
         }
         public override async Task<List<AccountDto>> GetAllAsync()
         {
-            var data = await _repo.FindAll(x => x.AccountType.Code != "SYSTEM").ProjectTo<AccountDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll().ProjectTo<AccountDto>(_configMapper).ToListAsync();
             return data;
 
         }

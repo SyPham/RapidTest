@@ -65,5 +65,14 @@ namespace RapidTest.Controllers
         {
             return StatusCodeResult(await _service.ScanQRCode(request));
         }
+
+        [HttpGet]
+        public async Task<ActionResult> RapidTestReport()
+        {
+            DateTime startDate = DateTime.Now;
+            DateTime endDate = DateTime.Now;
+            var bin = await _service.RapidTestReport(startDate, endDate);
+            return File(bin, "application/octet-stream", "Rapid Test Report.xlsx");
+        }
     }
 }

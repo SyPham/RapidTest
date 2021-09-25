@@ -23,6 +23,8 @@ namespace RapidTest.DTO
         public string ExpiryTime { get; set; } // Enter factory exp. date
         public string CreatedTime { get; set; } // Rapid-Test date
         public DateTime? ModifiedTime { get; set; }
+        public string CheckInTime { get; set; }
+        public string CheckOutTime { get; set; }
     }
     public class ScanQRCodeRequestDto
     {

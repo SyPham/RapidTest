@@ -34,6 +34,7 @@ namespace RapidTest.Models
         public virtual Department Department { get; set; }
         public virtual ICollection<FactoryReport> FactoryReports { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
+        public virtual ICollection<CheckIn> CheckIns { get; set; }
 
     }
 }
