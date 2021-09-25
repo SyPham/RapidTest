@@ -15,6 +15,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   subscription: Subscription[] = [];
   QRCode: string;
   success = 0;
+  message = '';
   fullName: any;
   constructor(
     private alertify: AlertifyService,
@@ -28,6 +29,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   }
   // sau khi scan input thay doi
   async onNgModelChangeScanQRCode(args) {
+    this.success = 0;
     this.QRCode = args;
     this.subject.next(args);
   }
@@ -36,15 +38,19 @@ export class AccessControlComponent implements OnInit, OnDestroy {
       .pipe(debounceTime(500))
       .subscribe(async (res) => {
         this.QRCode = res;
-          this.scanQRCode();
+        this.scanQRCode();
       }));
   }
   scanQRCode() {
+    this.success = 0;
     this.service.accessControl(this.QRCode).subscribe(
       (res) => {
         this.success = res.statusCode;
+        this.message = res.message;
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
+          this.message = res.message;
+
         }
       },
       (error) => {

@@ -290,6 +290,14 @@
     "Kilogram": "Kilogram",
     "Addition2": "Addition",
     "Created Time": "Created time",
-    "Create Report Time": "Create Report Time"
+    "Create Report Time": "Create Report Time",
+    "Check In": "Check In",
+    "Check Out": "Check Out",
+    "Result": "Result",
+    "Rapid Test Kind": "Rapid Test Kind",
+    "Access Control": "Access Control",
+    "Rapid Test": "Rapid Test",
+    "Negative": "Negative",
+    "Positive": "Positive"
 
 }

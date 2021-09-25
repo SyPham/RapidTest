@@ -91,9 +91,9 @@ namespace RapidTest.Services
             var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
             var checkIn = new CheckIn();
             if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).OrderByDescending(x=>x.Id).FirstOrDefaultAsync();
             else
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             if (checkIn == null)
             {
                 return new OperationResult
@@ -118,14 +118,28 @@ namespace RapidTest.Services
             {
                 _repo.Add(data);
                 await _unitOfWork.SaveChangeAsync();
-                string resultText = request.Result == Result.Negative ? nameof(Result.Negative) : nameof(Result.Positive);
-                operationResult = new OperationResult
+
+                if (request.Result == Result.Negative)
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = $"Result is {resultText }. Record successfully!",
-                    Success = true,
-                    Data = employee
-                };
+                    operationResult = new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
+                        Success = true,
+                        Data = employee
+                    };
+                }
+                else
+                {
+                    operationResult = new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Result is positive. No Entry! ,<br><span>Kết quả là dương tính. Không được phép vào nhà máy!</span></h2>",
+                        Success = true,
+                        Data = employee
+                    };
+                }
+
             }
             catch (Exception ex)
             {

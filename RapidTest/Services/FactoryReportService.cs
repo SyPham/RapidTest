@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
+using RapidTest.Constants;
 using RapidTest.Data;
 using RapidTest.DTO;
 using RapidTest.Helpers;
@@ -65,7 +66,7 @@ namespace RapidTest.Services
             var daySetting = setting.Day;
             var currentDate = DateTime.Now.Date;
 
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && x.ExpiryTime.Date >= currentDate).FirstOrDefaultAsync();
+            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && x.ExpiryTime.Date >= currentDate).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult
                 {
@@ -100,13 +101,26 @@ namespace RapidTest.Services
 
                 _repo.Add(data);
                 await _unitOfWork.SaveChangeAsync();
-                operationResult = new OperationResult
+                if (testing.Result == Result.Negative)
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Result is Negative. Record successfully !",
-                    Success = true,
-                    Data = employee
-                };
+                    operationResult = new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
+                        Success = true,
+                        Data = employee
+                    };
+                }
+                else
+                {
+                    operationResult = new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Result is positive. No Entry! ,<br><span>Kết quả là dương tính. Không được phép vào nhà máy!</span></h2>",
+                        Success = true,
+                        Data = employee
+                    };
+                }
             }
             catch (Exception ex)
             {

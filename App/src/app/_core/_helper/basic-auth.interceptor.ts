@@ -21,7 +21,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
             //          The system does not work due to network error. Please press F5 to try again!
             //   `);
             console.error('An error occurred: status = 0');
-
+          alert("Internet bị lỗi. Vui lòng thử lại! Internet error , please try again !");
             return throwError(
               'Something bad happened; please try again later.');
         } else {

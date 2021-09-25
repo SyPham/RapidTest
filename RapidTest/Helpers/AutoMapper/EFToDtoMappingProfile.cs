@@ -52,6 +52,7 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
                 .ForMember(d => d.ExpiryTime, o => o.MapFrom(s => s.ExpiryTime.ToString("MM/dd/yyyy")))
+                .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.RapidTestTime, o => o.MapFrom(s => s.RapidTestTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.FactoryEntryTime.ToString("MM/dd/yyyy HH:mm tt")))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));

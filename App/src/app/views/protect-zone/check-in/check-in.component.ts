@@ -40,6 +40,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   }
   // sau khi scan input thay doi
   async onNgModelChangeScanQRCode(args) {
+    this.success = 0;
     this.QRCode = args;
     this.subject.next(args);
   }
@@ -52,6 +53,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
       }));
   }
   checkin() {
+    this.success = 0;
     this.service.checkin2(this.QRCode, this.kindId).subscribe(
       (res) => {
         this.success = res.statusCode;

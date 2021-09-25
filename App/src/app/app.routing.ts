@@ -75,7 +75,7 @@ export const routes: Routes = [
         path: 'setting',
         component: SettingComponent,
         data: {
-          title: 'Setting'
+          title: 'Access days'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -91,7 +91,7 @@ export const routes: Routes = [
         path: 'report1',
         component: RapidTestReportComponent,
         data: {
-          title: 'Report 1'
+          title: 'Rapid Test Report'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -99,7 +99,7 @@ export const routes: Routes = [
         path: 'report-factory',
         component: ReportFactoryComponent,
         data: {
-          title: 'Report 2'
+          title: 'Access Control Report'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -107,7 +107,7 @@ export const routes: Routes = [
         path: 'check-out',
         component: CheckOutComponent,
         data: {
-          title: 'Check Out'
+          title: '2.Check Out'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -115,7 +115,7 @@ export const routes: Routes = [
         path: 'check-in',
         component: CheckInComponent,
         data: {
-          title: 'Check In'
+          title: '1.Check In'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -123,7 +123,7 @@ export const routes: Routes = [
         path: 'access-control',
         component: AccessControlComponent,
         data: {
-          title: 'Access control'
+          title: '3.Access Control'
         },
         canActivate: [AuthLocalGuard]
       },

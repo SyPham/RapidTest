@@ -2,15 +2,14 @@
   <div class="card-body">
     <div class="row">
       <div class="col-md-12">
-        <form class="w3-container w3-card-4  w3-text-black ">
-          <h1 class="w3-center my-3">Access Control</h1>
-          <div class="w3-row w3-section">
-            <div class="w3-col" style="width:100px">
-              <img src="../../../../assets/img/gif/1981.gif" height="40px" width="80%" alt="">
+        <form class="w3-container w3-card-4 w3-text-black ">
+          <h1 class="w3-center my-3">{{'Access Control' | translate}}</h1>
+          <div class="w3-row w3-section ">
+            <div class="w3-col" style="width:auto">
+              <img src="../../../../assets/img/gif/scan.gif" style="width:100px" alt="">
             </div>
-            <div class="w3-rest">
-              <!-- [autofocusSearch]="true" -->
-              <input [ngClass]="test" name="qrcode" autocomplete="off" autoselect [ngModel]="QRCode"
+            <div class="w3-rest" style="margin-top: 12px;">
+              <input [ngClass]="test" name="qrcode" class="my-form-control" autocomplete="off" autoselect [ngModel]="QRCode"
                 (ngModelChange)='onNgModelChangeScanQRCode($event)' type="text">
             </div>
 
@@ -26,13 +25,18 @@
       <div class="card-body bg-success">
        <h2>HỌ TÊN: {{fullName}}</h2>
        <h2>SỐ THẺ: {{QRCode}}</h2>
-       <h2>Result is Negative. Record successfully !</h2>
+       <div [innerHTML]="message"></div>
       </div>
     </div>
-
+    <div class="card" style="width: 60%;" *ngIf="success == 403">
+      <div class="card-body bg-danger">
+        <div [innerHTML]="message"></div>
+      </div>
+    </div>
     <div class="card" style="width: 60%;" *ngIf="success == 404">
       <div class="card-body bg-danger">
        <h2>There's no data. Can not enter the factory.<br>Please do rapid-test.</h2>
+       <h2>Không có dữ liệu xét nghiệm. Không được vào nhà máy.<br>Vui lòng thực hiện xét nghiệm nhanh hoặc PCR.</h2>
       </div>
     </div>
 

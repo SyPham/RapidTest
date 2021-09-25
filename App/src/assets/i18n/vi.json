@@ -290,7 +290,16 @@
     "Kilogram": "Kilôgam",
     "Addition2": "Giao thêm",
     "Created Time": "Ngày tạo",
-    "Create Report Time": "Tạo thời gian báo cáo"
+    "Create Report Time": "Tạo thời gian báo cáo",
+    "Check In": "Kiểm soát khi vào xét nghiệm",
+    "Check Out": "Kiểm soát khi xét nghiệm xong",
+    "Result": "Kết quả",
+    "Rapid Test Kind": "Loại xét nghiệm",
+    "Access Control": "Kiểm soát khi vào cổng",
+    "Rapid Test": "Chẩn đoán nhanh",
+    "Negative": "Âm tính",
+    "Positive": "Dương tính"
+
 
 
 }

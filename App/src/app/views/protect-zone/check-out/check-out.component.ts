@@ -43,6 +43,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   }
   // sau khi scan input thay doi
   async onNgModelChangeScanQRCode(args) {
+    this.success = 0;
     this.QRCode = args;
     this.subject.next(args);
   }
@@ -55,6 +56,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
       }));
   }
   scanQRCode() {
+    this.success = 0;
     const model = {
       kindId: this.kindId,
       result: this.result,
@@ -63,12 +65,14 @@ export class CheckOutComponent implements OnInit, OnDestroy {
     this.service.scanQRCode(model).subscribe(
       (res) => {
         this.success = res.statusCode;
+        this.message = res.message;
+
         if (res.success === true && res.statusCode == 200) {
           this.fullName = res.data.fullName;
-          this.message = res.message;
         }
       },
       (error) => {
+        this.success = 0;
       }
     );
   }
