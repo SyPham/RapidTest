@@ -63,8 +63,8 @@
           <tr *ngIf="selectedData.length > 0">
             <td class="text-center">
                 <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
-                  width="200px" height="240px" mode="SVG"
-                  value="#:{{item.code}} {{item.department}}"></ejs-qrcodegenerator>
+                  width="120px" height="160px" mode="SVG"
+                  value="{{item.code}}"></ejs-qrcodegenerator>
             </td>
             <td class="text-algin-left">
                 <div><label>Factory:</label> {{item.factoryName}}</div>

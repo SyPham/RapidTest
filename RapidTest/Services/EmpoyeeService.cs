@@ -235,6 +235,8 @@ namespace RapidTest.Services
                                 item.SEAInform = SEAInform.ToLower() == "true" ? true : false;
                                 item.Gender  = gender.ToLower() ==  "nam"? true : false;
                                 item.FullName  = fullName;
+                                item.BirthDate = DateTime.Parse(birthDate);
+                                item.DepartmentId  = departmentId;
                                 updateList.Add(item);
                             }
 

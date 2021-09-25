@@ -20,6 +20,11 @@ namespace RapidTest.Services
 {
     public interface IReportService : IServiceBase<Report, ReportDto>
     {
+        /// <summary>
+        /// Check out
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
 
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
@@ -29,6 +34,7 @@ namespace RapidTest.Services
     {
         private readonly IRepositoryBase<Report> _repo;
         private readonly IRepositoryBase<Setting> _repoSetting;
+        private readonly IRepositoryBase<Models.TestKind> _repoTestKind;
         private readonly IRepositoryBase<Employee> _repoEmployee;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IUnitOfWork _unitOfWork;
@@ -39,6 +45,8 @@ namespace RapidTest.Services
         public ReportService(
             IRepositoryBase<Report> repo,
             IRepositoryBase<Setting> repoSetting,
+            IRepositoryBase<Models.TestKind> repoTestKind,
+
             IRepositoryBase<Employee> repoEmployee,
             IRepositoryBase<CheckIn> repoCheckIn,
             IUnitOfWork unitOfWork,
@@ -49,6 +57,7 @@ namespace RapidTest.Services
         {
             _repo = repo;
             _repoSetting = repoSetting;
+            _repoTestKind = repoTestKind;
             _repoEmployee = repoEmployee;
             _repoCheckIn = repoCheckIn;
             _unitOfWork = unitOfWork;
@@ -78,7 +87,12 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-            var checkIn = await _repoCheckIn.FindAll(x=> x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).FirstOrDefaultAsync();
+            var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
+            var checkIn = new CheckIn();
+            if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).FirstOrDefaultAsync();
+            else
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code).FirstOrDefaultAsync();
             if (checkIn == null)
             {
                 return new OperationResult
@@ -169,7 +183,7 @@ namespace RapidTest.Services
                     ExcelRichText text2 = rg.RichText.Add("序");
                     text2.Bold = true;
                     text2.Color = System.Drawing.Color.Blue;
-                  
+
 
 
                     ws.Cells["B4"].Value = "Số thẻ 工號";
@@ -222,7 +236,7 @@ namespace RapidTest.Services
         public async Task<byte[]> RapidTestReport(DateTime startTime, DateTime endTime)
         {
             var data = new List<ReportDto>();
-            return  ExcelExport(data);
+            return ExcelExport(data);
         }
     }
 }

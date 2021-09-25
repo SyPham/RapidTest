@@ -1,6 +1,7 @@
 export interface Employee {
   id: number;
   fullName: string;
+  department: string;
   code: string;
   factoryId: number;
   createdBy: number;

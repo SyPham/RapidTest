@@ -29,7 +29,7 @@ export class StaffInfoComponent implements OnInit {
   selectOptions = { persistSelection: true };
   selectedData: Employee[] = [];
   displayTextMethod: DisplayTextModel = {
-    visibility: true
+    visibility: false
   };
   constructor(
     public modalService: NgbModal,
@@ -131,39 +131,25 @@ export class StaffInfoComponent implements OnInit {
         -moz-box-sizing: border-box;
       }
       .content {
-        page-break-after: always;
-        clear: both;
+        // page-break-after: always;
+        width:30%;
+        float:left;
+
       }
       .content .qrcode {
-        float:left;
-        width: 100px;
+        width: 120px;
         margin-top: 10px;
         padding: 0;
         margin-left: 0px;
       }
-      .content .info {
-        float:left;
-        list-style: none;
-        width: 200px;
-      }
-      .content .info ul {
-        float:left;
-        list-style: none;
-        padding: 0px;
-        margin: 0px;
-        margin-top: 40px;
-        font-weight: bold;
-        word-wrap: break-word;
+      .label {
+        padding-left: 15px;
       }
       @page {
-        size: 2.65 1.20 in;
-        page-break-after: always;
-        margin: 0;
+
       }
       @media print {
-        html, body {
-          width: 90mm; // Chi co nhan millimeter
-        }
+
       }
     </style>
     <body onload="window.print(); window.close()">
@@ -185,7 +171,8 @@ export class StaffInfoComponent implements OnInit {
       <div class='qrcode'>
        ${content.innerHTML}
        </div>
-        <div class='info'>
+       <div class="label">
+       #:${item.code} ${item.department}
        </div>
     </div>
     `;

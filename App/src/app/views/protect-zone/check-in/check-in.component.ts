@@ -47,12 +47,8 @@ export class CheckInComponent implements OnInit,OnDestroy  {
     this.subscription.push(this.subject
       .pipe(debounceTime(500))
       .subscribe(async (res) => {
-        const temp = res.split(' ');
-        if (temp.length > 0) {
-          const QRCode = temp[0].replace('#:', '');
-          this.QRCode = QRCode;
+          this.QRCode = res;
           this.checkin();
-        }
       }));
   }
   checkin() {

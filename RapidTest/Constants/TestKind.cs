@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 
 namespace RapidTest.Constants
 {
-    public class TestKind
+    public class TestKindConstant
     {
         public static int RapidTest = 1;
         public static int PCR = 2;
+        public static string RAPID_TEST_TEXT = "Rapid Test";
+        public static string PCR_TEXT = "PCR";
     }
 }

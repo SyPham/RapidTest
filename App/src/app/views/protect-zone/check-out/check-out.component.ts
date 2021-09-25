@@ -48,12 +48,8 @@ export class CheckOutComponent implements OnInit, OnDestroy {
     this.subscription.push(this.subject
       .pipe(debounceTime(500))
       .subscribe(async (res) => {
-        const temp = res.split(' ');
-        if (temp.length > 0) {
-          const QRCode = temp[0].replace('#:', '');
-          this.QRCode = QRCode;
+        this.QRCode = res;
           this.scanQRCode();
-        }
       }));
   }
   scanQRCode() {
