@@ -16,10 +16,12 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   subject = new Subject<string>();
   subscription: Subscription[] = [];
   kindId: any;
+  result = 2;
   testKindData: TestKind[];
   QRCode: string;
   success = 0;
   fullName: any;
+  message: any;
   constructor(
     private alertify: AlertifyService,
     private service: RapidTestReportService,
@@ -55,6 +57,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   scanQRCode() {
     const model = {
       kindId: this.kindId,
+      result: this.result,
       qrCode: this.QRCode
     };
     this.service.scanQRCode(model).subscribe(
@@ -62,6 +65,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
         this.success = res.statusCode;
         if (res.success === true && res.statusCode == 200) {
           this.fullName = res.data.fullName;
+          this.message = res.message;
         }
       },
       (error) => {

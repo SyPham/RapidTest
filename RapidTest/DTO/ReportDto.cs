@@ -29,6 +29,7 @@ namespace RapidTest.DTO
     public class ScanQRCodeRequestDto
     {
         public int KindId { get; set; }
+        public int Result { get; set; }
         public string QRCode { get; set; } 
     
     }

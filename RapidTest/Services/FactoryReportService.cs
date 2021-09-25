@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using NetUtility;
 using RapidTest.Data;
 using RapidTest.DTO;
 using RapidTest.Helpers;
@@ -8,6 +9,7 @@ using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -51,10 +53,10 @@ namespace RapidTest.Services
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
             if (string.IsNullOrEmpty(code))
-                return await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
-               .ProjectTo<FactoryReportDto>(_configMapper).ToListAsync();
-            else return await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<FactoryReportDto>(_configMapper).ToListAsync();
+                return (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
+               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+            else return (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+              .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
         }
         public async Task<OperationResult> AccessControl(string code)
         {

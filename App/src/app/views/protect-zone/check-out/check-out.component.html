@@ -4,7 +4,10 @@
       <div class="col-md-12">
         <form class="w3-container w3-card-4  w3-text-black ">
           <h1 class="w3-center my-3">Check Out</h1>
-          <h5 class="w3-center">Rapid Test Kind: </h5>
+      <div class="d-flex justify-content-center">
+
+        <div style="margin-right: 100px;">
+          <h5 class="w3-center">Rapid Test Kind </h5>
           <div class="d-flex justify-content-center">
 
             <ul style="padding: 0; list-style: none; margin-right: 20px;">
@@ -16,6 +19,26 @@
             </ul>
 
         </div>
+        </div>
+        <div class="">
+          <h5 class="w3-center">Result </h5>
+          <div class="d-flex justify-content-center">
+
+            <ul style="padding: 0; list-style: none; margin-right: 20px;">
+              <li >
+                <input type="radio" id="Negative" [(ngModel)]="result" [value]="2" name="result">
+                <label for="Negative">Negative</label>
+              </li>
+              <li >
+                <input type="radio" id="Positive" [(ngModel)]="result" [value]="1" name="result">
+                <label for="Positive">Positive</label>
+              </li>
+
+            </ul>
+
+        </div>
+        </div>
+      </div>
           <div class="w3-row w3-section">
             <div class="w3-col" style="width:100px">
               <img src="../../../../assets/img/gif/1981.gif" height="40px" width="80%" alt="">
@@ -38,7 +61,7 @@
       <div class="card-body bg-success">
        <h2>HỌ TÊN: {{fullName}}</h2>
        <h2>SỐ THẺ: {{QRCode}}</h2>
-       <h2>Result is Negative. Record successfully !</h2>
+       <h2>{{message}}</h2>
       </div>
     </div>
 

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
+using NetUtility;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using RapidTest.Constants;
@@ -68,10 +69,10 @@ namespace RapidTest.Services
         public async Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
             if (string.IsNullOrEmpty(code))
-                return await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).ToListAsync();
-            else return await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<ReportDto>(_configMapper).ToListAsync();
+                return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
+               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new {x.Code, x.CreatedTime }).ToList();
+            else return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+              .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
         }
 
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
@@ -92,7 +93,7 @@ namespace RapidTest.Services
             if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
                 checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).FirstOrDefaultAsync();
             else
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR).FirstOrDefaultAsync();
             if (checkIn == null)
             {
                 return new OperationResult
@@ -110,17 +111,18 @@ namespace RapidTest.Services
             {
                 TestKindId = request.KindId,
                 EmployeeId = employee.Id,
-                Result = Result.Negative,
+                Result = request.Result,
                 ExpiryTime = expiryTime
             };
             try
             {
                 _repo.Add(data);
                 await _unitOfWork.SaveChangeAsync();
+                string resultText = request.Result == Result.Negative ? nameof(Result.Negative) : nameof(Result.Positive);
                 operationResult = new OperationResult
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Message = "Successfully!",
+                    Message = $"Result is {resultText }. Record successfully!",
                     Success = true,
                     Data = employee
                 };
