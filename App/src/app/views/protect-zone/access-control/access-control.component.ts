@@ -35,18 +35,20 @@ export class AccessControlComponent implements OnInit, OnDestroy {
     this.subscription.push(this.subject
       .pipe(debounceTime(500))
       .subscribe(async (res) => {
-        this.QRCode = res;
-        this.scanQRCode();
+        const temp = res.split(' ');
+        if (temp.length > 0) {
+          const QRCode = temp[0].replace('#:', '');
+          this.QRCode = QRCode;
+          this.scanQRCode();
+        }
       }));
   }
   scanQRCode() {
     this.service.accessControl(this.QRCode).subscribe(
       (res) => {
+        this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {
-          this.success = res.statusCode;
           this.fullName = res.data.fullName;
-        } else if (res.success && res.statusCode == 404) {
-          this.success = res.statusCode;
         }
       },
       (error) => {

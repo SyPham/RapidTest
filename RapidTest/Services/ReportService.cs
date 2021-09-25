@@ -83,8 +83,8 @@ namespace RapidTest.Services
             {
                 return new OperationResult
                 {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "The QRCode not exist!",
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "Please check in first!",
                     Success = true,
                     Data = null
                 };

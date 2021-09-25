@@ -47,22 +47,21 @@ export class CheckInComponent implements OnInit,OnDestroy  {
     this.subscription.push(this.subject
       .pipe(debounceTime(500))
       .subscribe(async (res) => {
-        this.QRCode = res;
-        this.checkin();
+        const temp = res.split(' ');
+        if (temp.length > 0) {
+          const QRCode = temp[0].replace('#:', '');
+          this.QRCode = QRCode;
+          this.checkin();
+        }
       }));
   }
   checkin() {
     this.service.checkin2(this.QRCode, this.kindId).subscribe(
       (res) => {
+        this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {
-          this.success = res.statusCode;
           this.fullName = res.data.fullName;
-        } else if (res.success && res.statusCode == 404) {
-          this.success = res.statusCode;
-        } else if (res.success && res.statusCode == 400) {
-          this.success = res.statusCode;
         }
-
       },
       (error) => {
         this.success = 0;

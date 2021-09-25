@@ -32,9 +32,9 @@
     </div>
   </div>
 
-  <div class="card-body d-flex justify-content-center" *ngIf="success">
+  <div class="card-body d-flex justify-content-center">
 
-    <div class="card" style="width: 60%;">
+    <div class="card" style="width: 60%;" *ngIf="success == 200">
       <div class="card-body bg-success">
        <h2>HỌ TÊN: {{fullName}}</h2>
        <h2>SỐ THẺ: {{QRCode}}</h2>
@@ -42,5 +42,17 @@
       </div>
     </div>
 
+    <div class="card" style="width: 60%;" *ngIf="success == 400">
+      <div class="card-body bg-danger">
+       <h2>Please check in first!</h2>
+      </div>
+    </div>
+
+    <div class="card" style="width: 60%;" *ngIf="success == 404">
+      <div class="card-body bg-danger">
+       <h2>Not found this person. No entry. <br>Please establish data in Staff info page ! </h2>
+      </div>
+    </div>
   </div>
+
 </div>
