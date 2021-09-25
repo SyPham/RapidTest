@@ -107,7 +107,7 @@ export const routes: Routes = [
         path: 'check-out',
         component: CheckOutComponent,
         data: {
-          title: '2.Check Out'
+          title: '2.Kết quả xét nghiệm - Check Out'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -115,7 +115,7 @@ export const routes: Routes = [
         path: 'check-in',
         component: CheckInComponent,
         data: {
-          title: '1.Check In'
+          title: '1.Đăng ký xét nghiệm - Check In'
         },
         canActivate: [AuthLocalGuard]
       },
@@ -123,7 +123,7 @@ export const routes: Routes = [
         path: 'access-control',
         component: AccessControlComponent,
         data: {
-          title: '3.Access Control'
+          title: '3.Kiểm soát vào nhà máy - Access Control'
         },
         canActivate: [AuthLocalGuard]
       },

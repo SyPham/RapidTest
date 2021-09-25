@@ -26,17 +26,17 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
-    name: '1.Check In',
+    name: '1.Đăng ký xét nghiệm - Check In',
     url: '/check-in',
     icon: 'icon-puzzle',
   },
   {
-    name: '2.Check Out',
+    name: '2.Kết quả xét nghiệm - Check Out',
     url: '/check-out',
     icon: 'icon-puzzle',
   },
   {
-    name: '3.Access Control',
+    name: '3.Kiểm soát vào nhà máy - Access Control',
     url: '/access-control',
     icon: 'icon-puzzle',
   },
@@ -82,19 +82,19 @@ export const navItemsUser: INavData[] = [
     icon: 'icon-speedometer'
   },
   {
-    name: '1.Check In',
+    name: '1.Đăng ký xét nghiệm - Check In',
     url: '/check-in',
     icon: 'icon-puzzle',
   },
   {
-    name: '2.Check Out',
+    name: '2.Kết quả xét nghiệm - Check Out',
     url: '/check-out',
     icon: 'icon-puzzle',
   },
   {
-    name: '3.Access Control',
+    name: '3.Kiểm soát vào nhà máy - Access Control',
     url: '/access-control',
     icon: 'icon-puzzle',
-  }
+  },
 
 ];

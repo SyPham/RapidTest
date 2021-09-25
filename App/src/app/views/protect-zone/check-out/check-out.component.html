@@ -3,17 +3,17 @@
     <div class="row">
       <div class="col-md-12">
         <form class="w3-container w3-card-4  w3-text-black ">
-          <h1 class="w3-center my-3">{{'Check Out' | translate}}</h1>
+          <h1 class="w3-center my-3">Kết quả xét nghiệm - Check Out</h1>
       <div class="d-flex justify-content-center">
 
         <div style="margin-right: 100px;">
-          <h5 class="w3-center mb-3">{{'Rapid Test Kind' | translate}} </h5>
+          <h5 class="w3-center mb-3">Loại xét nghiệm - Rapid Test Kind</h5>
           <div class="d-flex justify-content-center">
 
             <ul style="padding: 0; margin: 0; list-style: none; margin-right: 20px;">
               <li *ngFor="let item of testKindData">
                 <input type="radio" [id]="item.id" (ngModelChange)="success = 0" [(ngModel)]="kindId" [value]="item.id" name="kindId">
-                <label [for]="item.id">{{item.name | translate}}</label>
+                <label [for]="item.id">{{ item.name == "Rapid Test" ? "Chuẩn đoán nhanh - " + item.name : item.name }}</label>
               </li>
 
             </ul>
@@ -21,17 +21,17 @@
         </div>
         </div>
         <div class="">
-          <h5 class="w3-center mb-3">{{ 'Result' | translate}} </h5>
+          <h5 class="w3-center mb-3">Kết quả - Result </h5>
           <div class="d-flex justify-content-center">
 
             <ul style="padding: 0; list-style: none; margin-right: 20px;">
               <li >
                 <input type="radio" id="Negative" [(ngModel)]="result" (ngModelChange)="success = 0" [value]="2" name="result">
-                <label for="Negative">{{ 'Negative' | translate}}</label>
+                <label for="Negative">Âm tính - Negative</label>
               </li>
               <li >
                 <input type="radio" id="Positive" [(ngModel)]="result" (ngModelChange)="success = 0" [value]="1" name="result">
-                <label for="Positive">{{ 'Positive' | translate}}</label>
+                <label for="Positive">Dương tính - Positive</label>
               </li>
 
             </ul>

@@ -4,15 +4,15 @@
       <div class="col-md-12">
         <form class="w3-container w3-card-4  w3-text-black ">
           <h1 class="w3-center my-3">
-            {{'Check In' | translate}}
+            Đăng ký xét nghiệm - Check In
           </h1>
 
-          <h5 class="w3-center mb-3"> {{'Rapid Test Kind' | translate}} </h5>
+          <h5 class="w3-center mb-3"> Loại xét nghiệm - Rapid Test Kind  </h5>
           <div class="d-flex justify-content-center">
             <ul style="padding: 0; margin: 0; list-style: none;">
               <li *ngFor="let item of testKindData">
                 <input type="radio" [id]="item.id" (ngModelChange)="success = 0" [(ngModel)]="kindId" [value]="item.id" name="kindId">
-                <label [for]="item.id">{{ item.name | translate}}</label>
+                <label [for]="item.id">{{ item.name == "Rapid Test" ? "Chuẩn đoán nhanh - " + item.name : item.name }}</label>
               </li>
 
             </ul>
