@@ -124,7 +124,7 @@ namespace RapidTest.Services
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Please go to wait till like {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
+                    Message = $"<h2>Please wait until {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
                     Success = true,
                     Data = null
                 };
