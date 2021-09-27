@@ -64,7 +64,7 @@
       <!-- /.card-body -->
     </div>
   </div>
-  <ejs-grid #grid
+  <!-- <ejs-grid #grid
   id='grid'
   [dataSource]="selectedData"
   height='350'
@@ -79,16 +79,11 @@
     </e-column>
 
   </e-columns>
-</ejs-grid>
+</ejs-grid> -->
   <div class="col-md-12">
-    <table class="table table-hover" id="qrcode" height='450' style="position: absolute; top: -9999999px; left: -9999px;">
-      <thead class="thead-dark">
-        <tr>
-          <th colspan="2">QR Code</th>
-        </tr>
-      </thead>
+    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; top: -9999999px; left: -9999px;">
       <tbody>
-        <!-- <ng-container *ngFor="let item of selectedData">
+        <ng-container *ngFor="let item of selectedData">
           <tr *ngIf="selectedData.length > 0">
             <td class="text-center">
                 <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
@@ -96,7 +91,7 @@
                   value="{{item.code}}"></ejs-qrcodegenerator>
             </td>
           </tr>
-        </ng-container> -->
+        </ng-container>
       </tbody>
     </table>
   </div>

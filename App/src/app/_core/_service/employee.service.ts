@@ -36,4 +36,7 @@ export class EmployeeService extends CURDService<Employee> {
   updateIsPrint(model): Observable<any> {
     return this.http.put<any>(this.base + 'Employee/UpdateIsPrint', model);
   }
+  getPrintOff(): Observable<any> {
+    return this.http.get<any>(this.base + 'Employee/getPrintOff', {});
+  }
 }

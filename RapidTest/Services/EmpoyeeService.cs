@@ -26,7 +26,7 @@ namespace RapidTest.Services
 
         Task<OperationResult> CheckIn(string code);
         Task<OperationResult> CheckIn(string code, int testKindId);
-
+        Task<List<EmployeeDto>> GetPrintOff();
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
@@ -69,7 +69,7 @@ namespace RapidTest.Services
         }
         public override async Task<List<EmployeeDto>> GetAllAsync()
         {
-            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x => x.Id).ToListAsync();
+            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderBy(x => x.IsPrint).ToListAsync();
 
         }
         public override async Task<OperationResult> AddAsync(EmployeeDto model)
@@ -444,6 +444,12 @@ namespace RapidTest.Services
             {
                 return false;
             }
+
+        }
+
+        public async Task<List<EmployeeDto>> GetPrintOff()
+        {
+            return await _repo.FindAll(x=> !x.IsPrint).OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
 
         }
     }

@@ -18,8 +18,20 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 })
 export class StaffInfoComponent implements OnInit {
   data;
-  toolbarOptions = ['ExcelExport', 'Search', 'Add'];
-  pageSettings = { pageCount: 20, pageSizes: true, pageSize: 12 };
+  toolbarOptions = ['ExcelExport', 'Search', 'Add',  {
+    text: 'Print Off',
+    tooltipText: 'Print Off',
+    prefixIcon: 'fa fa-check',
+    id: 'printoff',
+  },
+  {
+  text: 'All',
+  tooltipText: 'All',
+  prefixIcon: 'fa fa-list',
+  id: 'all',
+}
+];
+  pageSettings = { pageCount: 20, pageSizes: [12, 20, 50, 100, 150, "All"], pageSize: 12 };
   @ViewChild('grid') public grid: GridComponent;
   excelDownloadUrl: string;
   modalReference: NgbModalRef;
@@ -37,7 +49,7 @@ export class StaffInfoComponent implements OnInit {
   editSettings = { showDeleteConfirmDialog: false, allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal' };
   seaInform = true;
   gender = "";
-  isPrint = "";
+  isPrint = "OFF";
   isPrintData = ["ON", "OFF"];
   constructor(
     public modalService: NgbModal,
@@ -68,11 +80,7 @@ export class StaffInfoComponent implements OnInit {
   loadPrintData(args) {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
     if (dataSource.length >= 150 && args.checked) {
-      this.alertify.warning('Vui lòng chỉ in tối đa 150 dòng dữ liệu!', true);
-      this.grid.refresh();
-      this.grid.clearSelection();
-      this.selectedData = [];
-
+      this.selectedData = dataSource.slice(0, 150);
     } else {
       this.selectedData = dataSource;
     }
@@ -84,6 +92,13 @@ export class StaffInfoComponent implements OnInit {
       this.spinner.hide();
     }, (err) => this.spinner.hide());
   }
+  loadPrintOffData() {
+    this.spinner.show();
+    this.service.getPrintOff().subscribe(data => {
+      this.data = data;
+      this.spinner.hide();
+    }, (err) => this.spinner.hide());
+  }
   updateIsPrint() {
     const ids = this.selectedData.map(x=> x.id);
     const model = {
@@ -91,7 +106,7 @@ export class StaffInfoComponent implements OnInit {
       printBy: JSON.parse(localStorage.getItem('user')).id
     };
     this.service.updateIsPrint(model).subscribe(data => {
-      this.loadData();
+      this.loadPrintOffData();
       this.refresh();
       this.selectedData = [];
     }, (err) => this.alertify.warning("Faild to update print!"));
@@ -114,11 +129,18 @@ export class StaffInfoComponent implements OnInit {
       }
     })
   }
+
   toolbarClick(args) {
     switch (args.item.id) {
       case 'grid_excelexport':
         this.grid.excelExport({ hierarchyExportMode: 'All' });
         break;
+        case 'printoff':
+          this.loadPrintOffData();
+          break;
+          case 'all':
+            this.loadData();
+            break;
       default:
         break;
     }
@@ -140,7 +162,6 @@ export class StaffInfoComponent implements OnInit {
   checkBoxChange(args) {
     console.log(args);
     this.loadPrintData(args);
-    this.selectedData = this.grid.getSelectedRecords() as Employee[];
   }
   rowSelected(args) {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
@@ -223,7 +244,7 @@ export class StaffInfoComponent implements OnInit {
     if (args.requestType === 'beginEdit') {
       const data = args.rowData;
       this.gender = data.gender || '';
-      this.isPrint = data.isPrint || '';
+      this.isPrint = data.isPrint || 'OFF';
       this.seaInform = data.seaInform;
     }
     if (args.requestType === 'save' && args.action === 'add') {
@@ -310,6 +331,7 @@ export class StaffInfoComponent implements OnInit {
           this.loadData();
           this.createModel = {} as Employee;
           this.gender = "";
+          this.isPrint = "OFF";
           this.seaInform = true;
         } else {
           this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);

@@ -20,7 +20,11 @@ namespace RapidTest.Controllers
         {
             _service = service;
         }
-      
+        [HttpGet]
+        public async Task<ActionResult> GetPrintOff()
+        {
+            return Ok(await _service.GetPrintOff());
+        }
         [HttpGet]
         public async Task<ActionResult> GetAllAsync()
         {
