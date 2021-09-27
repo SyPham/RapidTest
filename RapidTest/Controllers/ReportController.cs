@@ -74,5 +74,11 @@ namespace RapidTest.Controllers
             var bin = await _service.RapidTestReport(startDate, endDate);
             return File(bin, "application/octet-stream", "Rapid Test Report.xlsx");
         }
+        [HttpGet]
+        public async Task<ActionResult> Dashboard()
+        {
+            return Ok(await _service.Dashboard());
+
+        }
     }
 }

@@ -19,7 +19,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   fullName: any;
   kindId: any;
   testKindData: TestKind[];
-
+  switchColor = false;
   constructor(
     private service: EmployeeService,
     private serviceTestKind: TestKindService
@@ -56,6 +56,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
     this.success = 0;
     this.service.checkin2(this.QRCode, this.kindId).subscribe(
       (res) => {
+        this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;

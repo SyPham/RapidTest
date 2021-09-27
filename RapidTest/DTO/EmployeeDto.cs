@@ -16,6 +16,7 @@ namespace RapidTest.DTO
         public string Department { get; set; } // Leo
         public string Gender { get; set; } // Leo
         public string BirthDate { get; set; } // Leo
+        public DateTime BirthDay { get; set; } // Leo
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get; set; }

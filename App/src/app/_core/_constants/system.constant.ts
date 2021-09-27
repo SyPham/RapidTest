@@ -7,4 +7,7 @@ export class AccountTypeConstant {
   public static MANAGER = "MANAGER";
   public static SYSTEM = "SYSTEM";
   public static USER = "USER";
+  public static CHECK_IN = "CHECK IN";
+  public static CHECK_OUT = "CHECK OUT";
+  public static ACCESS_CONTROL = "ACCESS CONTROL";
 }

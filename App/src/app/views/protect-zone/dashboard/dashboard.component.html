@@ -1,0 +1,36 @@
+<!--
+<div class="card">
+  <div class="card-body" *ngIf="barChartData.length > 0">
+    <div class="mb-5 d-flex justify-content-center">
+     <div class="form-check">
+        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+        <label class="form-check-label" for="exampleCheck1">Auto refresh</label>
+      </div>
+    </div>
+
+    <canvas baseChart
+    height="100"
+    [datasets]="barChartData"
+    [labels]="barChartLabels"
+    [options]="barChartOptions"
+    [legend]="barChartLegend"
+    [colors]='colors'
+    [chartType]="barChartType">
+</canvas>
+  </div>
+</div> -->
+<div class="mb-5 d-flex justify-content-center">
+  <div class="form-check">
+     <input type="checkbox" (ngModelChange)='onNgModelChangeScanQRCode($event)' [(ngModel)]="auto" class="form-check-input" id="exampleCheck1">
+     <label class="form-check-label" for="exampleCheck1">Auto refresh</label>
+   </div>
+ </div>
+<ejs-chart style='display:block;' [chartArea]='chartArea' [width]='width' align='center' id='chartcontainer' [primaryXAxis]='primaryXAxis'
+[primaryYAxis]='primaryYAxis' [title]='title' [tooltip]='tooltip' (load)='load($event)'>
+<e-series-collection>
+    <e-series [dataSource]='data' type='Column' xName='x' yName='y' name='Check In' width=2 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data1' type='Column' xName='x' yName='y' name='Check Out (-)' width=2 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data2' type='Column' xName='x' yName='y' name='Check Out (+)' width=2 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data3' type='Column' xName='x' yName='y' name='Access Control' width=2 [marker]='marker'> </e-series>
+</e-series-collection>
+</ejs-chart>

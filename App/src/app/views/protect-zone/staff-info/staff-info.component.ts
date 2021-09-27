@@ -18,7 +18,7 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 })
 export class StaffInfoComponent implements OnInit {
   data;
-  toolbarOptions = ['ExcelExport', 'Search'];
+  toolbarOptions = ['ExcelExport', 'Search', 'Add'];
   pageSettings = { pageCount: 20, pageSizes: true, pageSize: 12 };
   @ViewChild('grid') public grid: GridComponent;
   excelDownloadUrl: string;
@@ -28,9 +28,15 @@ export class StaffInfoComponent implements OnInit {
   importModal: TemplateRef<any>;
   selectOptions = { persistSelection: true };
   selectedData: Employee[] = [];
+  genderData = ["NAM", "NỮ"];
   displayTextMethod: DisplayTextModel = {
     visibility: false
   };
+  createModel: Employee;
+  editModel: Employee;
+  editSettings = { showDeleteConfirmDialog: false, allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal' };
+  seaInform = true;
+  gender = "";
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -42,6 +48,7 @@ export class StaffInfoComponent implements OnInit {
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
     this.loadData();
   }
+
   showModal() {
     this.modalReference = this.modalService.open(this.importModal, { size: 'xl' });
   }
@@ -56,6 +63,39 @@ export class StaffInfoComponent implements OnInit {
       (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
     );
   }
+  loadPrintData(args) {
+    const dataSource = this.grid.getSelectedRecords() as Employee[];
+    if (dataSource.length >= 300 && args.checked) {
+      this.spinner.show();
+      setTimeout(() => {
+        this.selectedData = dataSource;
+        this.spinner.hide();
+      }, 5000);
+    } else if (dataSource.length >= 500 && args.checked) {
+      this.spinner.show();
+      setTimeout(() => {
+        this.selectedData = dataSource;
+        this.spinner.hide();
+      }, 10000);
+    }
+    else if (dataSource.length >= 1000 && args.checked) {
+      this.spinner.show();
+      setTimeout(() => {
+        this.selectedData = dataSource;
+        this.spinner.hide();
+      }, 15000);
+    }
+    else if (dataSource.length >= 1300 && args.checked) {
+      this.spinner.show();
+      setTimeout(() => {
+        this.selectedData = dataSource;
+        this.spinner.hide();
+      }, 20000);
+    }
+    else {
+      this.selectedData = dataSource;
+    }
+  }
   loadData() {
     this.spinner.show();
     this.service.getAll().subscribe(data => {
@@ -66,18 +106,18 @@ export class StaffInfoComponent implements OnInit {
   onChange(args, data) {
     console.log(args);
     data.seaInform = args.checked;
-    this.toggleSEAInform(data.id, (res)=> {
+    this.toggleSEAInform(data.id, (res) => {
       if (res.success === true) {
         const message = res.message;
         const item = res.data;
         const dataSource = this.grid.dataSource as Employee[];
-        const index = dataSource.findIndex(x=> x.id == item.id);
+        const index = dataSource.findIndex(x => x.id == item.id);
         dataSource[index].seaInform = args.checked;
         this.grid.refresh();
         this.refresh();
         this.alertify.success(message);
       } else {
-         this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
       }
     })
   }
@@ -99,10 +139,14 @@ export class StaffInfoComponent implements OnInit {
         this.loadData();
         this.modalReference.close();
         this.alertify.success('The excel has been imported into system!');
+      }, err => {
+        this.spinner.hide();
+        this.alertify.error('Failed to upload!', true);
       });
   }
   checkBoxChange(args) {
     console.log(args);
+    this.loadPrintData(args);
     this.selectedData = this.grid.getSelectedRecords() as Employee[];
   }
   rowSelected(args) {
@@ -178,5 +222,125 @@ export class StaffInfoComponent implements OnInit {
     `;
     }
     this.configurePrint(html);
+  }
+
+  actionBegin(args) {
+    if (args.requestType === 'add') {
+    }
+    if (args.requestType === 'beginEdit') {
+      const data = args.rowData;
+      this.gender = data.gender || '';
+      this.seaInform = data.seaInform;
+    }
+    if (args.requestType === 'save' && args.action === 'add') {
+      this.createModel = {
+        id: 0,
+        fullName: args.data.fullName,
+        code: args.data.code,
+        factoryName: args.data.factoryName,
+        gender: this.gender,
+        birthDate: "",
+        birthDay: (args.data.birthDate as Date).toLocaleDateString(),
+        department: args.data.department,
+        factoryId: args.data.factoryId || 0,
+        seaInform: this.seaInform,
+        createdBy: JSON.parse(localStorage.getItem('user')).id,
+        createdTime: new Date().toLocaleDateString(),
+        modifiedBy: 0,
+        modifiedTime: null,
+        departmentId: args.data.departmentId || 0,
+      };
+
+      if (args.data.fullName === undefined) {
+        this.alertify.error('Please key in a fullName! <br> Vui lòng nhập họ và tên!');
+        args.cancel = true;
+        return;
+      }
+      if (args.data.factoryName === undefined) {
+        this.alertify.error('Please key in a factory! <br> Vui lòng nhập nhà máy!');
+        args.cancel = true;
+        return;
+      }
+      if (args.data.department === undefined) {
+        this.alertify.error('Please key in a department! <br> Vui lòng nhập đơn vị!');
+        args.cancel = true;
+        return;
+      }
+      this.create();
+    }
+    if (args.requestType === 'save' && args.action === 'edit') {
+      this.editModel = {
+        id: args.data.id,
+        fullName: args.data.fullName,
+        code: args.data.code,
+        factoryName: args.data.factoryName,
+        department: args.data.department,
+        factoryId: args.data.factoryId,
+        seaInform: this.seaInform,
+        gender: this.gender,
+        birthDay: (args.data.birthDate as Date).toLocaleDateString(),
+        birthDate: args.data.birthDate,
+        createdBy: args.data.createdBy,
+        createdTime: args.data.createdTime,
+        modifiedBy: JSON.parse(localStorage.getItem('user')).id,
+        modifiedTime: new Date().toLocaleDateString(),
+        departmentId: args.data.departmentId,
+      };
+      this.update();
+    }
+    if (args.requestType === 'delete') {
+      this.delete(args.data[0].id);
+    }
+  }
+  delete(id) {
+    this.service.delete(id).subscribe(
+      (res) => {
+        if (res.success === true) {
+          this.alertify.success(MessageConstants.DELETED_OK_MSG);
+          this.loadData();
+        } else {
+          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        }
+      },
+      (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
+    );
+
+  }
+  create() {
+    this.service.add(this.createModel).subscribe(
+      (res) => {
+        if (res.success === true) {
+          this.alertify.success(MessageConstants.CREATED_OK_MSG);
+          this.loadData();
+          this.createModel = {} as Employee;
+          this.gender = "";
+          this.seaInform = true;
+        } else {
+          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        }
+
+      },
+      (error) => {
+        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+      }
+    );
+  }
+  update() {
+    this.service.update(this.editModel).subscribe(
+      (res) => {
+        if (res.success === true) {
+          this.alertify.success(MessageConstants.UPDATED_OK_MSG);
+          this.loadData();
+          this.createModel = {} as Employee;
+          this.gender = "";
+          this.seaInform = true;
+        } else {
+          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        }
+      },
+      (error) => {
+        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+      }
+    );
   }
 }

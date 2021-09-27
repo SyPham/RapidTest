@@ -1,3 +1,4 @@
+import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
 import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { NgModule } from '@angular/core';
@@ -134,6 +135,14 @@ export const routes: Routes = [
           title: 'Test Kind'
         },
         canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'dashboard',
+        component: DashboardComponent,
+        data: {
+          title: 'Dashboard'
+        },
+        //canActivate: [AuthLocalGuard]
       },
     ]
   }, // otherwise redirect to home

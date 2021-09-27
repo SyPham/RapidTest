@@ -1,3 +1,4 @@
+import { navItemsAccessControl, navItemsCheckOut, navItemsCheckIn } from './../../_nav';
 import { PermissionService } from 'src/app/_core/_service/permission.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { AlertifyService } from '../../_core/_service/alertify.service';
@@ -148,8 +149,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       // });
       localStorage.setItem('user', JSON.stringify(data.user));
       localStorage.setItem('token', data.token);
+      const uri = decodeURI(this.uri);
+
       const check = this.checkLocalRole();
-      if (check) {
+      if (check ) {
         const uri = decodeURI(this.uri);
         this.router.navigate([uri]);
       } else {
@@ -161,6 +164,12 @@ export class LoginComponent implements OnInit, OnDestroy {
           backUrl = '/access-control';
         } else if (accountType == AccountTypeConstant.SYSTEM) {
           backUrl = '/account';
+        } else if (accountType == AccountTypeConstant.CHECK_IN) {
+          backUrl= '/check-in';
+        } else if (accountType == AccountTypeConstant.CHECK_OUT) {
+          backUrl = '/check-out';
+        } else if (accountType == AccountTypeConstant.ACCESS_CONTROL) {
+          backUrl = '/access-control';
         }
         this.router.navigate([backUrl]);
       }
@@ -203,8 +212,17 @@ export class LoginComponent implements OnInit, OnDestroy {
       navs = navItemsUser;
     } else if (accountType == AccountTypeConstant.SYSTEM) {
       navs = navItems;
+    } else if (accountType == AccountTypeConstant.CHECK_IN) {
+      navs = navItemsCheckIn;
+    } else if (accountType == AccountTypeConstant.CHECK_OUT) {
+      navs = navItemsCheckOut;
+    }else if (accountType == AccountTypeConstant.ACCESS_CONTROL) {
+      navs = navItemsAccessControl;
     }
     const uri = decodeURI(this.uri);
+    if (uri == '/login') {
+      return false;
+    }
     const permissions = navs.map(x => x.url);
     for (const url of permissions) {
       if (uri.includes(url)) {

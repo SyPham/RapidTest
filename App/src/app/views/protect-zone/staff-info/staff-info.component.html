@@ -1,6 +1,6 @@
 
 <ngx-spinner [fullScreen]="false" type="square-jelly-box" size="medium">
-  <p class="loading">Loading data...</p>
+  <p class="loading">Loading data... Chờ chút nhé...</p>
 </ngx-spinner>
 <div class="row">
   <div class="col-md-12 mb-2">
@@ -21,13 +21,16 @@
           [showColumnMenu]='true'
           [allowSelection]="true"
           [enableHover]="false"
+          [allowSorting]='true'
           [allowExcelExport]='true'
           [toolbar]='toolbarOptions'
           [selectionSettings]="selectOptions"
           [pageSettings]="pageSettings"
           gridLines='Both'
+          [editSettings]='editSettings'
           (checkBoxChange)='checkBoxChange($event)'
           (toolbarClick)='toolbarClick($event)'
+          (actionBegin)="actionBegin($event)"
           (rowSelected)='rowSelected($event)'        >
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>
@@ -36,12 +39,19 @@
             <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
             <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
-            <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}"> </e-column>
-            <e-column field="birthDate" textAlign='Center' headerText="{{ 'Birth Date'}}"> </e-column>
+            <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}">
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='gender' placeholder='Select gender' [dataSource]='genderData'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
+            <e-column field="birthDate" textAlign='Center' editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
 
             <e-column field="seaInform" textAlign='Center' headerText="{{ 'SEA Inform'}}">
               <ng-template #template let-data>
                 <ejs-switch [checked]="data.seaInform" (change)='onChange($event, data)'></ejs-switch>
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                <ejs-switch [checked]="seaInform" [(ngModel)]='seaInform'></ejs-switch>
               </ng-template>
             </e-column>
           </e-columns>
@@ -50,29 +60,39 @@
       <!-- /.card-body -->
     </div>
   </div>
+  <ejs-grid #grid
+  id='grid'
+  [dataSource]="selectedData"
+  height='350'
+  >
+  <e-columns>
+    <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'QR Code'}}">
+      <ng-template #template let-item>
+        <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
+        width="120px" height="160px" mode="SVG"
+        value="{{item.code}}"></ejs-qrcodegenerator>
+      </ng-template>
+    </e-column>
 
+  </e-columns>
+</ejs-grid>
   <div class="col-md-12">
-    <table class="table table-hover" id="qrcode" height='450' style="position: absolute; left: -9999px;">
+    <table class="table table-hover" id="qrcode" height='450' style="position: absolute; top: -9999999px; left: -9999px;">
       <thead class="thead-dark">
         <tr>
           <th colspan="2">QR Code</th>
         </tr>
       </thead>
       <tbody>
-        <ng-container *ngFor="let item of selectedData">
+        <!-- <ng-container *ngFor="let item of selectedData">
           <tr *ngIf="selectedData.length > 0">
             <td class="text-center">
                 <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
                   width="120px" height="160px" mode="SVG"
                   value="{{item.code}}"></ejs-qrcodegenerator>
             </td>
-            <td class="text-algin-left">
-                <div><label>Factory:</label> {{item.factoryName}}</div>
-                <div><label>QR Code: </label> -{{item.code}}</div>
-
-            </td>
           </tr>
-        </ng-container>
+        </ng-container> -->
       </tbody>
     </table>
   </div>

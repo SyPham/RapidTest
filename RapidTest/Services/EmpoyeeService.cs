@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
@@ -65,8 +66,120 @@ namespace RapidTest.Services
             _httpContextAccessor = httpContextAccessor;
             _configMapper = configMapper;
         }
+        public override async Task<List<EmployeeDto>> GetAllAsync()
+        {
+            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x=>x.Id).ToListAsync();
+
+        }
+        public override async Task<OperationResult> AddAsync(EmployeeDto model)
+        {
+            try
+            {
+                int factoryId = 0;
+                int departmentId = 0;
+
+                var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
+                var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
+
+                if (factory == null)
+                {
+                    var factoryItem = new Factory { Name = model.FactoryName };
+                    _repoFactory.Add(factoryItem);
+                    await _unitOfWork.SaveChangeAsync();
+                    factoryId = factoryItem.Id;
+                }
+                else
+                    factoryId = factory.Id;
 
 
+                if (department == null)
+                {
+                    var departmentItem = new Department { Code = model.Department };
+                    _repoDepartment.Add(departmentItem);
+                    await _unitOfWork.SaveChangeAsync();
+                    departmentId = departmentItem.Id;
+                }
+                else
+                    departmentId = department.Id;
+
+                var item = _mapper.Map<Employee>(model);
+                item.Gender = model.Gender.ToLower() == "nam" ? true : false;
+                item.DepartmentId = departmentId;
+                item.FactoryId = factoryId;
+                _repo.Add(item);
+
+                await _unitOfWork.SaveChangeAsync();
+
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = MessageReponse.AddSuccess,
+                    Success = true,
+                    Data = model
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
+        }
+        public override async Task<OperationResult> UpdateAsync(EmployeeDto model)
+        {
+            try
+            {
+                int factoryId = 0;
+                int departmentId = 0;
+
+                var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
+                var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
+
+                if (factory == null)
+                {
+                    var factoryItem = new Factory { Name = model.FactoryName };
+                    _repoFactory.Add(factoryItem);
+                    await _unitOfWork.SaveChangeAsync();
+                    factoryId = factoryItem.Id;
+                }
+                else
+                    factoryId = factory.Id;
+
+
+                if (department == null)
+                {
+                    var departmentItem = new Department { Code = model.Department };
+                    _repoDepartment.Add(departmentItem);
+                    await _unitOfWork.SaveChangeAsync();
+                    departmentId = departmentItem.Id;
+                }
+                else
+                    departmentId = department.Id;
+
+                var item = await _repo.FindByIdAsync(model.Id);
+                item.SEAInform = model.SEAInform;
+                item.Gender = model.Gender.ToLower() == "nam" ? true : false;
+                item.FullName = model.FullName;
+                item.BirthDate = model.BirthDay;
+                item.DepartmentId = departmentId;
+                item.FactoryId = factoryId;
+                _repo.Update(item);
+              
+                await _unitOfWork.SaveChangeAsync();
+
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = MessageReponse.UpdateSuccess,
+                    Success = true,
+                    Data = model
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
+        }
         public async Task<OperationResult> CheckIn(string code)
         {
             var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
@@ -104,7 +217,8 @@ namespace RapidTest.Services
             }
             return operationResult;
         }
-
+     
+      
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
             var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
@@ -161,7 +275,9 @@ namespace RapidTest.Services
 
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
             {
-                string fileName = file.FileName;
+                try
+                {
+                    string fileName = file.FileName;
                 int userid = createdBy.ToInt();
                 using (var package = new ExcelPackage(file.OpenReadStream()))
                 {
@@ -177,15 +293,14 @@ namespace RapidTest.Services
                         var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
                         var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
                         var gender = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
-                        var birthDate = workSheet.Cells[rowIterator, 6].Value.ToSafetyString();
+                        var birthDateTemp = workSheet.Cells[rowIterator, 6].Value.ToLong();
                         var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
-
+                        DateTime birthDate = DateTime.FromOADate(birthDateTemp);
                         if (!factoryName.IsNullOrEmpty() 
                             && !fullName.IsNullOrEmpty() 
                             && !code.IsNullOrEmpty() 
                             && !departmentName.IsNullOrEmpty() 
                             && !gender.IsNullOrEmpty()
-                            && !birthDate.IsNullOrEmpty()
                             && !SEAInform.IsNullOrEmpty())
                         {
                             // kiểm tra đẫ tồn tại trong db chưa
@@ -225,7 +340,7 @@ namespace RapidTest.Services
                                     FactoryId = factoryId,
                                     FullName = fullName,
                                     Code = code,
-                                    BirthDate = DateTime.Parse(birthDate),
+                                    BirthDate = birthDate,
                                     DepartmentId = departmentId,
                                     Gender = gender.ToLower() ==  "nam"? true : false,
                                     CreatedBy = createdBy.ToInt(),
@@ -235,7 +350,7 @@ namespace RapidTest.Services
                                 item.SEAInform = SEAInform.ToLower() == "true" ? true : false;
                                 item.Gender  = gender.ToLower() ==  "nam"? true : false;
                                 item.FullName  = fullName;
-                                item.BirthDate = DateTime.Parse(birthDate);
+                                item.BirthDate = birthDate;
                                 item.DepartmentId  = departmentId;
                                 updateList.Add(item);
                             }
@@ -244,15 +359,14 @@ namespace RapidTest.Services
                     }
                 }
 
-                try
-                {
+           
                     var data = _mapper.Map<List<Employee>>(datasList);
                     _repo.AddRange(data);
                     _repo.UpdateRange(updateList);
                     await _unitOfWork.SaveChangeAsync();
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     return false;
                 }

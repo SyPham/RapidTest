@@ -4,7 +4,7 @@ import { CanActivate, Router , ActivatedRoute, ActivatedRouteSnapshot, RouterSta
 import { AccountTypeConstant, ActionConstant } from '../_constants';
 import { AlertifyService } from '../_service/alertify.service';
 import { AuthenticationService } from '../_service/authentication.service';
-import { navItems, navItemsManager, navItemsUser } from 'src/app/_nav';
+import { navItems, navItemsAccessControl, navItemsCheckIn, navItemsCheckOut, navItemsManager, navItemsUser } from 'src/app/_nav';
 @Injectable({
   providedIn: 'root'
 })
@@ -36,6 +36,12 @@ export class AuthLocalGuard implements CanActivate {
       navs = navItemsUser;
     } else if (accountType == AccountTypeConstant.SYSTEM) {
       navs = navItems;
+    }else if (accountType == AccountTypeConstant.CHECK_IN) {
+      navs = navItemsCheckIn;
+    } else if (accountType == AccountTypeConstant.CHECK_OUT) {
+      navs = navItemsCheckOut;
+    }else if (accountType == AccountTypeConstant.ACCESS_CONTROL) {
+      navs = navItemsAccessControl;
     }
     const uri = route.routeConfig.path;
     const permissions = navs.map(x => x.url);

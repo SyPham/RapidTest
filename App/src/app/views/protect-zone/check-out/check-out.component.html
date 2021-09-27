@@ -57,11 +57,16 @@
   <div class="card-body d-flex justify-content-center">
 
     <div class="card" style="width: 60%;" *ngIf="success == 200">
-      <div class="card-body bg-success">
+      <div class="card-body bg-success" *ngIf="!switchColor">
        <h2>HỌ TÊN: {{fullName}}</h2>
        <h2>SỐ THẺ: {{QRCode}}</h2>
        <div [innerHTML]="message"></div>
       </div>
+      <div class="card-body bg-info" *ngIf="switchColor">
+        <h2>HỌ TÊN: {{fullName}}</h2>
+        <h2>SỐ THẺ: {{QRCode}}</h2>
+        <div [innerHTML]="message"></div>
+       </div>
     </div>
     <div class="card" style="width: 60%;" *ngIf="success == 403">
       <div class="card-body bg-danger">

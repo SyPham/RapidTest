@@ -22,6 +22,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   success = 0;
   fullName: any;
   message: any;
+  switchColor = false;
   constructor(
     private alertify: AlertifyService,
     private service: RapidTestReportService,
@@ -64,6 +65,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
     };
     this.service.scanQRCode(model).subscribe(
       (res) => {
+        this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;
 

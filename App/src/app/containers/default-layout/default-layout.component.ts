@@ -21,7 +21,7 @@ import { VersionService } from 'src/app/_core/_service/version.service';
 declare var require: any;
 import * as signalr from '../../../assets/js/ec-client.js';
 import { HubConnectionState } from '@microsoft/signalr';
-import { navItems, navItemsManager, navItemsUser } from 'src/app/_nav';
+import { navItems, navItemsAccessControl, navItemsCheckIn, navItemsCheckOut, navItemsManager, navItemsUser } from 'src/app/_nav';
 import { Authv2Service } from 'src/app/_core/_service/authv2.service';
 
 @Component({
@@ -133,6 +133,12 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
       this.navItems = navItemsManager
     } else if (this.accountType == AccountTypeConstant.USER) {
       this.navItems = navItemsUser
+    }else if (this.accountType == AccountTypeConstant.CHECK_IN) {
+      this.navItems = navItemsCheckIn;
+    } else if (this.accountType == AccountTypeConstant.CHECK_OUT) {
+      this.navItems = navItemsCheckOut;
+    }else if (this.accountType == AccountTypeConstant.ACCESS_CONTROL) {
+      this.navItems = navItemsAccessControl;
     }
     this.page = 1;
     this.pageSize = 10;
@@ -152,7 +158,13 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     } else if (this.accountType == AccountTypeConstant.USER) {
       return '/access-control';
     }else if (this.accountType == AccountTypeConstant.SYSTEM) {
-      return '/account';
+      return '/dashboard';
+    } else if (this.accountType == AccountTypeConstant.CHECK_IN) {
+      return '/check-in';
+    } else if (this.accountType == AccountTypeConstant.CHECK_OUT) {
+      return '/check-out';
+    } else if (this.accountType == AccountTypeConstant.ACCESS_CONTROL) {
+      return '/access-control';
     }
   }
   getMenu() {

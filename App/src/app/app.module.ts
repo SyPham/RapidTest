@@ -1,3 +1,4 @@
+import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
 import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
@@ -83,6 +84,7 @@ import { QRCodeGeneratorAllModule } from '@syncfusion/ej2-angular-barcode-genera
 import { SwitchModule } from '@syncfusion/ej2-angular-buttons';
 import { AutoSelectDirective } from './_core/_directive/select.directive';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
+import { ChartAllModule } from '@syncfusion/ej2-angular-charts';
 
 declare var require: any;
 loadCldr(
@@ -116,7 +118,8 @@ const rapidTestComponent = [
   CheckInComponent,
   CheckOutComponent,
   TestKindComponent,
-  SettingComponent
+  SettingComponent,
+  DashboardComponent
 ];
 @NgModule({
   imports: [
@@ -141,6 +144,7 @@ const rapidTestComponent = [
     DatePickerModule ,
     QRCodeGeneratorAllModule,
     SwitchModule ,
+    ChartAllModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

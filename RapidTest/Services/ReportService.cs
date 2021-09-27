@@ -27,13 +27,14 @@ namespace RapidTest.Services
         /// <param name="request"></param>
         /// <returns></returns>
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
-
+        Task<object> Dashboard();
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
     }
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
         private readonly IRepositoryBase<Report> _repo;
+        private readonly IRepositoryBase<FactoryReport> _repoFactoryReport;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Models.TestKind> _repoTestKind;
         private readonly IRepositoryBase<Employee> _repoEmployee;
@@ -45,6 +46,7 @@ namespace RapidTest.Services
 
         public ReportService(
             IRepositoryBase<Report> repo,
+            IRepositoryBase<FactoryReport> repoFactoryReport,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Models.TestKind> repoTestKind,
 
@@ -57,6 +59,7 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoFactoryReport = repoFactoryReport;
             _repoSetting = repoSetting;
             _repoTestKind = repoTestKind;
             _repoEmployee = repoEmployee;
@@ -70,7 +73,7 @@ namespace RapidTest.Services
         {
             if (string.IsNullOrEmpty(code))
                 return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new {x.Code, x.CreatedTime }).ToList();
+               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
             else return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
         }
@@ -88,10 +91,20 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
+            if (request.KindId == 0)
+            {
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>Please select a test kind! ,<br><span>Vui lòng chọn loại xét nghiệm!</span></h2>",
+                    Success = false,
+                    Data = null
+                };
+            }
             var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
             var checkIn = new CheckIn();
             if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).OrderByDescending(x=>x.Id).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             else
                 checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             if (checkIn == null)
@@ -104,6 +117,19 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
+            var checkOutTime = DateTime.Now.AddMinutes(-15);
+            if (checkOutTime < checkIn.CreatedTime)
+            {
+                var checkOutHour = checkIn.CreatedTime.AddMinutes(15).ToString("HH:mm tt");
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>Please go to wait till like {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
+                    Success = true,
+                    Data = null
+                };
+            }
+
             var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
             var daySetting = setting.Day;
             var expiryTime = DateTime.Now.AddDays(daySetting).Date;
@@ -253,6 +279,39 @@ namespace RapidTest.Services
         {
             var data = new List<ReportDto>();
             return ExcelExport(data);
+        }
+
+        public async Task<object> Dashboard()
+        {
+            var checkIn = await _repoCheckIn.FindAll().CountAsync();
+            var checkOutPositive = await _repo.FindAll(x => x.Result == Result.Positive).CountAsync();
+            var checkOutNegative = await _repo.FindAll(x => x.Result == Result.Negative).CountAsync();
+            var accessControl = await _repoFactoryReport.FindAll().CountAsync();
+            return new
+            {
+                data = new object[] {
+                     new object[] {new
+                     {
+                         y = checkIn,
+                         x = "Check In"
+                     }},
+                 new object[] { new
+                {
+                    y = checkOutNegative,
+                    x = "Check Out (-)"
+                } },
+                 new object[] { new
+                {
+                    y = checkOutPositive,
+                    x = "Check Out (+)"
+                } },
+                  new object[] {new
+                {
+                    y = accessControl,
+                    x = "Access Control"
+                } }
+            }
+            };
         }
     }
 }

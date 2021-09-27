@@ -17,6 +17,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   success = 0;
   message = '';
   fullName: any;
+  switchColor = false;
   constructor(
     private alertify: AlertifyService,
     private service: FactoryReportService
@@ -45,6 +46,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
     this.success = 0;
     this.service.accessControl(this.QRCode).subscribe(
       (res) => {
+        this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;
         if (res.success && res.statusCode == 200) {
