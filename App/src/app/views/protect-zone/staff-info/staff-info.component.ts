@@ -51,6 +51,8 @@ export class StaffInfoComponent implements OnInit {
   gender = "";
   isPrint = "OFF";
   isPrintData = ["ON", "OFF"];
+  disable = true;
+  loading = 1;
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -77,11 +79,19 @@ export class StaffInfoComponent implements OnInit {
       (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
     );
   }
+
   loadPrintData(args) {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
     if (dataSource.length >= 150 && args.checked) {
       this.selectedData = dataSource.slice(0, 150);
+      this.loading = 0;
+      this.alertify.message('Vui lòng đợi ít nhất 10 giây để hệ thống tạo ra 150 mã QR Code', true);
+      setTimeout(() => {
+        this.loading = 2;
+        this.disable = false;}, 10000);
     } else {
+      this.loading = 1;
+      this.disable = false;
       this.selectedData = dataSource;
     }
   }

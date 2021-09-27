@@ -5,8 +5,10 @@
 <div class="row">
   <div class="col-md-12 mb-2">
     <button type="button" class="btn btn-secondary mr-2" (click)='showModal()'>Import Excel</button>
-    <button type="button" class="btn btn-secondary" (click)='printData()'>
-      Print Out Qr Code ( {{selectedData.length}} {{selectedData.length > 1 ? "staffs" : "staff"}} )
+    <button type="button" class="btn btn-secondary" [disabled]='disable' (click)='printData()'>
+      <span *ngIf="loading == 0" class="spinner-border spinner-border-sm text-danger" role="status" aria-hidden="true"></span>
+      <span *ngIf="loading == 0">Loading... Chờ chút nhé... </span>
+      <span *ngIf="loading == 1 || loading == 2"> Print Out Qr Code ( {{selectedData.length}} {{selectedData.length > 1 ? "staffs" : "staff"}} )</span>
     </button>
     <span class="text-danger">Vui lòng chỉ in tối đa 150 dòng dữ liệu. Lý do: Hệ thống sẽ bị quá tải khi in nhiều bản cùng lúc! </span>
   </div>
@@ -81,7 +83,7 @@
   </e-columns>
 </ejs-grid> -->
   <div class="col-md-12">
-    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; top: -9999999px; left: -9999px;">
+    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; ">
       <tbody>
         <ng-container *ngFor="let item of selectedData">
           <tr *ngIf="selectedData.length > 0">
