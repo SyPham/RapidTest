@@ -19,7 +19,12 @@ namespace RapidTest.Models
         public int FactoryId { get; set; }
         public bool SEAInform { get; set; }
         public bool? Gender { get; set; }
+        public bool IsPrint { get; set; }
+
         public DateTime BirthDate { get; set; }
+
+        public DateTime? LatestPrintTime { get; set; }
+        public int? PrintBy { get; set; }
 
         public int DepartmentId { get; set; }
         public int CreatedBy { get; set; }

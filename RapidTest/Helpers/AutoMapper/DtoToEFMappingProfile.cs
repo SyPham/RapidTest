@@ -25,6 +25,7 @@ namespace RapidTest.Helpers.AutoMapper
             CreateMap<EmployeeDto, Employee>()
                 .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.BirthDay))
                 .ForMember(d => d.Department, o => o.Ignore())
+                .ForMember(d => d.IsPrint, o => o.Ignore())
                 .ForMember(d => d.Gender, o => o.Ignore());
 
             CreateMap<ReportDto, Report>();

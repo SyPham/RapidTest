@@ -37,6 +37,8 @@ export class StaffInfoComponent implements OnInit {
   editSettings = { showDeleteConfirmDialog: false, allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal' };
   seaInform = true;
   gender = "";
+  isPrint = "";
+  isPrintData = ["ON", "OFF"];
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -65,34 +67,13 @@ export class StaffInfoComponent implements OnInit {
   }
   loadPrintData(args) {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
-    if (dataSource.length >= 300 && args.checked) {
-      this.spinner.show();
-      setTimeout(() => {
-        this.selectedData = dataSource;
-        this.spinner.hide();
-      }, 5000);
-    } else if (dataSource.length >= 500 && args.checked) {
-      this.spinner.show();
-      setTimeout(() => {
-        this.selectedData = dataSource;
-        this.spinner.hide();
-      }, 10000);
-    }
-    else if (dataSource.length >= 1000 && args.checked) {
-      this.spinner.show();
-      setTimeout(() => {
-        this.selectedData = dataSource;
-        this.spinner.hide();
-      }, 15000);
-    }
-    else if (dataSource.length >= 1300 && args.checked) {
-      this.spinner.show();
-      setTimeout(() => {
-        this.selectedData = dataSource;
-        this.spinner.hide();
-      }, 20000);
-    }
-    else {
+    if (dataSource.length >= 150 && args.checked) {
+      this.alertify.warning('Vui lòng chỉ in tối đa 150 dòng dữ liệu!', true);
+      this.grid.refresh();
+      this.grid.clearSelection();
+      this.selectedData = [];
+
+    } else {
       this.selectedData = dataSource;
     }
   }
@@ -102,6 +83,18 @@ export class StaffInfoComponent implements OnInit {
       this.data = data;
       this.spinner.hide();
     }, (err) => this.spinner.hide());
+  }
+  updateIsPrint() {
+    const ids = this.selectedData.map(x=> x.id);
+    const model = {
+      ids: ids,
+      printBy: JSON.parse(localStorage.getItem('user')).id
+    };
+    this.service.updateIsPrint(model).subscribe(data => {
+      this.loadData();
+      this.refresh();
+      this.selectedData = [];
+    }, (err) => this.alertify.warning("Faild to update print!"));
   }
   onChange(args, data) {
     console.log(args);
@@ -202,7 +195,7 @@ export class StaffInfoComponent implements OnInit {
   </html>
   `);
     WindowPrt.document.close();
-    this.refresh();
+    this.updateIsPrint();
   }
   printData() {
     let html = '';
@@ -230,6 +223,7 @@ export class StaffInfoComponent implements OnInit {
     if (args.requestType === 'beginEdit') {
       const data = args.rowData;
       this.gender = data.gender || '';
+      this.isPrint = data.isPrint || '';
       this.seaInform = data.seaInform;
     }
     if (args.requestType === 'save' && args.action === 'add') {
@@ -239,6 +233,7 @@ export class StaffInfoComponent implements OnInit {
         code: args.data.code,
         factoryName: args.data.factoryName,
         gender: this.gender,
+        isPrint: this.isPrint,
         birthDate: "",
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
         department: args.data.department,
@@ -277,6 +272,7 @@ export class StaffInfoComponent implements OnInit {
         department: args.data.department,
         factoryId: args.data.factoryId,
         seaInform: this.seaInform,
+        isPrint: this.isPrint,
         gender: this.gender,
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
         birthDate: args.data.birthDate,

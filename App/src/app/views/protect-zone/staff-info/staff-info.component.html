@@ -7,8 +7,8 @@
     <button type="button" class="btn btn-secondary mr-2" (click)='showModal()'>Import Excel</button>
     <button type="button" class="btn btn-secondary" (click)='printData()'>
       Print Out Qr Code ( {{selectedData.length}} {{selectedData.length > 1 ? "staffs" : "staff"}} )
-
     </button>
+    <span class="text-danger">Vui lòng chỉ in tối đa 150 dòng dữ liệu. Lý do: Hệ thống sẽ bị quá tải khi in nhiều bản cùng lúc! </span>
   </div>
   <div class="col-md-12">
     <div class="card">
@@ -39,19 +39,23 @@
             <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
             <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
-            <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}">
+            <e-column field="gender" textAlign='Center' [width]="100" headerText="{{ 'Gender'}}">
               <ng-template #editTemplate let-data>
                 <ejs-dropdownlist [(ngModel)]='gender' placeholder='Select gender' [dataSource]='genderData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
             <e-column field="birthDate" textAlign='Center' editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
-
             <e-column field="seaInform" textAlign='Center' headerText="{{ 'SEA Inform'}}">
               <ng-template #template let-data>
                 <ejs-switch [checked]="data.seaInform" (change)='onChange($event, data)'></ejs-switch>
               </ng-template>
               <ng-template #editTemplate let-data>
                 <ejs-switch [checked]="seaInform" [(ngModel)]='seaInform'></ejs-switch>
+              </ng-template>
+            </e-column>
+            <e-column field="isPrint" textAlign='Center' headerText="{{ 'Print: ON/OFF'}}">
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='isPrint' placeholder='Select print' [dataSource]='isPrintData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
           </e-columns>

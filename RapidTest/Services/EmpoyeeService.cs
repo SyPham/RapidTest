@@ -21,10 +21,11 @@ namespace RapidTest.Services
     public interface IEmployeeService : IServiceBase<Employee, EmployeeDto>
     {
         Task<bool> ImportExcel();
+        Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
 
         Task<OperationResult> CheckIn(string code);
-        Task<OperationResult> CheckIn(string code, int testKindId );
+        Task<OperationResult> CheckIn(string code, int testKindId);
 
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
@@ -68,7 +69,7 @@ namespace RapidTest.Services
         }
         public override async Task<List<EmployeeDto>> GetAllAsync()
         {
-            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x=>x.Id).ToListAsync();
+            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x => x.Id).ToListAsync();
 
         }
         public override async Task<OperationResult> AddAsync(EmployeeDto model)
@@ -77,7 +78,8 @@ namespace RapidTest.Services
             {
                 int factoryId = 0;
                 int departmentId = 0;
-
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
                 var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
 
@@ -104,8 +106,10 @@ namespace RapidTest.Services
 
                 var item = _mapper.Map<Employee>(model);
                 item.Gender = model.Gender.ToLower() == "nam" ? true : false;
+                item.IsPrint = model.IsPrint.ToLower() == "on" ? true : false;
                 item.DepartmentId = departmentId;
                 item.FactoryId = factoryId;
+                item.CreatedBy = accountId;
                 _repo.Add(item);
 
                 await _unitOfWork.SaveChangeAsync();
@@ -130,7 +134,8 @@ namespace RapidTest.Services
             {
                 int factoryId = 0;
                 int departmentId = 0;
-
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
                 var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
 
@@ -158,12 +163,14 @@ namespace RapidTest.Services
                 var item = await _repo.FindByIdAsync(model.Id);
                 item.SEAInform = model.SEAInform;
                 item.Gender = model.Gender.ToLower() == "nam" ? true : false;
+                item.IsPrint = model.IsPrint.ToLower() == "on" ? true : false;
                 item.FullName = model.FullName;
                 item.BirthDate = model.BirthDay;
                 item.DepartmentId = departmentId;
                 item.FactoryId = factoryId;
+                item.ModifiedBy = accountId;
                 _repo.Update(item);
-              
+
                 await _unitOfWork.SaveChangeAsync();
 
                 operationResult = new OperationResult
@@ -191,7 +198,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-        
+
             if (!employee.SEAInform)
                 return new OperationResult
                 {
@@ -217,8 +224,8 @@ namespace RapidTest.Services
             }
             return operationResult;
         }
-     
-      
+
+
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
             var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
@@ -271,6 +278,8 @@ namespace RapidTest.Services
             object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
             var datasList = new List<EmployeeImportExcelDto>();
             var updateList = new List<Employee>();
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
@@ -278,88 +287,94 @@ namespace RapidTest.Services
                 try
                 {
                     string fileName = file.FileName;
-                int userid = createdBy.ToInt();
-                using (var package = new ExcelPackage(file.OpenReadStream()))
-                {
-                    var currentSheet = package.Workbook.Worksheets;
-                    var workSheet = currentSheet.First();
-                    var noOfCol = workSheet.Dimension.End.Column;
-                    var noOfRow = workSheet.Dimension.End.Row;
-
-                    for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
+                    int userid = createdBy.ToInt();
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
                     {
-                        var factoryName = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
-                        var code = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
-                        var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
-                        var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
-                        var gender = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
-                        var birthDateTemp = workSheet.Cells[rowIterator, 6].Value.ToLong();
-                        var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
-                        DateTime birthDate = DateTime.FromOADate(birthDateTemp);
-                        if (!factoryName.IsNullOrEmpty() 
-                            && !fullName.IsNullOrEmpty() 
-                            && !code.IsNullOrEmpty() 
-                            && !departmentName.IsNullOrEmpty() 
-                            && !gender.IsNullOrEmpty()
-                            && !SEAInform.IsNullOrEmpty())
+                        var currentSheet = package.Workbook.Worksheets;
+                        var workSheet = currentSheet.First();
+                        var noOfCol = workSheet.Dimension.End.Column;
+                        var noOfRow = workSheet.Dimension.End.Row;
+
+                        for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
                         {
-                            // kiểm tra đẫ tồn tại trong db chưa
-                            int factoryId = 0;
-                            int departmentId = 0;
-
-                            var factory = await _repoFactory.FindAll(x => x.Name == factoryName).FirstOrDefaultAsync();
-                            var department = await _repoDepartment.FindAll(x => x.Code == departmentName).FirstOrDefaultAsync();
-                            
-                            if (factory == null)
+                            var factoryName = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
+                            var code = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
+                            var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
+                            var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
+                            var gender = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
+                            var birthDateTemp = workSheet.Cells[rowIterator, 6].Value.ToLong();
+                            var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
+                            var isPrint = workSheet.Cells[rowIterator, 8].Value.ToSafetyString();
+                            DateTime birthDate = DateTime.FromOADate(birthDateTemp);
+                            if (!factoryName.IsNullOrEmpty()
+                                && !fullName.IsNullOrEmpty()
+                                && !code.IsNullOrEmpty()
+                                && !departmentName.IsNullOrEmpty()
+                                && !gender.IsNullOrEmpty()
+                                && !isPrint.IsNullOrEmpty()
+                                && !SEAInform.IsNullOrEmpty())
                             {
-                                var factoryItem = new Factory { Name = factoryName };
-                                _repoFactory.Add(factoryItem);
-                                await _unitOfWork.SaveChangeAsync();
-                                factoryId = factoryItem.Id;
-                            }
-                            else
-                                factoryId = factory.Id;
+                                // kiểm tra đẫ tồn tại trong db chưa
+                                int factoryId = 0;
+                                int departmentId = 0;
 
+                                var factory = await _repoFactory.FindAll(x => x.Name == factoryName).FirstOrDefaultAsync();
+                                var department = await _repoDepartment.FindAll(x => x.Code == departmentName).FirstOrDefaultAsync();
 
-                            if (department == null)
-                            {
-                                var departmentItem = new Department { Code = departmentName };
-                                _repoDepartment.Add(departmentItem);
-                                await _unitOfWork.SaveChangeAsync();
-                                departmentId = departmentItem.Id;
-                            }
-                            else
-                                departmentId = department.Id;
-
-                            var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
-                            if (item == null)
-                            {
-
-                                datasList.Add(new EmployeeImportExcelDto()
+                                if (factory == null)
                                 {
-                                    FactoryId = factoryId,
-                                    FullName = fullName,
-                                    Code = code,
-                                    BirthDate = birthDate,
-                                    DepartmentId = departmentId,
-                                    Gender = gender.ToLower() ==  "nam"? true : false,
-                                    CreatedBy = createdBy.ToInt(),
-                                    SEAInform = SEAInform.ToLower() == "true" ? true : false
-                                });
-                            } else {
-                                item.SEAInform = SEAInform.ToLower() == "true" ? true : false;
-                                item.Gender  = gender.ToLower() ==  "nam"? true : false;
-                                item.FullName  = fullName;
-                                item.BirthDate = birthDate;
-                                item.DepartmentId  = departmentId;
-                                updateList.Add(item);
-                            }
+                                    var factoryItem = new Factory { Name = factoryName };
+                                    _repoFactory.Add(factoryItem);
+                                    await _unitOfWork.SaveChangeAsync();
+                                    factoryId = factoryItem.Id;
+                                }
+                                else
+                                    factoryId = factory.Id;
 
+
+                                if (department == null)
+                                {
+                                    var departmentItem = new Department { Code = departmentName };
+                                    _repoDepartment.Add(departmentItem);
+                                    await _unitOfWork.SaveChangeAsync();
+                                    departmentId = departmentItem.Id;
+                                }
+                                else
+                                    departmentId = department.Id;
+
+                                var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                                if (item == null)
+                                {
+
+                                    datasList.Add(new EmployeeImportExcelDto()
+                                    {
+                                        FactoryId = factoryId,
+                                        FullName = fullName,
+                                        Code = code,
+                                        BirthDate = birthDate,
+                                        DepartmentId = departmentId,
+                                        IsPrint = isPrint.ToLower() == "on" ? true : false,
+                                        Gender = gender.ToLower() == "nam" ? true : false,
+                                        CreatedBy = accountId,
+                                        SEAInform = SEAInform.ToLower() == "true" ? true : false
+                                    });
+                                }
+                                else
+                                {
+                                    item.SEAInform = SEAInform.ToLower() == "true" ? true : false;
+                                    item.IsPrint = isPrint.ToLower() == "on" ? true : false;
+                                    item.Gender = gender.ToLower() == "nam" ? true : false;
+                                    item.FullName = fullName;
+                                    item.BirthDate = birthDate;
+                                    item.DepartmentId = departmentId;
+                                    updateList.Add(item);
+                                }
+
+                            }
                         }
                     }
-                }
 
-           
+
                     var data = _mapper.Map<List<Employee>>(datasList);
                     _repo.AddRange(data);
                     _repo.UpdateRange(updateList);
@@ -405,6 +420,31 @@ namespace RapidTest.Services
             return operationResult;
         }
 
+        public async Task<bool> UpdateIsPrint(UpdateIsPrintRequest request)
+        {
+            try
+            {
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+                var employee = await _repo.FindAll(x => request.Ids.Contains(x.Id)).ToListAsync();
 
+                employee.ForEach(item =>
+                {
+                    item.PrintBy = accountId;
+                    item.IsPrint = true;
+                    item.LatestPrintTime = DateTime.Now;
+                });
+
+                _repo.UpdateRange(employee);
+                await _unitOfWork.SaveChangeAsync();
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+        }
     }
 }

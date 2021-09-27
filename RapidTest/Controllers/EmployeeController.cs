@@ -117,5 +117,11 @@ namespace RapidTest.Controllers
                 {".csv", "text/csv"}
             };
         }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateIsPrint([FromBody] UpdateIsPrintRequest model)
+        {
+            return Ok(await _service.UpdateIsPrint(model));
+        }
     }
 }

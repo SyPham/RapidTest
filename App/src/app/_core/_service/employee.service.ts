@@ -33,4 +33,7 @@ export class EmployeeService extends CURDService<Employee> {
   checkin2(code, testKindId): Observable<OperationResult> {
     return this.http.get<OperationResult>(`${this.base}Employee/Checkin2?code=${code}&testKindId=${testKindId}`);
   }
+  updateIsPrint(model): Observable<any> {
+    return this.http.put<any>(this.base + 'Employee/UpdateIsPrint', model);
+  }
 }

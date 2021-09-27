@@ -5,6 +5,7 @@ export interface Employee {
   birthDate: any;
   birthDay: any;
   gender: string;
+  isPrint: string;
   code: string;
   factoryId: number;
   departmentId: number;
