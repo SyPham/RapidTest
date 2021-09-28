@@ -19,8 +19,8 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 export class StaffInfoComponent implements OnInit {
   data;
   toolbarOptions = ['ExcelExport', 'Search', 'Add',  {
-    text: 'Print Off',
-    tooltipText: 'Print Off',
+    text: 'Filter Off',
+    tooltipText: 'Filter Off',
     prefixIcon: 'fa fa-check',
     id: 'printoff',
   },
