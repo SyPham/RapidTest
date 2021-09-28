@@ -283,15 +283,15 @@ namespace RapidTest.Services
 
         public async Task<object> Dashboard(DateTime startTime, DateTime endTime)
         {
-            //var checkIn = await _repoCheckIn.FindAll(x=> x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
-            //var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date&&x.Result == Result.Positive).CountAsync();
-            //var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date&&x.Result == Result.Negative).CountAsync();
-            //var accessControl = await _repoFactoryReport.FindAll(x=> x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
+            var checkIn = await _repoCheckIn.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
+            var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).CountAsync();
+            var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).CountAsync();
+            var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
 
-            var checkIn = RandomUtility.Double(50, 60).ToInt();
-            var checkOutPositive = RandomUtility.Double(70, 80).ToInt();
-            var checkOutNegative = RandomUtility.Double(80, 90).ToInt();
-            var accessControl = RandomUtility.Double(90, 100).ToInt();
+            //var checkIn = RandomUtility.Double(50, 60).ToInt();
+            //var checkOutPositive = RandomUtility.Double(70, 80).ToInt();
+            //var checkOutNegative = RandomUtility.Double(80, 90).ToInt();
+            //var accessControl = RandomUtility.Double(90, 100).ToInt();
             return new
             {
                 data = new object[] {
