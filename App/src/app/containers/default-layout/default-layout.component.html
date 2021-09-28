@@ -2,10 +2,11 @@
 </ngx-spinner>
 <app-header [navbarBrandRouterLink]="[index()]" [fixed]="true"
   [navbarBrandFull]="{src: 'assets/img/logo.png', width: 50, height: 25, alt: 'Logo'}"
-  [navbarBrandMinimized]="{src: 'assets/img/logo.png', width: 25, height: 25, alt: 'Logo'}" [sidebarToggler]="'lg'"
-  [asideMenuToggler]="'lg'"
-   [asideMenuToggler]="false"
+  [navbarBrandMinimized]="{src: 'assets/img/logo.png', width: 25, height: 25, alt: 'Logo'}"
+  [sidebarToggler]="sidebarToggler"
+  [asideMenuToggler]="asideMenuToggler"
   [mobileAsideMenuToggler]="false"
+  [mobileSidebarToggler]='mobileSidebarToggler'
   >
   <ul class="nav navbar-nav nav-link-dark d-md-down-none">
     <li class="nav-item">
@@ -13,19 +14,6 @@
     </li>
   </ul>
   <ul class="nav navbar-nav ml-auto p-0">
-    <!-- <li class="nav-item d-md-down-none mr-2">
-      <a class="nav-link">
-
-        <button type="button" (click)='openModal(versionHistoryModal)' class="btn btn-info text-white">Version
-          <span class="badge-pill" style="background-color: white; color:#63c2de;">{{firstItem?.name}}</span></button>
-      </a>
-    </li>
-    <li class="nav-item d-md-down-none mr-2">
-      <a class="nav-link">
-        <button type="button" (click)='openModal(versionHistoryModal)' class="btn btn-info text-white">Uploaded Time
-          <span class="badge-pill" style="background-color: white; color:#63c2de;">{{firstItem?.createdTime | date: 'YYYY-MM-dd HH:mm'}}</span></button>
-      </a>
-    </li> -->
     <li class="nav-item d-md-down-none mr-2" style="width: 70px;">
       <div class="nav-link">
 <ejs-dropdownlist id='langs' #langs [dataSource]='langsData' (change)='onChange($event)' [value]='value'
@@ -87,7 +75,7 @@
       <router-outlet ></router-outlet>
     </div><!-- /.container-fluid -->
   </main>
-  <app-aside [fixed]="true" [display]="false" [ngClass]="'test'">
+  <!-- <app-aside [fixed]="true" [display]="false" [ngClass]="'test'">
     <tabset>
       <tab>
         <ng-template tabHeading><i class="icon-list"></i></ng-template>
@@ -353,7 +341,7 @@
         </div>
       </tab>
     </tabset>
-  </app-aside>
+  </app-aside> -->
 </div>
 <app-footer>
   <span><a href="/">Copyright © 2021 SHYANG HUNG CHENG INDUSTRIAL CO., LTD All </a> &copy; Right reserved.</span>

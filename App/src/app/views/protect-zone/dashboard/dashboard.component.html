@@ -1,36 +1,27 @@
-<!--
-<div class="card">
-  <div class="card-body" *ngIf="barChartData.length > 0">
-    <div class="mb-5 d-flex justify-content-center">
-     <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Auto refresh</label>
-      </div>
-    </div>
+<div class="mb-2 d-flex justify-content-center align-items-center">
 
-    <canvas baseChart
-    height="100"
-    [datasets]="barChartData"
-    [labels]="barChartLabels"
-    [options]="barChartOptions"
-    [legend]="barChartLegend"
-    [colors]='colors'
-    [chartType]="barChartType">
-</canvas>
-  </div>
-</div> -->
-<div class="mb-5 d-flex justify-content-center">
-  <div class="form-check">
-     <input type="checkbox" (ngModelChange)='onNgModelChangeScanQRCode($event)' [(ngModel)]="auto" class="form-check-input" id="exampleCheck1">
-     <label class="form-check-label" for="exampleCheck1">Auto refresh</label>
+  <div class="font-weight-bold px-3">{{'Filter' | translate}}:</div>
+  <ejs-datepicker class="pr-3" (change)='startDateOnchange($event)' [(ngModel)]="startDate"></ejs-datepicker>
+
+  <ejs-datepicker class="pr-3" (change)='endDateOnchange($event)' [(ngModel)]="endDate"></ejs-datepicker>
+
+  <button class="btn btn-sm btn-secondary mr-3" (click)="reset()"><i class="fa fa-times"></i></button>
+
+  <div class="mr-2">Update per 1 mins </div>
+  <div class="d-flex justify-content-center">
+    <div class="form-check">
+       <input type="checkbox" (ngModelChange)='onNgModelChangeScanQRCode($event)' [(ngModel)]="auto" class="form-check-input" id="exampleCheck1">
+       <label class="form-check-label" for="exampleCheck1">Auto refresh</label>
+     </div>
    </div>
- </div>
+</div>
+
 <ejs-chart style='display:block;' [chartArea]='chartArea' [width]='width' align='center' id='chartcontainer' [primaryXAxis]='primaryXAxis'
-[primaryYAxis]='primaryYAxis' [title]='title' [tooltip]='tooltip' (load)='load($event)'>
+[primaryYAxis]='primaryYAxis' [title]='title' [palettes]='palette' [tooltip]='tooltip' (load)='load($event)'>
 <e-series-collection>
-    <e-series [dataSource]='data' type='Column' xName='x' yName='y' name='Check In' width=2 [marker]='marker'> </e-series>
-    <e-series [dataSource]='data1' type='Column' xName='x' yName='y' name='Check Out (-)' width=2 [marker]='marker'> </e-series>
-    <e-series [dataSource]='data2' type='Column' xName='x' yName='y' name='Check Out (+)' width=2 [marker]='marker'> </e-series>
-    <e-series [dataSource]='data3' type='Column' xName='x' yName='y' name='Access Control' width=2 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data' [colorName]="'#FFFF99'" type='Column' xName='x' yName='y' name='Check In' width=3 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data1' type='Column' xName='x' yName='y' name='Check Out (-)' width=3 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data2' type='Column' xName='x' yName='y' name='Check Out (+)' width=3 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data3' type='Column' xName='x' yName='y' name='Access Control' width=3 [marker]='marker'> </e-series>
 </e-series-collection>
 </ejs-chart>

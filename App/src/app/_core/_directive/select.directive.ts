@@ -18,7 +18,7 @@ export class AutoSelectDirective implements AfterViewInit, OnInit, OnDestroy {
     setTimeout(() => {
       this.host.nativeElement.focus();
       this.host.nativeElement.select();
-    }, 5000);
+    }, 1500);
   }
   @HostListener('ngModelChange', ['$event']) onChange(value) {
     this.subject.next(value);

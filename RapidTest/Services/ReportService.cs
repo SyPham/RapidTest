@@ -27,7 +27,7 @@ namespace RapidTest.Services
         /// <param name="request"></param>
         /// <returns></returns>
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
-        Task<object> Dashboard();
+        Task<object> Dashboard(DateTime startTime, DateTime endTime);
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
     }
@@ -281,12 +281,17 @@ namespace RapidTest.Services
             return ExcelExport(data);
         }
 
-        public async Task<object> Dashboard()
+        public async Task<object> Dashboard(DateTime startTime, DateTime endTime)
         {
-            var checkIn = await _repoCheckIn.FindAll().CountAsync();
-            var checkOutPositive = await _repo.FindAll(x => x.Result == Result.Positive).CountAsync();
-            var checkOutNegative = await _repo.FindAll(x => x.Result == Result.Negative).CountAsync();
-            var accessControl = await _repoFactoryReport.FindAll().CountAsync();
+            //var checkIn = await _repoCheckIn.FindAll(x=> x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
+            //var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date&&x.Result == Result.Positive).CountAsync();
+            //var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date&&x.Result == Result.Negative).CountAsync();
+            //var accessControl = await _repoFactoryReport.FindAll(x=> x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
+
+            var checkIn = RandomUtility.Double(50, 60).ToInt();
+            var checkOutPositive = RandomUtility.Double(70, 80).ToInt();
+            var checkOutNegative = RandomUtility.Double(80, 90).ToInt();
+            var accessControl = RandomUtility.Double(90, 100).ToInt();
             return new
             {
                 data = new object[] {

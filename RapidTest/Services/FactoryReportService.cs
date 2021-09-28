@@ -64,9 +64,9 @@ namespace RapidTest.Services
             var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
             var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
             var daySetting = setting.Day;
-            var currentDate = DateTime.Now.Date;
+            var expiryDate = DateTime.Now.Date.AddDays(-daySetting).Date;
 
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && x.ExpiryTime.Date >= currentDate).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
+            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && x.CreatedTime.Date >= expiryDate).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult
                 {
@@ -75,7 +75,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var tested = testing.ExpiryTime.Date >= currentDate;
+            var tested = testing.CreatedTime.Date >= expiryDate;
             if (!tested)
                 return new OperationResult
                 {

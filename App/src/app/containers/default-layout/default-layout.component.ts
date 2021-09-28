@@ -1,3 +1,4 @@
+import { navItemsCheckIn, navItemsCheckOut } from './../../_nav';
 import { AccountTypeConstant } from './../../_core/_constants/system.constant';
 
 import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
@@ -21,7 +22,7 @@ import { VersionService } from 'src/app/_core/_service/version.service';
 declare var require: any;
 import * as signalr from '../../../assets/js/ec-client.js';
 import { HubConnectionState } from '@microsoft/signalr';
-import { navItems, navItemsAccessControl, navItemsCheckIn, navItemsCheckOut, navItemsManager, navItemsUser } from 'src/app/_nav';
+import { navItems, navItemsAccessControl, navItemsManager, navItemsUser } from 'src/app/_nav';
 import { Authv2Service } from 'src/app/_core/_service/authv2.service';
 
 @Component({
@@ -64,6 +65,9 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
   userName: any;
   data: [] = [];
   firstItem: any;
+  sidebarToggler: any;
+  asideMenuToggler: any;
+  mobileSidebarToggler: any;
   constructor(
     private authService: AuthService,
     private authenticationService: Authv2Service,
@@ -99,6 +103,9 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     //or document.querySelector('body').scrollTo(0,0)
   }
   ngOnInit(): void {
+    this.sidebarToggler = 'lg';
+    this.asideMenuToggler = 'lg';
+    this.mobileSidebarToggler = true;
     if (signalr.CONNECTION_HUB.state === HubConnectionState.Connected) {
       signalr.CONNECTION_HUB
         .invoke('CheckOnline', this.userID, this.userName)
@@ -135,10 +142,21 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
       this.navItems = navItemsUser
     }else if (this.accountType == AccountTypeConstant.CHECK_IN) {
       this.navItems = navItemsCheckIn;
+      this.sidebarToggler = false;
+      this.asideMenuToggler = false;
+      this.mobileSidebarToggler = false;
     } else if (this.accountType == AccountTypeConstant.CHECK_OUT) {
       this.navItems = navItemsCheckOut;
+      this.sidebarToggler = false;
+      this.asideMenuToggler = false;
+      this.mobileSidebarToggler = false;
+
     }else if (this.accountType == AccountTypeConstant.ACCESS_CONTROL) {
       this.navItems = navItemsAccessControl;
+      this.sidebarToggler = false;
+      this.asideMenuToggler = false;
+      this.mobileSidebarToggler = false;
+
     }
     this.page = 1;
     this.pageSize = 10;

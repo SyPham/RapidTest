@@ -75,9 +75,9 @@ namespace RapidTest.Controllers
             return File(bin, "application/octet-stream", "Rapid Test Report.xlsx");
         }
         [HttpGet]
-        public async Task<ActionResult> Dashboard()
+        public async Task<ActionResult> Dashboard(DateTime startDate, DateTime endDate)
         {
-            return Ok(await _service.Dashboard());
+            return Ok(await _service.Dashboard(startDate, endDate));
 
         }
     }
