@@ -71,11 +71,28 @@ namespace RapidTest.Services
 
         public async Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
+            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
+            var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
-                return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
+            {
+                var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
                .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-            else return (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+                foreach (var item in data)
+                {
+                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
+                }
+                return data;
+            } 
+            else
+            {
+                var data= (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                foreach (var item in data)
+                {
+                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
+                }
+                return data;
+            }    
         }
 
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
@@ -283,15 +300,13 @@ namespace RapidTest.Services
 
         public async Task<object> Dashboard(DateTime startTime, DateTime endTime)
         {
-            var checkIn = await _repoCheckIn.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
-            var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).CountAsync();
-            var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).CountAsync();
-            var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).CountAsync();
+            var checkIn = await _repoCheckIn.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var employee = await _repoEmployee.FindAll(x =>x.SEAInform).CountAsync();
 
-            //var checkIn = RandomUtility.Double(50, 60).ToInt();
-            //var checkOutPositive = RandomUtility.Double(70, 80).ToInt();
-            //var checkOutNegative = RandomUtility.Double(80, 90).ToInt();
-            //var accessControl = RandomUtility.Double(90, 100).ToInt();
+          
             return new
             {
                 data = new object[] {
@@ -314,6 +329,11 @@ namespace RapidTest.Services
                 {
                     y = accessControl,
                     x = "Access Control"
+                } },
+                  new object[] {new
+                {
+                    y = employee,
+                    x = "SEA Informed"
                 } }
             }
             };

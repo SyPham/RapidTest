@@ -14,18 +14,16 @@ export class DashboardComponent implements OnInit {
   subscription: Subscription[] = [];
   dataSource = [];
   public data: Object[] = [
-    { x: 'USA', y: 46 }
 ];
 public data1: Object[] = [
-    { x: 'USA', y: 37 }
 ];
 public data2: Object[] = [
-    { x: 'USA', y: 38 }
 ];
 public data3: Object[] = [
-  { x: 'USA', y: 38 }
 ];
-palette = ["#00A300", "#00A300", "#E94649", "#00A300"];
+public data4: Object[] = [
+];
+palette = ["#00A300","#00A300", "#00A300", "#E94649", "#00A300"];
 auto: any = false;
 //Initializing Primary X Axis
 public primaryXAxis: Object = {
@@ -55,8 +53,9 @@ public load(args: ILoadedEventArgs): void {
     args.chart.theme = <ChartTheme>(selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)).replace(/-dark/i, "Dark");
     args.chart.series[0].marker.dataLabel.font.color= '#008000';
     args.chart.series[1].marker.dataLabel.font.color= '#008000';
-    args.chart.series[2].marker.dataLabel.font.color= '#FF0000';
-    args.chart.series[3].marker.dataLabel.font.color= '#008000';
+    args.chart.series[2].marker.dataLabel.font.color= '#008000';
+    args.chart.series[3].marker.dataLabel.font.color= '#FF0000';
+    args.chart.series[4].marker.dataLabel.font.color= '#008000';
 };
   // custom code end
 public chartArea: Object = {
@@ -85,10 +84,10 @@ endDate: Date;
   }
   startDateOnchange(args) {
     this.startDate = (args.value as Date);
+    this.loadData();
   }
   endDateOnchange(args) {
     this.endDate = (args.value as Date);
-    this.loadData();
   }
   private checkAuto() {
     this.subscription.push(this.subject
@@ -123,6 +122,7 @@ endDate: Date;
       this.data1= this.dataSource[1];
       this.data2= this.dataSource[2];
       this.data3= this.dataSource[3];
+      this.data4= this.dataSource[4];
       console.log(this.dataSource)
     }, () => this.dataSource = []);
   }

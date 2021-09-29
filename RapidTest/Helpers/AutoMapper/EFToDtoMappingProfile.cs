@@ -40,8 +40,12 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.CheckOutTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy HH:mm tt")))
                 .ForMember(d => d.CheckInTime, o => o.MapFrom(s =>
-                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == x.CreatedTime.Date) ?
-                s.Employee.CheckIns.FirstOrDefault(x=>x.CreatedTime.Date == x.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm tt") : "")
+                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
+                s.Employee.CheckIns.OrderByDescending(x=> x.Id).FirstOrDefault(x=> x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm tt") : "")
+                )
+                  .ForMember(d => d.LastestCheckInDate, o => o.MapFrom(s =>
+                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
+                s.Employee.CheckIns.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime : DateTime.MinValue)
                 )
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
             CreateMap<FactoryReport, FactoryReportDto>()
@@ -56,6 +60,10 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.RapidTestTime, o => o.MapFrom(s => s.RapidTestTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.FactoryEntryTime.ToString("MM/dd/yyyy HH:mm tt")))
+                .ForMember(d => d.LastestCheckInDate, o => o.MapFrom(s =>
+                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
+                s.Employee.CheckIns.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime : DateTime.MinValue)
+                )
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
             CreateMap<Models.TestKind, TestKindDto>();
 

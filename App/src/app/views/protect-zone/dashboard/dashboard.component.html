@@ -3,7 +3,7 @@
   <div class="font-weight-bold px-3">{{'Filter' | translate}}:</div>
   <ejs-datepicker class="pr-3" (change)='startDateOnchange($event)' [(ngModel)]="startDate"></ejs-datepicker>
 
-  <ejs-datepicker class="pr-3" (change)='endDateOnchange($event)' [(ngModel)]="endDate"></ejs-datepicker>
+  <!-- <ejs-datepicker class="pr-3" (change)='endDateOnchange($event)' [(ngModel)]="endDate"></ejs-datepicker> -->
 
   <button class="btn btn-sm btn-secondary mr-3" (click)="reset()"><i class="fa fa-times"></i></button>
 
@@ -19,7 +19,8 @@
 <ejs-chart style='display:block;' [chartArea]='chartArea' [width]='width' align='center' id='chartcontainer' [primaryXAxis]='primaryXAxis'
 [primaryYAxis]='primaryYAxis' [title]='title' [palettes]='palette' [tooltip]='tooltip' (load)='load($event)'>
 <e-series-collection>
-    <e-series [dataSource]='data' [colorName]="'#FFFF99'" type='Column' xName='x' yName='y' name='Check In' width=3 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data4' type='Column' xName='x' yName='y' name='SEA Informed' width=3 [marker]='marker'> </e-series>
+    <e-series [dataSource]='data' type='Column' xName='x' yName='y' name='Check In' width=3 [marker]='marker'> </e-series>
     <e-series [dataSource]='data1' type='Column' xName='x' yName='y' name='Check Out (-)' width=3 [marker]='marker'> </e-series>
     <e-series [dataSource]='data2' type='Column' xName='x' yName='y' name='Check Out (+)' width=3 [marker]='marker'> </e-series>
     <e-series [dataSource]='data3' type='Column' xName='x' yName='y' name='Access Control' width=3 [marker]='marker'> </e-series>

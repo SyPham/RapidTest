@@ -17,6 +17,7 @@ namespace RapidTest.DTO
         public string Code { get; set; } // Leo
         public string TestKindId { get; set; } // RapidTest
         public string Result { get; set; } // Negative
+        public DateTime LastestCheckInDate { get; set; }
 
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }

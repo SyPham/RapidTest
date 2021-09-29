@@ -18,6 +18,7 @@ namespace RapidTest.DTO
         public string Result { get; set; } // Negative
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        public DateTime LastestCheckInDate { get; set; }
 
         public string ExpiryTime { get; set; } // Enter factory exp. date
         public string RapidTestTime { get; set; } // Rapid Test date

@@ -53,11 +53,31 @@ namespace RapidTest.Services
         }
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
+            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
+            var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
-                return (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
-               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-            else return (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+            {
+
+                var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
+                    .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+
+                foreach (var item in data)
+                {
+                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
+                }
+                return data;
+            }
+               
+            else
+            {
+                var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                foreach (var item in data)
+                {
+                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
+                }
+                return data;
+            }
         }
         public async Task<OperationResult> AccessControl(string code)
         {

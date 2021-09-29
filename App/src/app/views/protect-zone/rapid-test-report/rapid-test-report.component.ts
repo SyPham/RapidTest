@@ -28,11 +28,10 @@ export class RapidTestReportComponent implements OnInit {
   }
   startDateOnchange(args) {
     this.startDate = (args.value as Date);
-    //this.search(this.startDate, this.endDate);
+    this.filter();
   }
   endDateOnchange(args) {
     this.endDate = (args.value as Date);
-    //this.search(this.startDate, this.endDate);
     this.filter();
   }
   excelExport() {
