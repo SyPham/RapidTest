@@ -65,4 +65,8 @@ export class CheckInReportComponent implements OnInit {
       }
     );
   }
+
+  NO(index) {
+    return (this.grid.pageSettings.currentPage - 1) * this.pageSettings.pageSize + Number(index) + 1;
+  }
 }

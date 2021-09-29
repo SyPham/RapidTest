@@ -34,6 +34,14 @@
           [allowExcelExport]='true'
         >
           <e-columns>
+            <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
             <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
             <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>

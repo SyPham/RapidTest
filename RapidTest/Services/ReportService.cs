@@ -73,26 +73,19 @@ namespace RapidTest.Services
 
         public async Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
-            var daySetting = setting.Day;
+           
             if (string.IsNullOrEmpty(code))
             {
                 var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
                .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-                foreach (var item in data)
-                {
-                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
-                }
+               
                 return data;
             } 
             else
             {
                 var data= (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-                foreach (var item in data)
-                {
-                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
-                }
+             
                 return data;
             }    
         }
@@ -136,11 +129,12 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-          
-            var checkOutTime = DateTime.Now.AddMinutes(-15);
+            var checkOutSetting = await _repoSetting.FindAll(x => x.SettingType == SettingType.CHECK_OUT).FirstOrDefaultAsync();
+            var mins = checkOutSetting.Mins;
+            var checkOutTime = DateTime.Now.AddMinutes(-mins);
             if (checkOutTime < checkIn.CreatedTime)
             {
-                var checkOutHour = checkIn.CreatedTime.AddMinutes(15).ToString("HH:mm tt");
+                var checkOutHour = checkIn.CreatedTime.AddMinutes(mins).ToString("HH:mm tt");
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -149,8 +143,17 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
+            var checkExist = _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
 
-            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
+            if (checkExist)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
+                    Success = true,
+                    Data = null
+                };
+            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
             var daySetting = setting.Day;
             var expiryTime = DateTime.Now.AddDays(daySetting).Date;
             var data = new Report
@@ -315,6 +318,10 @@ namespace RapidTest.Services
                 data = new object[]
             {
                 new {
+                         y = employee,
+                         x = "SEA Informed"
+                  },
+                new {
                          y = checkIn,
                          x = "Check In"
                   }, new {
@@ -326,9 +333,6 @@ namespace RapidTest.Services
                   }, new {
                          y = accessControl,
                          x = "Access Control"
-                  }, new {
-                         y = employee,
-                         x = "SEA Informed"
                   }
             }
             };
@@ -336,8 +340,6 @@ namespace RapidTest.Services
 
         public async Task<List<CheckInDto>> CheckInFilter(DateTime date, string code)
         {
-            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
-            var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
             {
                 var data = (await _repoCheckIn.FindAll(x => x.CreatedTime.Date == date.Date)
@@ -352,9 +354,10 @@ namespace RapidTest.Services
             }
         }
 
-        public Task<object> CountWorkerScanQRCodeByToday()
+        public async Task<object> CountWorkerScanQRCodeByToday()
         {
-            throw new NotImplementedException();
+            var total = await _repo.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            return total;
         }
     }
 }

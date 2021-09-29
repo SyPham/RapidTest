@@ -21,6 +21,7 @@ import { AccessControlComponent } from './views/protect-zone/access-control/acce
 import { CheckInComponent } from './views/protect-zone/check-in/check-in.component';
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
 import { AuthLocalGuard } from './_core/_guards/auth-local.guard';
+import { CheckOutSettingComponent } from './views/protect-zone/check-out-setting/check-out-setting.component';
 
 export const routes: Routes = [
   {
@@ -152,6 +153,13 @@ export const routes: Routes = [
           title: 'Check in report'
         },
         canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'check-out-setting',
+        component: CheckOutSettingComponent,
+        data: {
+          title: 'Check Out Setting'
+        }
       },
     ]
   }, // otherwise redirect to home

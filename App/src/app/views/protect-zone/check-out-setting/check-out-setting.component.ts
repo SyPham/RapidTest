@@ -9,11 +9,11 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 import { Setting } from 'src/app/_core/_model/setting';
 import { SettingService } from 'src/app/_core/_service/setting.service';
 @Component({
-  selector: 'app-setting',
-  templateUrl: './setting.component.html',
-  styleUrls: ['./setting.component.scss']
+  selector: 'app-check-out-setting',
+  templateUrl: './check-out-setting.component.html',
+  styleUrls: ['./check-out-setting.component.scss']
 })
-export class SettingComponent extends BaseComponent implements OnInit {
+export class CheckOutSettingComponent extends BaseComponent implements OnInit {
   data: Setting[] = [];
   password = '';
   modalReference: NgbModalRef;
@@ -38,13 +38,13 @@ export class SettingComponent extends BaseComponent implements OnInit {
     if (args.requestType === 'save' && args.action === 'add') {
       this.createModel = {
         id: 0,
-        day: args.data.day ,
+        day: 0 ,
+        mins: args.data.mins ,
         createdBy: +JSON.parse(localStorage.getItem('user')).id ,
         modifiedBy: null,
         createdTime: new Date().toLocaleDateString(),
         modifiedTime:  null,
-        mins: 0 ,
-        settingType: 'ACCESS_DAY'
+        settingType: 'CHECK_OUT'
       };
 
       if (args.data.name === undefined) {
@@ -58,8 +58,8 @@ export class SettingComponent extends BaseComponent implements OnInit {
     if (args.requestType === 'save' && args.action === 'edit') {
       this.updateModel = {
         id: args.data.id ,
-        day: args.data.day ,
-        mins: 0 ,
+        day: 0 ,
+        mins: args.data.mins ,
         createdBy: args.data.createdBy ,
         modifiedBy: +JSON.parse(localStorage.getItem('user')).id ,
         createdTime: args.data.createdTime ,
@@ -84,7 +84,7 @@ export class SettingComponent extends BaseComponent implements OnInit {
 
   loadData() {
     this.service.getAll().subscribe(data => {
-      this.data = data.filter(x=> x.settingType == 'ACCESS_DAY') || [];
+      this.data = data.filter(x=> x.settingType == 'CHECK_OUT') || [];
     });
   }
   delete(id) {

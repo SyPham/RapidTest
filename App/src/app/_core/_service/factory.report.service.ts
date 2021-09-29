@@ -21,4 +21,7 @@ export class FactoryReportService  {
   filter(startDate, endDate, code): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}FactoryReport/filter?startDate=${startDate}&endDate=${endDate}&code=${code}`);
   }
+  countWorkerScanQRCodeByToday(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}FactoryReport/CountWorkerScanQRCodeByToday`);
+  }
 }

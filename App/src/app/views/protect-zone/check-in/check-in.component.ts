@@ -20,6 +20,8 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   kindId: any;
   testKindData: TestKind[];
   switchColor = false;
+  total = 0;
+  message = '';
   constructor(
     private service: EmployeeService,
     private serviceTestKind: TestKindService
@@ -30,6 +32,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   ngOnInit() {
     this.loadData();
     this.checkQRCode();
+    this.loadTotalScan();
   }
   loadData() {
     this.serviceTestKind.getAll().subscribe(data => {
@@ -52,10 +55,22 @@ export class CheckInComponent implements OnInit,OnDestroy  {
           this.checkin();
       }));
   }
+  loadTotalScan() {
+    this.service.countWorkerScanQRCodeByToday().subscribe(
+      (res) => {
+        this.total = res;
+      },
+      (error) => {
+        this.total = 0;
+      }
+    );
+  }
   checkin() {
     this.success = 0;
     this.service.checkin2(this.QRCode, this.kindId).subscribe(
       (res) => {
+        this.loadTotalScan();
+        this.message = res.message;
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {

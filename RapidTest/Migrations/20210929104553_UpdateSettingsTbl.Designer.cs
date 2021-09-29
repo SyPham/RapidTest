@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RapidTest.Data;
 
 namespace RapidTest.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210929104553_UpdateSettingsTbl")]
+    partial class UpdateSettingsTbl
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -368,9 +370,6 @@ namespace RapidTest.Migrations
 
                     b.Property<int>("Day")
                         .HasColumnType("int");
-
-                    b.Property<double>("Mins")
-                        .HasColumnType("float");
 
                     b.Property<int?>("ModifiedBy")
                         .HasColumnType("int");

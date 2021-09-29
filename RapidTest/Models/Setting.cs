@@ -14,8 +14,11 @@ namespace RapidTest.Models
         [Key]
         public int Id { get; set; }
         public int Day { get; set; }
+        public double Mins { get; set; }
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        [StringLength(100)]
+        public string SettingType { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
     }

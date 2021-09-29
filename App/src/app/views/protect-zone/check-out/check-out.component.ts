@@ -23,6 +23,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   fullName: any;
   message: any;
   switchColor = false;
+  total = 0;
   constructor(
     private alertify: AlertifyService,
     private service: RapidTestReportService,
@@ -33,6 +34,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.loadData();
+    this.loadTotalScan();
     this.checkQRCode();
   }
   loadData() {
@@ -55,6 +57,16 @@ export class CheckOutComponent implements OnInit, OnDestroy {
         this.QRCode = res;
           this.scanQRCode();
       }));
+  }
+  loadTotalScan() {
+    this.service.countWorkerScanQRCodeByToday().subscribe(
+      (res) => {
+        this.total = res;
+      },
+      (error) => {
+        this.total = 0;
+      }
+    );
   }
   scanQRCode() {
     this.success = 0;

@@ -18,6 +18,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   message = '';
   fullName: any;
   switchColor = false;
+  total = 0;
   constructor(
     private alertify: AlertifyService,
     private service: FactoryReportService
@@ -26,6 +27,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
     this.subscription.forEach(item => item.unsubscribe());
   }
   ngOnInit() {
+    this.loadTotalScan();
     this.checkQRCode();
   }
   // sau khi scan input thay doi
@@ -41,6 +43,16 @@ export class AccessControlComponent implements OnInit, OnDestroy {
         this.QRCode = res;
         this.scanQRCode();
       }));
+  }
+  loadTotalScan() {
+    this.service.countWorkerScanQRCodeByToday().subscribe(
+      (res) => {
+        this.total = res;
+      },
+      (error) => {
+        this.total = 0;
+      }
+    );
   }
   scanQRCode() {
     this.success = 0;

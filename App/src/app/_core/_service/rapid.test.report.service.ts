@@ -27,4 +27,7 @@ export class RapidTestReportService  {
   checkInFilter(date, code): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}Report/checkInFilter?date=${date}&code=${code}`);
   }
+  countWorkerScanQRCodeByToday(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}Report/CountWorkerScanQRCodeByToday`);
+  }
 }

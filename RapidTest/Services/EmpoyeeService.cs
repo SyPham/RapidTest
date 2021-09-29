@@ -23,6 +23,7 @@ namespace RapidTest.Services
         Task<bool> ImportExcel();
         Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
+        Task<object> CountWorkerScanQRCodeByToday();
 
         Task<OperationResult> CheckIn(string code);
         Task<OperationResult> CheckIn(string code, int testKindId);
@@ -247,6 +248,16 @@ namespace RapidTest.Services
                     Data = null
                 };
 
+            var checkExist = _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
+
+            if (checkExist)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
+                    Success = true,
+                    Data = null
+                };
 
             var data = new CheckIn
             {
@@ -452,6 +463,12 @@ namespace RapidTest.Services
         {
             return await _repo.FindAll(x=> !x.IsPrint).OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
 
+        }
+
+        public async Task<object> CountWorkerScanQRCodeByToday()
+        {
+            var total = await _repoCheckIn.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            return total;
         }
     }
 }

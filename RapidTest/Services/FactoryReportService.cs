@@ -20,6 +20,8 @@ namespace RapidTest.Services
     {
         Task<OperationResult> AccessControl(string code);
         Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
+        Task<object> CountWorkerScanQRCodeByToday();
+
     }
     public class FactoryReportService : ServiceBase<FactoryReport, FactoryReportDto>, IFactoryReportService
     {
@@ -53,7 +55,7 @@ namespace RapidTest.Services
         }
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x=> x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
             var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
             {
@@ -61,10 +63,6 @@ namespace RapidTest.Services
                 var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
                     .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
-                foreach (var item in data)
-                {
-                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
-                }
                 return data;
             }
                
@@ -72,21 +70,14 @@ namespace RapidTest.Services
             {
                 var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-                foreach (var item in data)
-                {
-                    item.ExpiryTime = item.LastestCheckInDate.AddDays(daySetting).Date.ToString("MM/dd/yyyy");
-                }
+              
                 return data;
             }
         }
         public async Task<OperationResult> AccessControl(string code)
         {
             var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
-            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
-            var daySetting = setting.Day;
-            var expiryDate = DateTime.Now.Date.AddDays(-daySetting).Date;
-
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && x.CreatedTime.Date >= expiryDate).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
+            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult
                 {
@@ -95,7 +86,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var tested = testing.CreatedTime.Date >= expiryDate;
+            var tested = testing.ExpiryTime.Date >= DateTime.Now.Date; // 29 >= 28
             if (!tested)
                 return new OperationResult
                 {
@@ -147,6 +138,12 @@ namespace RapidTest.Services
                 operationResult = ex.GetMessageError();
             }
             return operationResult;
+        }
+
+        public async Task<object> CountWorkerScanQRCodeByToday()
+        {
+            var total = await _repo.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            return total;
         }
     }
 }

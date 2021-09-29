@@ -84,5 +84,11 @@ namespace RapidTest.Controllers
             return Ok(await _service.Dashboard(startDate, endDate));
 
         }
+        [HttpGet]
+        public async Task<ActionResult> CountWorkerScanQRCodeByToday()
+        {
+            return Ok(await _service.CountWorkerScanQRCodeByToday());
+
+        }
     }
 }

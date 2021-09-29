@@ -39,4 +39,7 @@ export class EmployeeService extends CURDService<Employee> {
   getPrintOff(): Observable<any> {
     return this.http.get<any>(this.base + 'Employee/getPrintOff', {});
   }
+  countWorkerScanQRCodeByToday(): Observable<any> {
+    return this.http.get<any>(`${this.base}Employee/CountWorkerScanQRCodeByToday`);
+  }
 }

@@ -11,6 +11,8 @@ namespace RapidTest.DTO
         public int Day { get; set; }
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        public string SettingType { get; set; }
+        public double Mins { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
     }

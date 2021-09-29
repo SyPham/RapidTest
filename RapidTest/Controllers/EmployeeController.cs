@@ -127,5 +127,11 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.UpdateIsPrint(model));
         }
+        [HttpGet]
+        public async Task<ActionResult> CountWorkerScanQRCodeByToday()
+        {
+            return Ok(await _service.CountWorkerScanQRCodeByToday());
+
+        }
     }
 }

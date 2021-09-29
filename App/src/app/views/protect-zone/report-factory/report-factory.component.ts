@@ -53,6 +53,7 @@ export class ReportFactoryComponent implements OnInit {
     this.code = '';
     this.loadData();
   }
+
   loadData() {
     const startDate = this.startDate.toLocaleDateString();
     const endDate = this.startDate.toLocaleDateString();
@@ -67,4 +68,7 @@ export class ReportFactoryComponent implements OnInit {
     );
   }
 
+  NO(index) {
+    return (this.grid.pageSettings.currentPage - 1) * this.pageSettings.pageSize + Number(index) + 1;
+  }
 }

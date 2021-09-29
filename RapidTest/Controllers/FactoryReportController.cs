@@ -63,6 +63,11 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetWithPaginationsAsync(paramater));
         }
+        [HttpGet]
+        public async Task<ActionResult> CountWorkerScanQRCodeByToday()
+        {
+            return Ok(await _service.CountWorkerScanQRCodeByToday());
 
+        }
     }
 }
