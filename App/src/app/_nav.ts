@@ -41,6 +41,11 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
+    name: 'Check In Report',
+    url: '/check-in-report',
+    icon: 'icon-puzzle',
+  },
+  {
     name: 'Rapid Test Report',
     url: '/report1',
     icon: 'icon-puzzle',
@@ -49,12 +54,7 @@ export const navItems: INavData[] = [
     name: 'Access Control Report',
     url: '/report-factory',
     icon: 'icon-puzzle',
-  },
-  {
-    name: 'Check In Report',
-    url: '/check-in-report',
-    icon: 'icon-puzzle',
-  },
+  }
 
 ];
 export const navItemsManager: INavData[] = [
@@ -79,6 +79,11 @@ export const navItemsManager: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
+    name: 'Check In Report',
+    url: '/check-in-report',
+    icon: 'icon-puzzle',
+  },
+  {
     name: 'Rapid Test Report',
     url: '/report1',
     icon: 'icon-puzzle',
@@ -87,12 +92,7 @@ export const navItemsManager: INavData[] = [
     name: 'Access Control Report',
     url: '/report-factory',
     icon: 'icon-puzzle',
-  },
-  {
-    name: 'Check In Report',
-    url: '/check-in-report',
-    icon: 'icon-puzzle',
-  },
+  }
 ];
 export const navItemsUser: INavData[] = [
   {

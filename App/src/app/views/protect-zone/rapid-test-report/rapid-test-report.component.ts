@@ -55,7 +55,7 @@ export class RapidTestReportComponent implements OnInit {
   }
   loadData() {
     const startDate = this.startDate.toLocaleDateString();
-    const endDate = this.endDate.toLocaleDateString();
+    const endDate = this.startDate.toLocaleDateString();
     const code = this.code || '';
     this.service.filter(startDate, endDate, code).subscribe(
       (res) => {

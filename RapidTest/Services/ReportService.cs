@@ -135,6 +135,7 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
+          
             var checkOutTime = DateTime.Now.AddMinutes(-15);
             if (checkOutTime < checkIn.CreatedTime)
             {

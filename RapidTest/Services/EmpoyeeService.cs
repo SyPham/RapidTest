@@ -247,6 +247,7 @@ namespace RapidTest.Services
                     Data = null
                 };
 
+
             var data = new CheckIn
             {
                 TestKindId = testKindId,
