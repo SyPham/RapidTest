@@ -29,6 +29,7 @@ namespace RapidTest.Services
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
         Task<object> Dashboard(DateTime startTime, DateTime endTime);
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
+        Task<List<CheckInDto>> CheckInFilter(DateTime date, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
     }
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
@@ -306,37 +307,47 @@ namespace RapidTest.Services
             var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             var employee = await _repoEmployee.FindAll(x =>x.SEAInform).CountAsync();
 
-          
+
             return new
             {
-                data = new object[] {
-                     new object[] {new
-                     {
+                data = new object[]
+            {
+                new {
                          y = checkIn,
                          x = "Check In"
-                     }},
-                 new object[] { new
-                {
-                    y = checkOutNegative,
-                    x = "Check Out (-)"
-                } },
-                 new object[] { new
-                {
-                    y = checkOutPositive,
-                    x = "Check Out (+)"
-                } },
-                  new object[] {new
-                {
-                    y = accessControl,
-                    x = "Access Control"
-                } },
-                  new object[] {new
-                {
-                    y = employee,
-                    x = "SEA Informed"
-                } }
+                  }, new {
+                         y = checkOutNegative,
+                         x = "Check Out (-)"
+                  }, new {
+                         y = checkOutPositive,
+                         x = "Check Out (+)"
+                  }, new {
+                         y = accessControl,
+                         x = "Access Control"
+                  }, new {
+                         y = employee,
+                         x = "SEA Informed"
+                  }
             }
             };
+        }
+
+        public async Task<List<CheckInDto>> CheckInFilter(DateTime date, string code)
+        {
+            var setting = await _repoSetting.FindAll().FirstOrDefaultAsync();
+            var daySetting = setting.Day;
+            if (string.IsNullOrEmpty(code))
+            {
+                var data = (await _repoCheckIn.FindAll(x => x.CreatedTime.Date == date.Date)
+               .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                return data;
+            }
+            else
+            {
+                var data = (await _repoCheckIn.FindAll(x => x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
+              .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                return data;
+            }
         }
     }
 }

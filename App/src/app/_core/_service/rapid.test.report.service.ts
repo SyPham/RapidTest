@@ -24,4 +24,7 @@ export class RapidTestReportService  {
   dashboard(startDate, endDate): Observable<any> {
     return this.http.get<any>(`${this.baseUrl}Report/Dashboard?startDate=${startDate}&endDate=${endDate}`);
   }
+  checkInFilter(date, code): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}Report/checkInFilter?date=${date}&code=${code}`);
+  }
 }

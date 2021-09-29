@@ -1,16 +1,16 @@
-import { DatePipe } from '@angular/common';
-import { FactoryReportService } from 'src/app/_core/_service/factory.report.service';
+import { filter } from 'rxjs/operators';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridComponent } from '@syncfusion/ej2-angular-grids';
-import { publish } from 'rxjs/operators';
+import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
-  selector: 'app-report-factory',
-  templateUrl: './report-factory.component.html',
-  styleUrls: ['./report-factory.component.scss'],
+  selector: 'app-check-in-report',
+  templateUrl: './check-in-report.component.html',
+  styleUrls: ['./check-in-report.component.scss'],
   providers: [DatePipe]
 })
-export class ReportFactoryComponent implements OnInit {
+export class CheckInReportComponent implements OnInit {
 
   data = [];
   toolbarOptions = ['ExcelExport', 'Add', 'Update', 'Edit', 'Delete', 'Cancel', 'Search'];
@@ -20,7 +20,7 @@ export class ReportFactoryComponent implements OnInit {
   endDate: Date;
   code: any;
   constructor(
-    private service: FactoryReportService,
+    private service: RapidTestReportService,
     public datePipe: DatePipe,
   ) { }
 
@@ -38,7 +38,7 @@ export class ReportFactoryComponent implements OnInit {
     this.filter();
   }
   excelExport() {
-    const fileName = `Access Control Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
+    const fileName = `Check In Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
     const excelExportProperties = {
       fileName: fileName + '.xlsx'
     };
@@ -55,16 +55,14 @@ export class ReportFactoryComponent implements OnInit {
   }
   loadData() {
     const startDate = this.startDate.toLocaleDateString();
-    const endDate = this.endDate.toLocaleDateString();
     const code = this.code || '';
-    this.service.filter(startDate, endDate, code).subscribe(
+    this.service.checkInFilter(startDate, code).subscribe(
       (res) => {
-        this.data = res;
+      this.data = res;
       },
       (error) => {
         this.data = [];
       }
     );
   }
-
 }

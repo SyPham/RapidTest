@@ -4,8 +4,6 @@
     <div class="font-weight-bold px-3">{{'Filter' | translate}}:</div>
     <ejs-datepicker class="pr-3" (change)='startDateOnchange($event)' [(ngModel)]="startDate"></ejs-datepicker>
 
-    <ejs-datepicker class="pr-3" (change)='endDateOnchange($event)' [(ngModel)]="endDate"></ejs-datepicker>
-
     <button class="btn btn-sm btn-secondary mr-3" (click)="reset()"><i class="fa fa-times"></i></button>
 
     <div class="e-toolbar-item e-search-wrapper" aria-disabled="false" title="Search">
@@ -16,7 +14,7 @@
         </span>
       </div>
    </div>
-    <button type="button" class="btn btn-secondary mx-3" (click)='excelExport()'>Export Excel</button>
+   <button type="button" class="btn btn-secondary mx-3" (click)='excelExport()'>Export Excel</button>
 
   </div>
   <div class="col-md-12">
@@ -27,9 +25,9 @@
           [dataSource]="data"
           [allowPaging]='true'
           [allowResizing]='true'
+          [allowSorting]='true'
           [showColumnMenu]='true'
           gridLines='Both'
-
           [pageSettings]='pageSettings'
           [allowExcelExport]='true'
         >
@@ -39,11 +37,8 @@
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
             <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}"> </e-column>
             <e-column field="birthDate" textAlign='Center' headerText="{{ 'Birth Date'}}"> </e-column>
-            <e-column field="testKindId" textAlign='Center' headerText="{{ 'Test Kind'}}"> </e-column>
-            <e-column field="result" textAlign='Center' headerText="{{ 'Rapid-Test result'}}"> </e-column>
-            <e-column field="rapidTestTime" textAlign='Center' headerText="{{ 'Rapid-Test date'}}"> </e-column>
-            <e-column field="expiryTime" textAlign='Center' headerText="{{ 'Entry factory exp. date'}}"> </e-column>
-            <e-column field="factoryEntryTime" textAlign='Center' headerText="{{ 'Entry factory  date'}}"> </e-column>
+            <e-column field="checkInTime" textAlign='Center' headerText="{{ 'Check in time'}}"> </e-column>
+            <e-column field="checkOutTime" textAlign='Center' headerText="{{ 'Check out time'}}"> </e-column>
 
           </e-columns>
         </ejs-grid>

@@ -1,3 +1,4 @@
+import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
 import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
 import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
@@ -119,7 +120,8 @@ const rapidTestComponent = [
   CheckOutComponent,
   TestKindComponent,
   SettingComponent,
-  DashboardComponent
+  DashboardComponent,
+  CheckInReportComponent
 ];
 @NgModule({
   imports: [

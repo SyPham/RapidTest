@@ -61,12 +61,24 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.RapidTestTime, o => o.MapFrom(s => s.RapidTestTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.FactoryEntryTime.ToString("MM/dd/yyyy HH:mm tt")))
                 .ForMember(d => d.LastestCheckInDate, o => o.MapFrom(s =>
-                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
-                s.Employee.CheckIns.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime : DateTime.MinValue)
+                s.Employee.CheckIns.Any() ?
+                s.Employee.CheckIns.OrderByDescending(x => x.Id).FirstOrDefault().CreatedTime : DateTime.MinValue)
                 )
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
             CreateMap<Models.TestKind, TestKindDto>();
-
+            CreateMap<Models.CheckIn, CheckInDto>()
+                .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
+                .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
+                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate.ToString("MM/dd/yyyy")))
+                .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
+                .ForMember(d => d.CheckOutTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy HH:mm tt")))
+                .ForMember(d => d.CheckInTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy HH:mm tt")))
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
+              .ForMember(d => d.CheckOutTime, o => o.MapFrom(s =>
+                s.Employee.Reports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
+                s.Employee.Reports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm tt") : "N/A")
+                );
 
         }
     }

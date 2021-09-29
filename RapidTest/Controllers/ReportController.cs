@@ -54,7 +54,11 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.Filter(startDate, endDate, code));
         }
-
+        [HttpGet]
+        public async Task<ActionResult> CheckInFilter(DateTime date, string code)
+        {
+            return Ok(await _service.CheckInFilter(date, code));
+        }
         [HttpGet]
         public async Task<ActionResult> GetWithPaginationsAsync(PaginationParams paramater)
         {

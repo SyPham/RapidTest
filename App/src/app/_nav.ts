@@ -50,13 +50,28 @@ export const navItems: INavData[] = [
     url: '/report-factory',
     icon: 'icon-puzzle',
   },
+  {
+    name: 'Check In Report',
+    url: '/check-in-report',
+    icon: 'icon-puzzle',
+  },
 
 ];
 export const navItemsManager: INavData[] = [
   {
     name: 'Dashboard',
-    url: '/staff-info',
+    url: '/dashboard',
     icon: 'icon-speedometer'
+  },
+  {
+    name: 'Access days',
+    url: '/setting',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Test Kind',
+    url: '/test-kind',
+    icon: 'icon-puzzle',
   },
   {
     name: 'Staff Info',
@@ -73,7 +88,11 @@ export const navItemsManager: INavData[] = [
     url: '/report-factory',
     icon: 'icon-puzzle',
   },
-
+  {
+    name: 'Check In Report',
+    url: '/check-in-report',
+    icon: 'icon-puzzle',
+  },
 ];
 export const navItemsUser: INavData[] = [
   {

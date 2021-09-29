@@ -1,3 +1,4 @@
+import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
 import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
 import { SettingComponent } from './views/protect-zone/setting/setting.component';
 import { TestKindComponent } from './views/protect-zone/test-kind/test-kind.component';
@@ -143,6 +144,14 @@ export const routes: Routes = [
           title: 'Dashboard'
         },
         //canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'check-in-report',
+        component: CheckInReportComponent,
+        data: {
+          title: 'Check in report'
+        },
+        canActivate: [AuthLocalGuard]
       },
     ]
   }, // otherwise redirect to home

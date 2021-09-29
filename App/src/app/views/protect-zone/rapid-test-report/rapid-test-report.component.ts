@@ -2,11 +2,13 @@ import { filter } from 'rxjs/operators';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridComponent } from '@syncfusion/ej2-angular-grids';
 import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-rapid-test-report',
   templateUrl: './rapid-test-report.component.html',
-  styleUrls: ['./rapid-test-report.component.scss']
+  styleUrls: ['./rapid-test-report.component.scss'],
+  providers: [DatePipe]
 })
 export class RapidTestReportComponent implements OnInit {
 
@@ -18,7 +20,8 @@ export class RapidTestReportComponent implements OnInit {
   endDate: Date;
   code: any;
   constructor(
-    private service: RapidTestReportService
+    private service: RapidTestReportService,
+    public datePipe: DatePipe,
   ) { }
 
   ngOnInit() {
@@ -35,7 +38,11 @@ export class RapidTestReportComponent implements OnInit {
     this.filter();
   }
   excelExport() {
-    this.grid.excelExport();
+    const fileName = `Rapid Test Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
+    const excelExportProperties = {
+      fileName: fileName + '.xlsx'
+    };
+    this.grid.excelExport(excelExportProperties);
   }
   filter() {
     this.loadData();
