@@ -28,6 +28,7 @@ namespace RapidTest.Services
         /// <returns></returns>
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
         Task<object> Dashboard(DateTime startTime, DateTime endTime);
+        Task<object> CountWorkerScanQRCodeByToday();
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
         Task<List<CheckInDto>> CheckInFilter(DateTime date, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
@@ -349,6 +350,11 @@ namespace RapidTest.Services
               .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
+        }
+
+        public Task<object> CountWorkerScanQRCodeByToday()
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -18,7 +18,7 @@
   "copyright": "Copyright 2021 creativeLabs Łukasz Holeczek",
   "license": "MIT",
   "scripts": {
-    "start": "ng serve --open --host 10.4.5.174 --port 668 --disable-host-check",
+    "start": "ng serve --open --host 10.4.5.174 --port 62 --disable-host-check",
     "dev_henry": "ng serve --port 62 --disable-host-check",
     "leo": "ng serve --open --host 10.4.5.132 --port 1005 --disable-host-check",
     "ng": "ng",
