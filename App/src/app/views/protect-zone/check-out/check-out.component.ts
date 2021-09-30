@@ -77,6 +77,8 @@ export class CheckOutComponent implements OnInit, OnDestroy {
     };
     this.service.scanQRCode(model).subscribe(
       (res) => {
+        this.loadTotalScan();
+
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;

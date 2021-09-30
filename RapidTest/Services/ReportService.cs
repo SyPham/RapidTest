@@ -143,7 +143,7 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-            var checkExist = _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
+            var checkExist = _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
 
             if (checkExist)
                 return new OperationResult

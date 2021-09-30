@@ -100,7 +100,10 @@ namespace RapidTest.Services
             try
             {
 
-                var data = new FactoryReport
+              
+                if (testing.Result == Result.Negative)
+                {
+                      var data = new FactoryReport
                 {
                     TestKindId = testing.TestKindId,
                     EmployeeId = employee.Id,
@@ -112,8 +115,6 @@ namespace RapidTest.Services
 
                 _repo.Add(data);
                 await _unitOfWork.SaveChangeAsync();
-                if (testing.Result == Result.Negative)
-                {
                     operationResult = new OperationResult
                     {
                         StatusCode = HttpStatusCode.OK,

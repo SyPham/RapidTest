@@ -58,6 +58,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
     this.success = 0;
     this.service.accessControl(this.QRCode).subscribe(
       (res) => {
+        this.loadTotalScan();
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;

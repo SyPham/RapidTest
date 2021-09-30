@@ -159,7 +159,8 @@ export const routes: Routes = [
         component: CheckOutSettingComponent,
         data: {
           title: 'Check Out Setting'
-        }
+        },
+        canActivate: [AuthLocalGuard]
       },
     ]
   }, // otherwise redirect to home

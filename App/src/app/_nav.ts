@@ -16,6 +16,11 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
+    name: 'Check Out Setting',
+    url: '/check-out-setting',
+    icon: 'icon-puzzle',
+  },
+  {
     name: 'Test Kind',
     url: '/test-kind',
     icon: 'icon-puzzle',
@@ -66,6 +71,11 @@ export const navItemsManager: INavData[] = [
   {
     name: 'Access days',
     url: '/setting',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Check Out Setting',
+    url: '/check-out-setting',
     icon: 'icon-puzzle',
   },
   {
