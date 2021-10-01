@@ -88,7 +88,15 @@ namespace RapidTest.Services
                 int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
                 var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
-
+                var employee = await _repo.FindAll(x => x.Code == model.Code).AnyAsync();
+                if (employee)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Already existed code! Đã tồn tại số thẻ này!",
+                        Success = true,
+                        Data = null
+                    };
                 if (factory == null)
                 {
                     var factoryItem = new Factory { Name = model.FactoryName };
@@ -145,6 +153,16 @@ namespace RapidTest.Services
                 var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
                 var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
 
+                var employee = await _repo.FindAll(x => x.Code == model.Code).AnyAsync();
+                if (employee)
+                        return new OperationResult
+                        {
+                            StatusCode = HttpStatusCode.BadRequest,
+                            Message = "Already existed code! Đã tồn tại số thẻ này!",
+                            Success = true,
+                            Data = null
+                        };
+
                 if (factory == null)
                 {
                     var factoryItem = new Factory { Name = model.FactoryName };
@@ -175,6 +193,8 @@ namespace RapidTest.Services
                 item.DepartmentId = departmentId;
                 item.FactoryId = factoryId;
                 item.ModifiedBy = accountId;
+                item.Code = model.Code;
+
                 _repo.Update(item);
 
                 await _unitOfWork.SaveChangeAsync();
@@ -477,7 +497,7 @@ namespace RapidTest.Services
 
         public async Task<List<EmployeeDto>> GetPrintOff()
         {
-            return await _repo.FindAll(x=> !x.IsPrint).OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
+            return await _repo.FindAll(x => !x.IsPrint).OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
 
         }
 
@@ -489,7 +509,7 @@ namespace RapidTest.Services
 
         public async Task<bool> CheckCode(string code)
         {
-            return await _repo.FindAll(x => x.Code == code).AnyAsync(); 
+            return await _repo.FindAll(x => x.Code == code).AnyAsync();
         }
     }
 }

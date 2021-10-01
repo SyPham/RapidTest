@@ -58,7 +58,7 @@ namespace RapidTest.Services
         }
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-            var setting = await _repoSetting.FindAll(x=> x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
             var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
             {
@@ -68,12 +68,12 @@ namespace RapidTest.Services
 
                 return data;
             }
-               
+
             else
             {
                 var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-              
+
                 return data;
             }
         }
@@ -99,7 +99,7 @@ namespace RapidTest.Services
                     Data = null
                 };
 
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
+            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult
                 {
@@ -122,21 +122,21 @@ namespace RapidTest.Services
             try
             {
 
-              
+
                 if (testing.Result == Result.Negative)
                 {
-                      var data = new FactoryReport
-                {
-                    TestKindId = testing.TestKindId,
-                    EmployeeId = employee.Id,
-                    Result = testing.Result,
-                    RapidTestTime = testing.CreatedTime,
-                    ExpiryTime = testing.ExpiryTime,
-                    FactoryEntryTime = DateTime.Now
-                };
+                    var data = new FactoryReport
+                    {
+                        TestKindId = testing.TestKindId,
+                        EmployeeId = employee.Id,
+                        Result = testing.Result,
+                        RapidTestTime = testing.CreatedTime,
+                        ExpiryTime = testing.ExpiryTime,
+                        FactoryEntryTime = DateTime.Now
+                    };
 
-                _repo.Add(data);
-                await _unitOfWork.SaveChangeAsync();
+                    _repo.Add(data);
+                    await _unitOfWork.SaveChangeAsync();
                     operationResult = new OperationResult
                     {
                         StatusCode = HttpStatusCode.OK,

@@ -336,7 +336,7 @@ export class StaffInfoComponent implements OnInit {
   create() {
     this.service.add(this.createModel).subscribe(
       (res) => {
-        if (res.success === true) {
+        if (res.success === true && res.statusCode == 200) {
           this.alertify.success(MessageConstants.CREATED_OK_MSG);
           this.loadData();
           this.createModel = {} as Employee;
@@ -344,7 +344,12 @@ export class StaffInfoComponent implements OnInit {
           this.isPrint = "OFF";
           this.seaInform = true;
         } else {
-          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+          this.alertify.warning(res.message, true);
+          this.loadData();
+          this.createModel = {} as Employee;
+          this.gender = "";
+          this.isPrint = "OFF";
+          this.seaInform = true;
         }
 
       },
@@ -356,14 +361,19 @@ export class StaffInfoComponent implements OnInit {
   update() {
     this.service.update(this.editModel).subscribe(
       (res) => {
-        if (res.success === true) {
+        if (res.success === true && res.statusCode == 200) {
           this.alertify.success(MessageConstants.UPDATED_OK_MSG);
           this.loadData();
-          this.createModel = {} as Employee;
+          this.editModel = {} as Employee;
           this.gender = "";
           this.seaInform = true;
-        } else {
-          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        } else{
+          this.alertify.warning(res.message, true);
+          this.loadData();
+          this.editModel = {} as Employee;
+          this.gender = "";
+          this.seaInform = true;
+
         }
       },
       (error) => {

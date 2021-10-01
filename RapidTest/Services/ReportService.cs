@@ -76,21 +76,21 @@ namespace RapidTest.Services
 
         public async Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-           
+
             if (string.IsNullOrEmpty(code))
             {
                 var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
                .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-               
+
                 return data;
-            } 
+            }
             else
             {
-                var data= (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+                var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
-             
+
                 return data;
-            }    
+            }
         }
 
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
@@ -332,7 +332,7 @@ namespace RapidTest.Services
             var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).Select(x => x.EmployeeId).Distinct().CountAsync();
             var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
             var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
-            var employee = await _repoEmployee.FindAll(x =>x.SEAInform).CountAsync();
+            var employee = await _repoEmployee.FindAll(x => x.SEAInform).CountAsync();
 
 
             return new
