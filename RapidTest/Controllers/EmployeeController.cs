@@ -133,5 +133,11 @@ namespace RapidTest.Controllers
             return Ok(await _service.CountWorkerScanQRCodeByToday());
 
         }
+        [HttpGet]
+        public async Task<ActionResult> CheckCode(string code)
+        {
+            return Ok(await _service.CheckCode(code));
+
+        }
     }
 }

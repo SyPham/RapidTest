@@ -71,6 +71,10 @@ namespace RapidTest.Helpers.AutoMapper
                 s.Employee.Reports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
                 s.Employee.Reports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm tt") : "N/A")
                 );
+            CreateMap<BlackList, BlackListDto>()
+                .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
+                .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
 
         }
     }

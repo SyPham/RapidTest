@@ -36,6 +36,7 @@ namespace RapidTest.Services
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
         private readonly IRepositoryBase<Report> _repo;
+        private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<FactoryReport> _repoFactoryReport;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Models.TestKind> _repoTestKind;
@@ -48,6 +49,7 @@ namespace RapidTest.Services
 
         public ReportService(
             IRepositoryBase<Report> repo,
+            IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<FactoryReport> repoFactoryReport,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Models.TestKind> repoTestKind,
@@ -61,6 +63,7 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoBlackList = repoBlackList;
             _repoFactoryReport = repoFactoryReport;
             _repoSetting = repoSetting;
             _repoTestKind = repoTestKind;
@@ -103,6 +106,25 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
+            if (!employee.SEAInform)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.BadRequest,
+                    Message = "No entry.Please wait for SEA inform !",
+                    Success = true,
+                    Data = null
+                };
+            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
+
+            if (checkBlackList)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                    Success = true,
+                    Data = null
+                };
+
             if (request.KindId == 0)
             {
                 operationResult = new OperationResult

@@ -28,10 +28,13 @@ namespace RapidTest.Services
         Task<OperationResult> CheckIn(string code);
         Task<OperationResult> CheckIn(string code, int testKindId);
         Task<List<EmployeeDto>> GetPrintOff();
+        Task<bool> CheckCode(string code);
+
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
         private readonly IRepositoryBase<Employee> _repo;
+        private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<Department> _repoDepartment;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IRepositoryBase<Report> _repoReport;
@@ -45,6 +48,7 @@ namespace RapidTest.Services
 
         public EmployeeService(
             IRepositoryBase<Employee> repo,
+            IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<Department> repoDepartment,
             IRepositoryBase<CheckIn> repoCheckIn,
             IRepositoryBase<Report> repoReport,
@@ -58,6 +62,7 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoBlackList = repoBlackList;
             _repoDepartment = repoDepartment;
             _repoCheckIn = repoCheckIn;
             _repoReport = repoReport;
@@ -229,6 +234,7 @@ namespace RapidTest.Services
 
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
+
             var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
             if (employee == null)
                 return new OperationResult
@@ -239,6 +245,7 @@ namespace RapidTest.Services
                     Data = null
                 };
 
+
             if (!employee.SEAInform)
                 return new OperationResult
                 {
@@ -247,7 +254,16 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
+            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
 
+            if (checkBlackList)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                    Success = true,
+                    Data = null
+                };
             var checkExist = _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
 
             if (checkExist)
@@ -469,6 +485,11 @@ namespace RapidTest.Services
         {
             var total = await _repoCheckIn.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             return total;
+        }
+
+        public async Task<bool> CheckCode(string code)
+        {
+            return await _repo.FindAll(x => x.Code == code).AnyAsync(); 
         }
     }
 }

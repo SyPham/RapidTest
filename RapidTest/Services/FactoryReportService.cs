@@ -26,6 +26,7 @@ namespace RapidTest.Services
     public class FactoryReportService : ServiceBase<FactoryReport, FactoryReportDto>, IFactoryReportService
     {
         private readonly IRepositoryBase<FactoryReport> _repo;
+        private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Report> _repoReport;
         private readonly IRepositoryBase<Employee> _repoEmployee;
@@ -36,6 +37,7 @@ namespace RapidTest.Services
 
         public FactoryReportService(
             IRepositoryBase<FactoryReport> repo,
+            IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Report> repoReport,
             IRepositoryBase<Employee> repoEmployee,
@@ -46,6 +48,7 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoBlackList = repoBlackList;
             _repoSetting = repoSetting;
             _repoReport = repoReport;
             _repoEmployee = repoEmployee;
@@ -77,6 +80,25 @@ namespace RapidTest.Services
         public async Task<OperationResult> AccessControl(string code)
         {
             var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+            if (employee == null)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = "<h2>Not found this person. No entry.Please establish data in Staff info page!<br>Không tìm thấy anh/chị trong hệ thống! Không được vào!</h2>",
+                    Success = true,
+                    Data = null
+                };
+            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
+
+            if (checkBlackList)
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                    Success = true,
+                    Data = null
+                };
+
             var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id).OrderByDescending(x=> x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult

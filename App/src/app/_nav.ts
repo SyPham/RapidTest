@@ -31,6 +31,11 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
+    name: 'Black List',
+    url: '/black-list',
+    icon: 'icon-puzzle',
+  },
+  {
     name: '1.Đăng ký xét nghiệm - Check In',
     url: '/check-in',
     icon: 'icon-puzzle',
@@ -86,6 +91,11 @@ export const navItemsManager: INavData[] = [
   {
     name: 'Staff Info',
     url: '/staff-info',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Black List',
+    url: '/black-list',
     icon: 'icon-puzzle',
   },
   {

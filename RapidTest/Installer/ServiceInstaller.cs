@@ -19,6 +19,7 @@ namespace RapidTest.Installer
             services.AddScoped<IReportService, ReportService>();
             services.AddScoped<IFactoryReportService, FactoryReportService>();
             services.AddScoped<ITestKindService, TestKindService >();
+            services.AddScoped<IBlackListService, BlackListService >();
 
 
         }

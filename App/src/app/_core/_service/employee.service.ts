@@ -42,4 +42,8 @@ export class EmployeeService extends CURDService<Employee> {
   countWorkerScanQRCodeByToday(): Observable<any> {
     return this.http.get<any>(`${this.base}Employee/CountWorkerScanQRCodeByToday`);
   }
+  checkCode(code): Observable<boolean> {
+    return this.http.get<boolean>(`${this.base}Employee/CheckCode?code=${code}`);
+  }
+
 }

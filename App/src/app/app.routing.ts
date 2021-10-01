@@ -1,3 +1,4 @@
+import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
 import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
 import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
 import { SettingComponent } from './views/protect-zone/setting/setting.component';
@@ -159,6 +160,14 @@ export const routes: Routes = [
         component: CheckOutSettingComponent,
         data: {
           title: 'Check Out Setting'
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'black-list',
+        component: BlackListComponent,
+        data: {
+          title: 'Black List'
         },
         canActivate: [AuthLocalGuard]
       },

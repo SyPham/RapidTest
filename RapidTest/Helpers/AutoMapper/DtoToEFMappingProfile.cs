@@ -32,6 +32,8 @@ namespace RapidTest.Helpers.AutoMapper
             CreateMap<FactoryReportDto, FactoryReport>();
             CreateMap<EmployeeImportExcelDto, Employee>();
             CreateMap<TestKindDto, TestKind>();
+            CreateMap<BlackListDto, BlackList>();
+                
             CreateMap<Models.CheckInDto, CheckIn>();
 
         }
