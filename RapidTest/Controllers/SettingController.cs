@@ -55,6 +55,10 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetWithPaginationsAsync(paramater));
         }
-
+        [HttpPut]
+        public async Task<ActionResult> UpdateDescription([FromBody] UpdateDescriptionRequestDto model)
+        {
+            return StatusCodeResult(await _service.UpdateDescription(model));
+        }
     }
 }

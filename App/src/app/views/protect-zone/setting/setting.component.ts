@@ -6,7 +6,7 @@ import { Tooltip } from '@syncfusion/ej2-angular-popups';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { ActivatedRoute } from '@angular/router';
 import { MessageConstants } from 'src/app/_core/_constants/system';
-import { Setting } from 'src/app/_core/_model/setting';
+import { Setting, UpdateDescriptionRequest } from 'src/app/_core/_model/setting';
 import { SettingService } from 'src/app/_core/_service/setting.service';
 @Component({
   selector: 'app-setting',
@@ -21,8 +21,11 @@ export class SettingComponent extends BaseComponent implements OnInit {
   @ViewChild('grid') public grid: GridComponent;
   createModel: Setting;
   updateModel: Setting;
+  updateDescriptionModel: UpdateDescriptionRequest;
+  description: string = '';
   setFocus: any;
   locale = localStorage.getItem('lang');
+  id: number;
   constructor(
     private service: SettingService,
     public modalService: NgbModal,
@@ -41,6 +44,7 @@ export class SettingComponent extends BaseComponent implements OnInit {
         day: args.data.day ,
         createdBy: +JSON.parse(localStorage.getItem('user')).id ,
         modifiedBy: null,
+        description: null,
         createdTime: new Date().toLocaleDateString(),
         modifiedTime:  null,
         mins: 0 ,
@@ -61,6 +65,7 @@ export class SettingComponent extends BaseComponent implements OnInit {
         day: args.data.day ,
         mins: 0 ,
         createdBy: args.data.createdBy ,
+        description: args.data.description ,
         modifiedBy: +JSON.parse(localStorage.getItem('user')).id ,
         createdTime: args.data.createdTime ,
         settingType: args.data.settingType ,
@@ -85,6 +90,8 @@ export class SettingComponent extends BaseComponent implements OnInit {
   loadData() {
     this.service.getAll().subscribe(data => {
       this.data = data.filter(x=> x.settingType == 'ACCESS_DAY') || [];
+      this.id = this.data[0].id;
+      this.description = this.data[0].description;
     });
   }
   delete(id) {
@@ -120,6 +127,28 @@ export class SettingComponent extends BaseComponent implements OnInit {
   }
   update() {
     this.service.update(this.updateModel).subscribe(
+      (res) => {
+        if (res.success === true) {
+          this.alertify.success(MessageConstants.UPDATED_OK_MSG);
+          this.loadData();
+        } else {
+          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        }
+      },
+      (error) => {
+        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+      }
+    );
+  }
+  onKeyup() {
+    this.updateDescription();
+  }
+  updateDescription() {
+    this.updateDescriptionModel = {
+      id: this.id,
+      description: this.description
+    };
+    this.service.updateDescription(this.updateDescriptionModel).subscribe(
       (res) => {
         if (res.success === true) {
           this.alertify.success(MessageConstants.UPDATED_OK_MSG);

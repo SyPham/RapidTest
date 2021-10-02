@@ -19,6 +19,7 @@ namespace RapidTest.Models
         public int? ModifiedBy { get; set; }
         [StringLength(100)]
         public string SettingType { get; set; }
+        public string Description { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
     }

@@ -31,4 +31,11 @@
     </div>
   </div>
 </div>
-
+<div class="row d-flex justify-content-center">
+  <div class="col-8">
+    <div class="form-group">
+      <label for="exampleFormControlTextarea1" style="font-size: 1.53125rem;">Note:</label>
+      <textarea class="form-control" (keyup.enter)='onKeyup()' [(ngModel)]="description" style="font-size: 1.53125rem; font-weight: bold; color: red;" placeholder="Type in something" rows="8"></textarea>
+    </div>
+  </div>
+</div>
