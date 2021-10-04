@@ -16,7 +16,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   public data: Object[] = [
 ];
 public radius: Object = { bottomLeft: 5, bottomRight: 5, topLeft: 5, topRight: 5 }
-palette = ["#00A300","#00A300", "#00A300", "#E94649", "#00A300"];
+palette = ["#00A300","#00A300", "#00A300","#00A300", "#00A300", "#E94649", "#00A300"];
 auto: any = false;
 //Initializing Primary X Axis
 public primaryXAxis: Object = {

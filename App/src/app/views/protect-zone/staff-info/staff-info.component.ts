@@ -8,6 +8,8 @@ import { EmployeeService } from 'src/app/_core/_service/employee.service';
 import { environment } from 'src/environments/environment';
 import { DisplayTextModel } from '@syncfusion/ej2-angular-barcode-generator';
 import { MessageConstants } from 'src/app/_core/_constants/system';
+import { SettingService } from 'src/app/_core/_service/setting.service';
+import { Setting } from 'src/app/_core/_model/setting';
 
 @Component({
   selector: 'app-staff-info',
@@ -53,15 +55,21 @@ export class StaffInfoComponent implements OnInit {
   isPrintData = ["ON", "OFF"];
   disable = true;
   loading = 1;
+  settingId: number;
+  settingData: Setting[];
+  settingFields: object = { text: 'name', value: 'id' };
+
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
     private service: EmployeeService,
+    private serviceSetting: SettingService,
     private spinner: NgxSpinnerService,
   ) { }
 
   ngOnInit() {
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
+    this.loadSettingData();
     this.loadData();
   }
 
@@ -100,6 +108,11 @@ export class StaffInfoComponent implements OnInit {
     this.service.getAll().subscribe(data => {
       this.data = data;
       this.spinner.hide();
+    }, (err) => this.spinner.hide());
+  }
+  loadSettingData() {
+    this.serviceSetting.getAll().subscribe(data => {
+      this.settingData = data.filter(x=> x.settingType == 'CHECK_OUT');
     }, (err) => this.spinner.hide());
   }
   loadPrintOffData() {
@@ -249,13 +262,12 @@ export class StaffInfoComponent implements OnInit {
   }
 
   actionBegin(args) {
-    if (args.requestType === 'add') {
-    }
     if (args.requestType === 'beginEdit') {
       const data = args.rowData;
       this.gender = data.gender || '';
       this.isPrint = data.isPrint || 'OFF';
       this.seaInform = data.seaInform;
+      this.settingId = data.settingId || null;
     }
     if (args.requestType === 'save' && args.action === 'add') {
       this.createModel = {
@@ -265,6 +277,7 @@ export class StaffInfoComponent implements OnInit {
         factoryName: args.data.factoryName,
         gender: this.gender,
         isPrint: this.isPrint,
+        settingId: this.settingId,
         birthDate: "",
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
         department: args.data.department,
@@ -305,6 +318,7 @@ export class StaffInfoComponent implements OnInit {
         seaInform: this.seaInform,
         isPrint: this.isPrint,
         gender: this.gender,
+        settingId: this.settingId,
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
         birthDate: args.data.birthDate,
         createdBy: args.data.createdBy,
@@ -313,7 +327,29 @@ export class StaffInfoComponent implements OnInit {
         modifiedTime: new Date().toLocaleDateString(),
         departmentId: args.data.departmentId,
       };
-      this.update();
+      this.update().subscribe(
+        (res) => {
+          if (res.success === true && res.statusCode == 200) {
+            this.alertify.success(MessageConstants.UPDATED_OK_MSG);
+            args.data = res.data;
+            this.grid.updateRow(args.index, res.data);
+            this.editModel = {} as Employee;
+            this.gender = "";
+            this.seaInform = true;
+          } else{
+            this.alertify.warning(res.message, true);
+            this.grid.updateRow(args.index, args.data);
+
+            this.editModel = {} as Employee;
+            this.gender = "";
+            this.seaInform = true;
+
+          }
+        },
+        (error) => {
+          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        }
+      );;
     }
     if (args.requestType === 'delete') {
       this.delete(args.data[0].id);
@@ -359,26 +395,6 @@ export class StaffInfoComponent implements OnInit {
     );
   }
   update() {
-    this.service.update(this.editModel).subscribe(
-      (res) => {
-        if (res.success === true && res.statusCode == 200) {
-          this.alertify.success(MessageConstants.UPDATED_OK_MSG);
-          this.loadData();
-          this.editModel = {} as Employee;
-          this.gender = "";
-          this.seaInform = true;
-        } else{
-          this.alertify.warning(res.message, true);
-          this.loadData();
-          this.editModel = {} as Employee;
-          this.gender = "";
-          this.seaInform = true;
-
-        }
-      },
-      (error) => {
-        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
-      }
-    );
+    return this.service.update(this.editModel)
   }
 }

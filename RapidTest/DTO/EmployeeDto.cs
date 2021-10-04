@@ -12,10 +12,12 @@ namespace RapidTest.DTO
         public string FactoryName { get; set; }
         public string Code { get; set; }
         public int FactoryId { get; set; }
+        public int? SettingId { get; set; }
         public bool SEAInform { get; set; }
         public string Department { get; set; } // Leo
         public string Gender { get; set; } // Leo
         public string IsPrint { get; set; }
+        public string Kind { get; set; }
 
         public string BirthDate { get; set; } // Leo
         public DateTime BirthDay { get; set; } // Leo
@@ -36,6 +38,7 @@ namespace RapidTest.DTO
         public string Code { get; set; }
         public int CreatedBy { get; set; }
         public bool SEAInform { get; set; }
+        public int? SettingId { get; set; }
 
 
     }

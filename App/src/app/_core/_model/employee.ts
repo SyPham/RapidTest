@@ -7,6 +7,7 @@ export interface Employee {
   gender: string;
   isPrint: string;
   code: string;
+  settingId: number| null;
   factoryId: number;
   departmentId: number;
   createdBy: number;

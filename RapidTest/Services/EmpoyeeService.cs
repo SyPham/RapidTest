@@ -152,9 +152,10 @@ namespace RapidTest.Services
                 int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 var factory = await _repoFactory.FindAll(x => x.Name == model.FactoryName).FirstOrDefaultAsync();
                 var department = await _repoDepartment.FindAll(x => x.Code == model.Department).FirstOrDefaultAsync();
+                var item = await _repo.FindByIdAsync(model.Id);
 
-                var employee = await _repo.FindAll(x => x.Code == model.Code).AnyAsync();
-                if (employee)
+                var employee = await _repo.FindAll(x => x.Code == model.Code).FirstOrDefaultAsync();
+                if (employee!= null && item.Code != model.Code)
                         return new OperationResult
                         {
                             StatusCode = HttpStatusCode.BadRequest,
@@ -184,7 +185,6 @@ namespace RapidTest.Services
                 else
                     departmentId = department.Id;
 
-                var item = await _repo.FindByIdAsync(model.Id);
                 item.SEAInform = model.SEAInform;
                 item.Gender = model.Gender.ToLower() == "nam" ? true : false;
                 item.IsPrint = model.IsPrint.ToLower() == "on" ? true : false;
@@ -194,17 +194,19 @@ namespace RapidTest.Services
                 item.FactoryId = factoryId;
                 item.ModifiedBy = accountId;
                 item.Code = model.Code;
+                item.SettingId = model.SettingId;
 
                 _repo.Update(item);
-
+                 
                 await _unitOfWork.SaveChangeAsync();
+                var result = _mapper.Map<EmployeeDto>(item);
 
                 operationResult = new OperationResult
                 {
                     StatusCode = HttpStatusCode.OK,
                     Message = MessageReponse.UpdateSuccess,
                     Success = true,
-                    Data = model
+                    Data = result
                 };
             }
             catch (Exception ex)
@@ -353,6 +355,7 @@ namespace RapidTest.Services
                             var birthDateTemp = workSheet.Cells[rowIterator, 6].Value.ToLong();
                             var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
                             var isPrint = workSheet.Cells[rowIterator, 8].Value.ToSafetyString();
+                            var kind = workSheet.Cells[rowIterator, 9].Value.ToSafetyString();
                             DateTime birthDate = DateTime.FromOADate(birthDateTemp);
                             if (!factoryName.IsNullOrEmpty()
                                 && !fullName.IsNullOrEmpty()
@@ -391,6 +394,16 @@ namespace RapidTest.Services
                                     departmentId = department.Id;
 
                                 var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                                int? kindId = null;
+                                var kindItem = await _repoSetting.FindAll(x => x.Name.ToLower() == kind.ToLower()).FirstOrDefaultAsync();
+                                if (kindItem != null)
+                                {
+                                    kindId = kindItem.Id;
+                                } else
+                                {
+                                    var defaultItem = await _repoSetting.FindAll(x => x.IsDefault).FirstOrDefaultAsync();
+                                    kindId = defaultItem.Id;
+                                }
                                 if (item == null)
                                 {
 
@@ -404,7 +417,8 @@ namespace RapidTest.Services
                                         IsPrint = isPrint.ToLower() == "on" ? true : false,
                                         Gender = gender.ToLower() == "nam" ? true : false,
                                         CreatedBy = accountId,
-                                        SEAInform = SEAInform.ToLower() == "true" ? true : false
+                                        SEAInform = SEAInform.ToLower() == "true" ? true : false,
+                                        SettingId = kindId
                                     });
                                 }
                                 else
@@ -415,6 +429,7 @@ namespace RapidTest.Services
                                     item.FullName = fullName;
                                     item.BirthDate = birthDate;
                                     item.DepartmentId = departmentId;
+                                    item.SettingId = kindId;
                                     updateList.Add(item);
                                 }
 

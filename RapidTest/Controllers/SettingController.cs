@@ -60,5 +60,10 @@ namespace RapidTest.Controllers
         {
             return StatusCodeResult(await _service.UpdateDescription(model));
         }
+        [HttpPut]
+        public async Task<ActionResult> ToggleIsDefault(int id)
+        {
+            return StatusCodeResult(await _service.ToggleIsDefault(id));
+        }
     }
 }

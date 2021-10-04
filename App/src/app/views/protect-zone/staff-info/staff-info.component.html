@@ -37,16 +37,16 @@
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>
             <e-column field="id" textAlign='Center' [visible]="false" isPrimaryKey="true" headerText="{{ 'ID'}}"> </e-column>
-            <e-column field="factoryName" textAlign='Center' headerText="{{ 'Factory'}}"> </e-column>
-            <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
-            <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
+            <e-column field="factoryName" textAlign='Center' [width]="120" headerText="{{ 'Factory'}}"> </e-column>
+            <e-column field="code" textAlign='Center' [width]="100" headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="department" textAlign='Center' [width]="120" headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
-            <e-column field="gender" textAlign='Center' [width]="100" headerText="{{ 'Gender'}}">
+            <e-column field="gender" textAlign='Center' [width]="120" headerText="{{ 'Gender'}}">
               <ng-template #editTemplate let-data>
                 <ejs-dropdownlist [(ngModel)]='gender' placeholder='Select gender' [dataSource]='genderData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
-            <e-column field="birthDate" textAlign='Center' editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
+            <e-column field="birthDate" textAlign='Center' [width]="120" editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
             <e-column field="seaInform" textAlign='Center' headerText="{{ 'SEA Inform'}}">
               <ng-template #template let-data>
                 <ejs-switch [checked]="data.seaInform" (change)='onChange($event, data)'></ejs-switch>
@@ -58,6 +58,12 @@
             <e-column field="isPrint" textAlign='Center' headerText="{{ 'Print: ON/OFF'}}">
               <ng-template #editTemplate let-data>
                 <ejs-dropdownlist [(ngModel)]='isPrint' placeholder='Select print' [dataSource]='isPrintData'></ejs-dropdownlist>
+              </ng-template>
+            </e-column>
+
+            <e-column field="kind" textAlign='Center' headerText="{{ 'Kind'}}">
+              <ng-template #editTemplate let-data>
+                <ejs-dropdownlist [(ngModel)]='settingId' [fields]='settingFields' placeholder='Select a kind' [dataSource]='settingData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
           </e-columns>

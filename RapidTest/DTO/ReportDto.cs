@@ -26,6 +26,8 @@ namespace RapidTest.DTO
         public DateTime? ModifiedTime { get; set; }
         public string CheckInTime { get; set; }
         public string CheckOutTime { get; set; }
+        public string FactoryEntryTime { get; set; } // Entering factory date
+
     }
     public class ScanQRCodeRequestDto
     {

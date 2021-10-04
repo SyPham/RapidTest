@@ -20,5 +20,9 @@ export class SettingService extends CURDService<Setting> {
       .put<OperationResult>(`${this.base}${this.entity}/updateDescription`, model)
       .pipe(catchError(this.handleError));
   }
-
+  toggleIsDefault(id): Observable<OperationResult> {
+    return this.http.put<OperationResult>(`${this.base}${this.entity}/ToggleIsDefault?id=${id}`, {}).pipe(
+      catchError(this.handleError)
+    );
+  }
 }

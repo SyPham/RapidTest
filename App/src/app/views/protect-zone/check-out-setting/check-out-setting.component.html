@@ -23,7 +23,16 @@
                 #
               </ng-template>
             </e-column>
+            <e-column field="name" textAlign='Center' headerText="{{ 'Kind'}}"> </e-column>
             <e-column field="mins" textAlign='Center' headerText="{{ 'Mins'}}"> </e-column>
+            <e-column field="isDefault" textAlign='Center' headerText="{{ 'Option' | translate}}">
+              <ng-template #editTemplate let-data>
+               N/A
+              </ng-template>
+              <ng-template #template let-data>
+                <ejs-switch [checked]="data.isDefault" *ngIf="hasDefault() && data.isDefault || !hasDefault() && !data.isDefault" (change)='onChange($event, data)'></ejs-switch>
+              </ng-template>
+            </e-column>
           </e-columns>
         </ejs-grid>
       </div>

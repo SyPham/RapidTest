@@ -26,6 +26,8 @@ export class CheckOutSettingComponent extends BaseComponent implements OnInit {
   description: any;
   id: any;
   locale = localStorage.getItem('lang');
+  toolbarOptions = ['Add', 'Update','Edit', 'Delete', 'Cancel'];
+
   constructor(
     private service: SettingService,
     public modalService: NgbModal,
@@ -36,12 +38,48 @@ export class CheckOutSettingComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.loadData();
   }
-
+  toggleIsDefault(id, callBack): void {
+    this.service.toggleIsDefault(id).subscribe(
+      (res) => {
+        callBack(res);
+      },
+      (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
+    );
+  }
+  onChange(args, data) {
+    console.log(args);
+    data.isDefault = args.checked;
+    this.toggleIsDefault(data.id, (res)=> {
+      if (res.success === true) {
+        const message = res.message;
+        const item = res.data;
+        const dataSource = this.grid.dataSource as Setting[];
+        const index = dataSource.findIndex(x=> x.id == item.id);
+        dataSource[index].isDefault = args.checked;
+        this.grid.refresh();
+        this.alertify.success(message);
+      } else {
+         this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+      }
+    })
+  }
+  hasDefault() {
+    let check = false;
+    for (const item of this.data) {
+      if (item.isDefault) {
+        check = true;
+        break;
+      }
+    }
+    return check;
+  }
   actionBegin(args) {
     if (args.requestType === 'save' && args.action === 'add') {
       this.createModel = {
         id: 0,
         day: 0 ,
+        isDefault: false ,
+        name: args.data.name ,
         mins: args.data.mins ,
         createdBy: +JSON.parse(localStorage.getItem('user')).id ,
         modifiedBy: null,
@@ -63,6 +101,8 @@ export class CheckOutSettingComponent extends BaseComponent implements OnInit {
       this.updateModel = {
         id: args.data.id ,
         day: 0 ,
+        name: args.data.name ,
+        isDefault: args.data.isDefault ,
         mins: args.data.mins ,
         createdBy: args.data.createdBy ,
         description: args.data.description ,

@@ -81,7 +81,7 @@ export class TestKindComponent extends BaseComponent implements OnInit {
       this.createModel = {
         id: 0,
         name: args.data.name ,
-        isDefault: args.data.name ,
+        isDefault: args.data.isDefault ,
         createdBy: +JSON.parse(localStorage.getItem('user')).id ,
         modifiedBy: null,
         createdTime: new Date().toLocaleDateString(),

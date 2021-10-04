@@ -9,8 +9,10 @@ namespace RapidTest.DTO
     {
         public int Id { get; set; }
         public int Day { get; set; }
+        public string Name { get; set; }
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        public bool IsDefault { get; set; }
         public string SettingType { get; set; }
         public string Description { get; set; }
         public double Mins { get; set; }

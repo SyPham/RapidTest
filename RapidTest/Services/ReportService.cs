@@ -116,7 +116,7 @@ namespace RapidTest.Services
                 };
             var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
 
-            if (checkBlackList)
+            if (checkBlackList && request.KindId == Result.Negative)
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -151,12 +151,19 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-            var checkOutSetting = await _repoSetting.FindAll(x => x.SettingType == SettingType.CHECK_OUT).FirstOrDefaultAsync();
-            var mins = checkOutSetting.Mins;
+            if (employee.Setting == null)
+            return new OperationResult
+            {
+                StatusCode = HttpStatusCode.Forbidden,
+                Message = $"<h2>Vui lòng cài đặt hình thức đi làm (3 tại chỗ hoặc đi làm)! Please set up kind on staff info page</h2>",
+                Success = true,
+                Data = null
+            };
+            var mins = employee.Setting.Mins;
             var checkOutTime = DateTime.Now.AddMinutes(-mins);
             if (checkOutTime < checkIn.CreatedTime)
             {
-                var checkOutHour = checkIn.CreatedTime.AddMinutes(mins).ToString("HH:mm tt");
+                var checkOutHour = checkIn.CreatedTime.AddMinutes(mins).ToString("HH:mm:ss");
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -333,6 +340,8 @@ namespace RapidTest.Services
             var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
             var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             var employee = await _repoEmployee.FindAll(x => x.SEAInform).CountAsync();
+            var comeToWork = await _repoEmployee.FindAll(x => x.Setting != null && x.Setting.IsDefault).CountAsync();
+            var baTaiCho = await _repoEmployee.FindAll(x => x.Setting != null && !x.Setting.IsDefault).CountAsync();
 
 
             return new
@@ -343,16 +352,28 @@ namespace RapidTest.Services
                          y = employee,
                          x = "SEA Informed"
                   },
-                new {
+                
+                   new {
+                         y = baTaiCho,
+                         x = "3 tại chỗ"
+                  },
+                      new {
+                         y = comeToWork,
+                         x = "Đi làm"
+                  },
+                      new {
                          y = checkIn,
                          x = "Check In"
-                  }, new {
+                  },
+                new {
                          y = checkOutNegative,
                          x = "Check Out (-)"
-                  }, new {
+                  }, 
+                new {
                          y = checkOutPositive,
                          x = "Check Out (+)"
-                  }, new {
+                  }, 
+                new {
                          y = accessControl,
                          x = "Access Control"
                   }
