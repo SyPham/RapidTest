@@ -108,7 +108,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var tested = testing.ExpiryTime.Date >= DateTime.Now.Date; // 29 >= 28
+            var tested = testing.ExpiryTime >= DateTime.Now; // 29 >= 28
             if (!tested)
                 return new OperationResult
                 {

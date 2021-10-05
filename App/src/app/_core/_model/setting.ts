@@ -10,6 +10,9 @@ export interface Setting {
   modifiedBy: number | null;
   createdTime: string;
   modifiedTime: string | null;
+  dayOfWeek: string | null;
+  hours: number;
+
 }
 export interface UpdateDescriptionRequest {
   id: number;

@@ -43,12 +43,14 @@
        <h2>SỐ THẺ: {{QRCode}}</h2>
        <h2>Arrive & Recorded successfully</h2>
        <h2>Cho phép vào! </h2>
+       <div [innerHTML]="message"></div>
       </div>
       <div class="card-body bg-info" *ngIf="switchColor">
         <h2>HỌ TÊN: {{fullName}}</h2>
         <h2>SỐ THẺ: {{QRCode}}</h2>
         <h2>Arrive & Recorded successfully</h2>
         <h2>Cho phép vào! </h2>
+        <div [innerHTML]="message"></div>
        </div>
     </div>
     <div class="card" style="width: 60%;" *ngIf="success == 403">

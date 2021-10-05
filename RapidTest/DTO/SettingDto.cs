@@ -14,10 +14,16 @@ namespace RapidTest.DTO
         public int? ModifiedBy { get; set; }
         public bool IsDefault { get; set; }
         public string SettingType { get; set; }
+        public string DayOfWeek { get; set; }
+        public double Hours { get; set; }
+
+
         public string Description { get; set; }
         public double Mins { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
+        public string ExpiryTime { get; set; }
+
     }
     public class UpdateDescriptionRequestDto
     {

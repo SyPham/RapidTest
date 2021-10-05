@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { BaseComponent } from 'src/app/_core/_component/base.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
@@ -46,6 +47,8 @@ export class SettingComponent extends BaseComponent implements OnInit {
         createdBy: +JSON.parse(localStorage.getItem('user')).id ,
         modifiedBy: null,
         description: null,
+        dayOfWeek: args.data.dayOfWeek ,
+        hours: args.data.hours ,
         name: null ,
         createdTime: new Date().toLocaleDateString(),
         modifiedTime:  null,
@@ -68,6 +71,8 @@ export class SettingComponent extends BaseComponent implements OnInit {
         mins: 0 ,
         name: null ,
         isDefault: args.data.isDefault ,
+        dayOfWeek: args.data.dayOfWeek ,
+        hours: args.data.hours ,
         createdBy: args.data.createdBy ,
         description: args.data.description ,
         modifiedBy: +JSON.parse(localStorage.getItem('user')).id ,

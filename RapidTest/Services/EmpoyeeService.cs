@@ -256,8 +256,9 @@ namespace RapidTest.Services
 
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
-
-            var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+            try
+            {
+                var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
             if (employee == null)
                 return new OperationResult
                 {
@@ -305,12 +306,11 @@ namespace RapidTest.Services
 
             _repoCheckIn.Add(data);
             await _unitOfWork.SaveChangeAsync();
-            try
-            {
+                var checkOutTime = data.CreatedTime.AddMinutes(employee.Setting.Mins + 1).ToRemoveSecond().ToString("HH:mm:ss");
                 operationResult = new OperationResult
                 {
                     StatusCode = HttpStatusCode.OK,
-                    Message = "Successfully!",
+                    Message = $"<h2>Thời gian kết quả xét nghiệm {checkOutTime}<br>Check out time is at {checkOutTime}</h2> ",
                     Success = true,
                     Data = employee
                 };
@@ -336,7 +336,7 @@ namespace RapidTest.Services
             {
                 try
                 {
-                    string fileName = file.FileName;
+                    string fileName = file.FileName; 
                     int userid = createdBy.ToInt();
                     using (var package = new ExcelPackage(file.OpenReadStream()))
                     {

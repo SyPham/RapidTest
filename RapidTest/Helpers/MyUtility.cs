@@ -81,5 +81,12 @@ namespace RapidTest.Helpers
                 }
             }
         }
+        public static DateTime ToRemoveSecond(this DateTime dateTime)
+        {
+            var timeNow = dateTime;
+            timeNow = timeNow.AddSeconds(-timeNow.Second);
+            timeNow = timeNow.AddTicks(-(timeNow.Ticks % 10000000));
+            return timeNow;
+        }
     }
 }

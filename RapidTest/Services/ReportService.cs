@@ -116,7 +116,7 @@ namespace RapidTest.Services
                 };
             var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
 
-            if (checkBlackList && request.KindId == Result.Negative)
+            if (checkBlackList && request.Result == Result.Negative)
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -159,11 +159,13 @@ namespace RapidTest.Services
                 Success = true,
                 Data = null
             };
-            var mins = employee.Setting.Mins;
-            var checkOutTime = DateTime.Now.AddMinutes(-mins);
-            if (checkOutTime < checkIn.CreatedTime)
+            var mins = employee.Setting.Mins + 1;
+            var checkOutTime = DateTime.Now.AddMinutes(-mins).ToRemoveSecond();
+
+            var checkInTime = checkIn.CreatedTime.ToRemoveSecond();
+            if (checkOutTime < checkInTime)
             {
-                var checkOutHour = checkIn.CreatedTime.AddMinutes(mins).ToString("HH:mm:ss");
+                var checkOutHour = checkInTime.AddMinutes(mins).ToString("HH:mm:ss");
                 return new OperationResult
                 {
                     StatusCode = HttpStatusCode.Forbidden,
@@ -182,9 +184,10 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
-            var daySetting = setting.Day;
-            var expiryTime = DateTime.Now.AddDays(daySetting).Date;
+            string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
+
+            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
+            var expiryTime = DateTime.Now.AddDays(setting.Day).Date.AddHours(setting.Hours);
             var data = new Report
             {
                 TestKindId = request.KindId,

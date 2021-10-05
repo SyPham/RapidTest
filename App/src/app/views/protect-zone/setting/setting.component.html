@@ -2,7 +2,7 @@
   <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"> Today + setting days = Entry factory expried date
+        <h3 class="card-title"> Today + setting days + setting hours = Entry factory expried date
         </h3>
       </div>
       <div class="card-body table-responsive p-0">
@@ -23,7 +23,10 @@
                 #
               </ng-template>
             </e-column>
-            <e-column field="day" textAlign='Center' headerText="{{ 'Setting days' | translate}}"> </e-column>
+            <e-column field="dayOfWeek" [allowEditing]='false' textAlign='Center' headerText="{{ 'Rapid test date'}}"> </e-column>
+            <e-column field="day" textAlign='Center' headerText="{{ 'Setting days'}}"> </e-column>
+            <e-column field="hours" textAlign='Center' headerText="{{ 'Setting hours'}}"> </e-column>
+
           </e-columns>
         </ejs-grid>
       </div>
