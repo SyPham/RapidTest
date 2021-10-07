@@ -277,6 +277,13 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
+               if (employee.Setting == null)
+                {
+                    var setting = await _repoSetting.FindAll(x=> x.SettingType == "CHECK_OUT" && x.IsDefault).FirstOrDefaultAsync();
+                    employee.Setting = setting;
+                    _repo.Update(employee);
+                   await _unitOfWork.SaveChangeAsync();
+                }
             var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
 
             if (checkBlackList)

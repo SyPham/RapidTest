@@ -187,7 +187,7 @@ namespace RapidTest.Services
             string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
 
             var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
-            var expiryTime = DateTime.Now.AddDays(setting.Day).Date.AddHours(setting.Hours);
+            var expiryTime = DateTime.Now.AddDays(setting.Day + 1).Date.AddHours(setting.Hours);
             var data = new Report
             {
                 TestKindId = request.KindId,

@@ -21,6 +21,8 @@ namespace RapidTest.DTO
         public string Description { get; set; }
         public double Mins { get; set; }
         public DateTime CreatedTime { get; set; }
+        public string DateTime { get; set; }
+
         public DateTime? ModifiedTime { get; set; }
         public string ExpiryTime { get; set; }
 
@@ -30,5 +32,11 @@ namespace RapidTest.DTO
         public int Id { get; set; }
         public string Description { get; set; }
    
+    }
+    public class CurrentWeekDto
+    {
+        public string DayOfWeek { get; set; }
+        public DateTime DateTime { get; set; }
+
     }
 }
