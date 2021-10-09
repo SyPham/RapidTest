@@ -40,7 +40,7 @@
             <e-column field="factoryName" textAlign='Center' [width]="120" headerText="{{ 'Factory'}}"> </e-column>
             <e-column field="code" textAlign='Center' [width]="100" headerText="{{ 'Code'}}"> </e-column>
             <e-column field="department" textAlign='Center' [width]="120" headerText="{{ 'Department'}}"> </e-column>
-            <e-column field="fullName" textAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
+            <e-column field="fullName" textAlign='Left' headerTextAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
             <e-column field="gender" textAlign='Center' [width]="120" headerText="{{ 'Gender'}}">
               <ng-template #editTemplate let-data>
                 <ejs-dropdownlist [(ngModel)]='gender' placeholder='Select gender' [dataSource]='genderData'></ejs-dropdownlist>

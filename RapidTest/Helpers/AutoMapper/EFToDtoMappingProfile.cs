@@ -54,7 +54,8 @@ namespace RapidTest.Helpers.AutoMapper
                   .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s =>
                 s.Employee.FactoryReports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
                 s.Employee.FactoryReports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm:ss") : "N/A")
-                );
+                )
+                .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
             CreateMap<FactoryReport, FactoryReportDto>()
                 .ForMember(d => d.Result, o => o.MapFrom(s => s.Result == 2 ? "Âm tính" : "Dương tính"))
                 .ForMember(d => d.TestKindId, o => o.MapFrom(s => s.TestKind.Name))
@@ -67,8 +68,8 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.ExpiryTime, o => o.MapFrom(s => s.ExpiryTime.ToString("MM/dd/yyyy HH:mm:ss")))
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.RapidTestTime, o => o.MapFrom(s => s.RapidTestTime.ToString("MM/dd/yyyy")))
-                .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.FactoryEntryTime.ToString("MM/dd/yyyy HH:mm:ss")));
-               
+                .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.FactoryEntryTime.ToString("MM/dd/yyyy HH:mm:ss")))
+                .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
             CreateMap<Models.TestKind, TestKindDto>();
             CreateMap<Models.CheckIn, CheckInDto>()
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
@@ -82,7 +83,8 @@ namespace RapidTest.Helpers.AutoMapper
               .ForMember(d => d.CheckOutTime, o => o.MapFrom(s =>
                 s.Employee.Reports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
                 s.Employee.Reports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm:ss") : "N/A")
-                );
+                )
+                .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
             CreateMap<BlackList, BlackListDto>()
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))

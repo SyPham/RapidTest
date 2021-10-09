@@ -17,6 +17,7 @@ namespace RapidTest.Models
         public string BirthDate { get; set; } // Leo
 
         public string Code { get; set; } // Leo
+        public string KindName { get; set; } 
 
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
