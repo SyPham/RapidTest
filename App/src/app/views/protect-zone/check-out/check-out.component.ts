@@ -5,6 +5,7 @@ import { TestKind } from 'src/app/_core/_model/test-kind';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
 import { TestKindService } from 'src/app/_core/_service/test.kind.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-check-out',
@@ -24,6 +25,8 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   message: any;
   switchColor = false;
   total = 0;
+  successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
+  errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
     private alertify: AlertifyService,
     private service: RapidTestReportService,
@@ -85,11 +88,24 @@ export class CheckOutComponent implements OnInit, OnDestroy {
 
         if (res.success === true && res.statusCode == 200) {
           this.fullName = res.data.fullName;
+          this.successBeep();
+        } else {
+          this.errorBeep();
+
         }
       },
       (error) => {
-        this.success = 0;
+          this.errorBeep();
+          this.success = 0;
       }
     );
   }
+  successBeep() {
+    var snd = new Audio(this.successBeepUrl);
+    snd.play();
+}
+errorBeep() {
+  var snd = new Audio(this.errorBeepUrl);
+  snd.play();
+}
 }

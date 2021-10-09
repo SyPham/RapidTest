@@ -3,6 +3,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { FactoryReportService } from 'src/app/_core/_service/factory.report.service';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-access-control',
@@ -19,6 +20,8 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   fullName: any;
   switchColor = false;
   total = 0;
+  successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
+  errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
     private alertify: AlertifyService,
     private service: FactoryReportService
@@ -65,12 +68,23 @@ export class AccessControlComponent implements OnInit, OnDestroy {
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
           this.message = res.message;
-
+          this.successBeep();
+        } else {
+          this.errorBeep();
         }
       },
       (error) => {
         this.success = 0;
+        this.errorBeep();
       }
     );
   }
+  successBeep() {
+    var snd = new Audio(this.successBeepUrl);
+    snd.play();
+}
+errorBeep() {
+  var snd = new Audio(this.errorBeepUrl);
+  snd.play();
+}
 }

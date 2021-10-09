@@ -4,6 +4,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TestKind } from 'src/app/_core/_model/test-kind';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-check-in',
@@ -22,6 +23,8 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   switchColor = false;
   total = 0;
   message = '';
+  successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
+  errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
     private service: EmployeeService,
     private serviceTestKind: TestKindService
@@ -74,12 +77,25 @@ export class CheckInComponent implements OnInit,OnDestroy  {
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {
+          this.successBeep();
           this.fullName = res.data.fullName;
+        } else {
+          this.errorBeep();
         }
       },
       (error) => {
         this.success = 0;
+        this.errorBeep();
       }
     );
   }
+  successBeep() {
+    var snd = new Audio(this.successBeepUrl);
+    snd.play();
+}
+errorBeep() {
+  var snd = new Audio(this.errorBeepUrl);
+  snd.play();
+}
+
 }
