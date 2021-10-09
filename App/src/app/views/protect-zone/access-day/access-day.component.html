@@ -1,0 +1,46 @@
+<div class="row d-flex justify-content-center">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title"> Today + setting days + setting hours = Entry factory expried date time
+        </h3>
+      </div>
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          gridLines='Both'
+          (actionBegin)="actionBegin($event)"
+          (actionComplete)="actionComplete($event)"
+          [editSettings]='editSettings'
+        >
+          <e-columns>
+            <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="dayOfWeek" [allowEditing]='false' textAlign='Center' headerText="{{ 'Rapid test date'}}"> </e-column>
+            <e-column field="dateTime" [allowEditing]='false' textAlign='Center' headerText="{{ 'Date'}}"> </e-column>
+            <e-column field="day" textAlign='Center' headerText="{{ 'Setting days'}}"> </e-column>
+            <e-column field="hours" textAlign='Center' headerText="{{ 'Setting hours'}}"> </e-column>
+            <e-column field="expiryTime" [allowEditing]='false' textAlign='Center' headerText="{{ 'Preview date time'}}"> </e-column>
+
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
+<div class="row d-flex justify-content-center">
+  <div class="col-8">
+    <div class="form-group">
+      <label for="exampleFormControlTextarea1" style="font-size: 1.53125rem;">Note:</label>
+      <textarea class="form-control" (keyup.enter)='onKeyup()' [(ngModel)]="description" style="font-size: 1.53125rem; font-weight: bold; color: red;" placeholder="Type in something" rows="8"></textarea>
+    </div>
+  </div>
+</div>

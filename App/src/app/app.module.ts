@@ -1,3 +1,4 @@
+import { AccessDayComponent } from './views/protect-zone/access-day/access-day.component';
 import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
 import { CheckOutSettingComponent } from './views/protect-zone/check-out-setting/check-out-setting.component';
 import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
@@ -125,7 +126,8 @@ const rapidTestComponent = [
   DashboardComponent,
   CheckInReportComponent,
   CheckOutSettingComponent,
-  BlackListComponent
+  BlackListComponent,
+  AccessDayComponent
 ];
 @NgModule({
   imports: [

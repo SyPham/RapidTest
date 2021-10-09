@@ -11,8 +11,13 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
-    name: 'Access days',
+    name: 'Access days (đi làm)',
     url: '/setting',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Access days (3 tại chỗ)',
+    url: '/access-day',
     icon: 'icon-puzzle',
   },
   {
@@ -74,8 +79,13 @@ export const navItemsManager: INavData[] = [
     icon: 'icon-speedometer'
   },
   {
-    name: 'Access days',
+    name: 'Access days (đi làm)',
     url: '/setting',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Access days (3 tại chỗ)',
+    url: '/access-day',
     icon: 'icon-puzzle',
   },
   {

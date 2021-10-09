@@ -159,6 +159,7 @@ namespace RapidTest.Services
                 Success = true,
                 Data = null
             };
+            
             var mins = employee.Setting.Mins + 1;
             var checkOutTime = DateTime.Now.AddMinutes(-mins).ToRemoveSecond();
 
@@ -186,7 +187,7 @@ namespace RapidTest.Services
                 };
             string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
 
-            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x => x.Id == employee.SettingId && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
             var expiryTime = DateTime.Now.AddDays(setting.Day + 1).Date.AddHours(setting.Hours);
             var data = new Report
             {

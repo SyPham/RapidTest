@@ -27,5 +27,7 @@ namespace RapidTest.Models
         public string Description { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
+        public int? ParentId { get; set; }
+    
     }
 }

@@ -23,6 +23,7 @@ import { CheckInComponent } from './views/protect-zone/check-in/check-in.compone
 import { CheckOutComponent } from './views/protect-zone/check-out/check-out.component';
 import { AuthLocalGuard } from './_core/_guards/auth-local.guard';
 import { CheckOutSettingComponent } from './views/protect-zone/check-out-setting/check-out-setting.component';
+import { AccessDayComponent } from './views/protect-zone/access-day/access-day.component';
 
 export const routes: Routes = [
   {
@@ -79,7 +80,15 @@ export const routes: Routes = [
         path: 'setting',
         component: SettingComponent,
         data: {
-          title: 'Access days'
+          title: 'Access days (Đi làm)'
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'access-day',
+        component: AccessDayComponent,
+        data: {
+          title: 'Access days (3 tại chỗ)'
         },
         canActivate: [AuthLocalGuard]
       },
