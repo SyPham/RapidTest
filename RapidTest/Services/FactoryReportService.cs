@@ -88,7 +88,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
+            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
             if (checkBlackList)
                 return new OperationResult
@@ -135,7 +135,7 @@ namespace RapidTest.Services
                         FactoryEntryTime = DateTime.Now
                     };
 
-                    _repo.Add(data);
+                    await _repo.AddAsync(data);
                     await _unitOfWork.SaveChangeAsync();
                     operationResult = new OperationResult
                     {

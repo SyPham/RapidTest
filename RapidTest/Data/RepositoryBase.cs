@@ -21,6 +21,7 @@ namespace RapidTest.Data
 
         IQueryable<T> FindAll(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
 
+        Task AddAsync(T entity);
         void Add(T entity);
 
         void Update(T entity);
@@ -48,6 +49,10 @@ namespace RapidTest.Data
         public void Add(T entity)
         {
             _context.Add(entity);
+        }
+        public async Task AddAsync(T entity)
+        {
+           await _context.AddAsync(entity);
         }
         public virtual IEnumerable<T> FindAllAsEnumerable(
            Expression<Func<T, bool>> filter = null,

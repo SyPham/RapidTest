@@ -114,7 +114,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
+            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
             if (checkBlackList && request.Result == Result.Negative)
                 return new OperationResult
@@ -175,7 +175,7 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-            var checkExist = _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
+            var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).AnyAsync();
 
             if (checkExist)
                 return new OperationResult
@@ -187,7 +187,7 @@ namespace RapidTest.Services
                 };
             string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
 
-            var setting = await _repoSetting.FindAll(x => x.Id == employee.SettingId && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x => x.ParentId == employee.SettingId && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
             var expiryTime = DateTime.Now.AddDays(setting.Day + 1).Date.AddHours(setting.Hours);
             var data = new Report
             {
@@ -198,7 +198,7 @@ namespace RapidTest.Services
             };
             try
             {
-                _repo.Add(data);
+                await _repo.AddAsync(data);
                 await _unitOfWork.SaveChangeAsync();
 
                 if (request.Result == Result.Negative)

@@ -284,7 +284,7 @@ namespace RapidTest.Services
                     _repo.Update(employee);
                    await _unitOfWork.SaveChangeAsync();
                 }
-            var checkBlackList = _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).Any();
+            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
             if (checkBlackList)
                 return new OperationResult
@@ -294,7 +294,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var checkExist = _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date).Any();
+            var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date).AnyAsync();
 
             if (checkExist)
                 return new OperationResult
@@ -311,7 +311,7 @@ namespace RapidTest.Services
                 EmployeeId = employee.Id
             };
 
-            _repoCheckIn.Add(data);
+            await  _repoCheckIn.AddAsync(data);
             await _unitOfWork.SaveChangeAsync();
                 var checkOutTime = data.CreatedTime.AddMinutes(employee.Setting.Mins + 1).ToRemoveSecond().ToString("HH:mm:ss");
                 operationResult = new OperationResult
