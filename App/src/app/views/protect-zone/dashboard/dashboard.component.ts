@@ -52,7 +52,7 @@ public chartArea: Object = {
         width: 0
     }
 };
-public width: string = Browser.isDevice ? '100%' : '60%';
+public width: string = Browser.isDevice ? '100%' : '100%';
 startDate: Date;
 endDate: Date;
 public pointRender(args: IPointRenderEventArgs): void {

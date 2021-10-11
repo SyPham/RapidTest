@@ -20,7 +20,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
             // alert(`Hệ thống không hoạt động vì lỗi mạng. Vui lòng nhấn F5 để thử lại.
             //          The system does not work due to network error. Please press F5 to try again!
             //   `);
-            console.error('An error occurred: status = 0');
+            console.log('An error occurred: status = 0');
           alert("Internet bị lỗi. Vui lòng thử lại! Internet error , please try again !");
             return throwError(
               'Something bad happened; please try again later.');
@@ -32,17 +32,17 @@ export class BasicAuthInterceptor implements HttpInterceptor {
                     // this.router.navigate(['login'], {
                     //     queryParams: { returnUrl: this.router.routerState.snapshot.url },
                     // });
-                    alert(error.error || 'Unauthorized');
+                    console.log('Unauthorized');
                     break;
                 case 400:
-                    console.error(error.error);
+                    console.log(error?.error);
                     break;
                 case 500:
-                    console.error("Máy chủ đang gặp vấn đề. Vui lòng thử lại sau!<br> The server error. Please try again after sometime!");
+                    console.log("Máy chủ đang gặp vấn đề. Vui lòng thử lại sau!<br> The server error. Please try again after sometime!");
                     break;
             }
             // The response body may contain clues as to what went wrong.
-            console.error(
+            console.log(
                 `Backend returned code ${error.status}, ` +
                 `body was: ${error.error}`);
         }
