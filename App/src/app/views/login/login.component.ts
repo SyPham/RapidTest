@@ -70,7 +70,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     } else if (accountType == AccountTypeConstant.USER) {
       backUrl = '/access-control';
     } else if (accountType == AccountTypeConstant.SYSTEM) {
-      backUrl = '/account';
+      backUrl = '/dashboard';
     }
     this.uri = this.route.snapshot.queryParams.uri || backUrl;
   }
@@ -86,7 +86,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       } else if (accountType == AccountTypeConstant.USER) {
         backUrl = '/access-control';
       } else if (accountType == AccountTypeConstant.SYSTEM) {
-        backUrl = '/account';
+        backUrl = '/dashboard';
       }
       const uri = decodeURI(this.uri) || backUrl;
       this.router.navigate([uri]);
@@ -163,7 +163,7 @@ export class LoginComponent implements OnInit, OnDestroy {
         } else if (accountType == AccountTypeConstant.USER) {
           backUrl = '/access-control';
         } else if (accountType == AccountTypeConstant.SYSTEM) {
-          backUrl = '/account';
+          backUrl = '/dashboard';
         } else if (accountType == AccountTypeConstant.CHECK_IN) {
           backUrl= '/check-in';
         } else if (accountType == AccountTypeConstant.CHECK_OUT) {

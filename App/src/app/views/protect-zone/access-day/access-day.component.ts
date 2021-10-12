@@ -53,7 +53,8 @@ export class AccessDayComponent extends BaseComponent implements OnInit {
         createdTime: new Date().toLocaleDateString(),
         modifiedTime:  null,
         mins: 0 ,
-        settingType: 'ACCESS_DAY'
+        settingType: 'ACCESS_DAY_2',
+        parentId: 4
       };
 
       if (args.data.name === undefined) {
@@ -79,6 +80,7 @@ export class AccessDayComponent extends BaseComponent implements OnInit {
         createdTime: args.data.createdTime ,
         settingType: args.data.settingType ,
         modifiedTime:  new Date().toLocaleDateString(),
+        parentId: args.data.parentId
       };
       this.update();
     }

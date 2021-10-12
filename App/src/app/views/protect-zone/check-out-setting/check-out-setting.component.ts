@@ -88,7 +88,8 @@ export class CheckOutSettingComponent extends BaseComponent implements OnInit {
         modifiedTime:  null,
         dayOfWeek: null ,
         hours: null ,
-        settingType: 'CHECK_OUT'
+        settingType: 'CHECK_OUT',
+        parentId: null
       };
 
       if (args.data.name === undefined) {
@@ -114,6 +115,7 @@ export class CheckOutSettingComponent extends BaseComponent implements OnInit {
         dayOfWeek: args.data.dayOfWeek ,
         hours: args.data.hours ,
         modifiedTime:  new Date().toLocaleDateString(),
+        parentId: args.data.parentId
       };
       this.update();
     }

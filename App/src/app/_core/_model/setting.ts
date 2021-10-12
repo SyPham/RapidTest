@@ -12,6 +12,7 @@ export interface Setting {
   modifiedTime: string | null;
   dayOfWeek: string | null;
   hours: number;
+  parentId: number | null;
 
 }
 export interface UpdateDescriptionRequest {

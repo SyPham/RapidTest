@@ -22,7 +22,7 @@ namespace RapidTest.DTO
         public double Mins { get; set; }
         public DateTime CreatedTime { get; set; }
         public string DateTime { get; set; }
-
+        public int? ParentId { get; set; }
         public DateTime? ModifiedTime { get; set; }
         public string ExpiryTime { get; set; }
 
