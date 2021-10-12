@@ -74,6 +74,11 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.ImportExcel());
         }
+        [HttpPost]
+        public async Task<ActionResult> ImportExcel2(IFormFile file)
+        {
+            return Ok(await _service.ImportExcel2());
+        }
         [HttpPut]
         public async Task<ActionResult> ToggleSEAInformAsync(int id)
         {

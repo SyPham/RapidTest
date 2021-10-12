@@ -21,6 +21,7 @@ namespace RapidTest.Services
     public interface IEmployeeService : IServiceBase<Employee, EmployeeDto>
     {
         Task<bool> ImportExcel();
+        Task<bool> ImportExcel2();
         Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
         Task<object> CountWorkerScanQRCodeByToday();
@@ -532,6 +533,77 @@ namespace RapidTest.Services
         public async Task<bool> CheckCode(string code)
         {
             return await _repo.FindAll(x => x.Code == code).AnyAsync();
+        }
+
+        public async Task<bool> ImportExcel2()
+        {
+            IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files.First();
+            object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
+            var datasList = new List<EmployeeImportExcelDto>();
+            var datasList2 = new List<ImportRequest>();
+            var updateList = new List<Employee>();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
+            {
+                try
+                {
+                    string fileName = file.FileName;
+                    int userid = createdBy.ToInt();
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
+                    {
+                        var currentSheet = package.Workbook.Worksheets;
+                        var workSheet = currentSheet.First();
+                        var noOfCol = workSheet.Dimension.End.Column;
+                        var noOfRow = workSheet.Dimension.End.Row;
+
+                        for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
+                        {
+                            var factoryName = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
+                            var code = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
+                            var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
+                            var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
+                            var code2 = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
+                            var fullName2 = workSheet.Cells[rowIterator, 6].Value.ToSafetyString();
+                            var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
+                            var isPrint = workSheet.Cells[rowIterator, 8].Value.ToSafetyString();
+                            var kind = workSheet.Cells[rowIterator, 9].Value.ToSafetyString();
+                            if (
+                                 !fullName.IsNullOrEmpty()
+                                && !code.IsNullOrEmpty())
+                              
+                            {
+                                datasList2.Add(new ImportRequest
+                                {
+                                    Code = code2,
+                                    FullName = fullName2
+                                });
+
+                            }
+                        }
+                    }
+
+                    var data3 = (await _repoReport.FindAll(x => datasList2.Select(a => a.Code).Contains(x.Employee.Code)).OrderByDescending(x=>x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
+                    foreach (var item in data3)
+                    {
+                        item.ExpiryTime = new DateTime(2021, 10, 14);
+                    }
+                    //var data = _mapper.Map<List<Employee>>(datasList);
+                    //_repo.AddRange(data);
+                    _repoReport.UpdateRange(data3);
+                    await _unitOfWork.SaveChangeAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

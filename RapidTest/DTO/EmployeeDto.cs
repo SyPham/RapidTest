@@ -48,4 +48,10 @@ namespace RapidTest.DTO
         public int PrintBy { get; set; }
 
     }
+    public class ImportRequest
+    {
+        public string FullName { get; set; }
+        public string Code { get; set; }
+
+    }
 }
