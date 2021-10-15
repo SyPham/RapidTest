@@ -3,6 +3,9 @@ import { FactoryReportService } from 'src/app/_core/_service/factory.report.serv
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { GridComponent } from '@syncfusion/ej2-angular-grids';
 import { publish } from 'rxjs/operators';
+import { MessageConstants } from 'src/app/_core/_constants/system';
+import { AlertifyService } from 'src/app/_core/_service/alertify.service';
+import { AccountTypeConstant } from 'src/app/_core/_constants';
 
 @Component({
   selector: 'app-report-factory',
@@ -19,12 +22,21 @@ export class ReportFactoryComponent implements OnInit {
   startDate: Date;
   endDate: Date;
   code: any;
+  visible = false;
+  sortSettings = { columns: [{ field: 'factoryEntryTime', direction: 'Descending' }] };
+
   constructor(
     private service: FactoryReportService,
     public datePipe: DatePipe,
+    private alertify: AlertifyService,
+
   ) { }
 
   ngOnInit() {
+    const accountType = JSON.parse(localStorage.getItem('user'))?.accountType || '';
+    if (accountType == AccountTypeConstant.SYSTEM) {
+      this.visible = true;
+    }
     this.endDate = new Date();
     this.startDate = new Date();
     this.loadData();
@@ -71,4 +83,22 @@ export class ReportFactoryComponent implements OnInit {
   NO(index) {
     return (this.grid.pageSettings.currentPage - 1) * this.pageSettings.pageSize + Number(index) + 1;
   }
+  delete(id) {
+    this.alertify.confirm('Delete', 'Are you sure you want to delete this record "' + id + '" ?', () => {
+      this.service.delete(id).subscribe(
+        (res) => {
+          if (res.success === true) {
+            this.alertify.success(MessageConstants.DELETED_OK_MSG);
+            this.loadData();
+          } else {
+             this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+          }
+        },
+        (err) => this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
+      );
+    });
+
+
+  }
 }
+

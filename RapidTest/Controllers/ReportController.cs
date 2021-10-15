@@ -43,7 +43,11 @@ namespace RapidTest.Controllers
         {
             return StatusCodeResult(await _service.DeleteAsync(id));
         }
-
+        [HttpDelete]
+        public async Task<ActionResult> DeleteCheckIn(int id)
+        {
+            return StatusCodeResult(await _service.DeleteCheckIn(id));
+        }
         [HttpGet]
         public async Task<ActionResult> GetByIdAsync(int id)
         {

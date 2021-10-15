@@ -15,11 +15,13 @@ namespace RapidTest.Models
         public int Id { get; set; }
         public int EmployeeId { get; set; } // Leo
         public int TestKindId { get; set; } // RapidTest
+        public bool IsDelete { get; set; }
 
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get; set; } // Rapid-Test date
         public DateTime? ModifiedTime { get; set; }
+        public DateTime? DeletedTime { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
         public virtual Employee Employee { get; set; }

@@ -32,6 +32,8 @@
           [allowSorting]='true'
           [pageSettings]='pageSettings'
           [allowExcelExport]='true'
+          [sortSettings]='sortSettings'
+
         >
           <e-columns>
             <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
@@ -53,7 +55,17 @@
             <e-column field="rapidTestTime" textAlign='Center' headerText="{{ 'Test date'}}"> </e-column>
             <e-column field="expiryTime" textAlign='Center' headerText="{{ 'Entry factory exp. date'}}"> </e-column>
             <e-column field="factoryEntryTime" textAlign='Center' headerText="{{ 'Entry factory time'}}"> </e-column>
+            <e-column field="option" width="100" textAlign='Center' headerText="{{ 'Option'}}" [visible]="visible">
+              <ng-template #template let-data>
+                <div class="btn-group">
+                  <button type="button" (click)='delete(data.id)' class="btn btn-xs btn-danger"><i class="fa fa-trash"></i></button>
+                </div>
 
+              </ng-template>
+              <ng-template #editTemplate let-data>
+               N/A
+              </ng-template>
+            </e-column>
           </e-columns>
         </ejs-grid>
       </div>

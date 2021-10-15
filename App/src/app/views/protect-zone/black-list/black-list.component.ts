@@ -23,6 +23,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
   updateModel: BlackList;
   setFocus: any;
   locale = localStorage.getItem('lang');
+  sortSettings = { columns: [{ field: 'createdTime', direction: 'Descending' }] };
   constructor(
     private serviceEmployee: EmployeeService,
     private service: BlackListService,

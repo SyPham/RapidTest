@@ -58,12 +58,12 @@ namespace RapidTest.Services
         }
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x =>  x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
             var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
             {
 
-                var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date)
+                var data = (await _repo.FindAll(x => !x.IsDelete && x.FactoryEntryTime.Date == startDate.Date)
                     .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
@@ -71,7 +71,7 @@ namespace RapidTest.Services
 
             else
             {
-                var data = (await _repo.FindAll(x => x.FactoryEntryTime.Date >= startDate.Date && x.FactoryEntryTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+                var data = (await _repo.FindAll(x => !x.IsDelete && x.FactoryEntryTime.Date == startDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
@@ -99,7 +99,7 @@ namespace RapidTest.Services
                     Data = null
                 };
 
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             if (testing == null)
                 return new OperationResult
                 {
@@ -165,8 +165,32 @@ namespace RapidTest.Services
 
         public async Task<object> CountWorkerScanQRCodeByToday()
         {
-            var total = await _repo.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var total = await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             return total;
+        }
+        public override async Task<OperationResult> DeleteAsync(object id)
+        {
+            var item = _repo.FindById(id);
+            item.IsDelete = true;
+            item.DeletedTime = DateTime.Now;
+
+            _repo.Update(item);
+            try
+            {
+                await _unitOfWork.SaveChangeAsync();
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = MessageReponse.DeleteSuccess,
+                    Success = true,
+                    Data = item
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
         }
     }
 }

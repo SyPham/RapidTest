@@ -7,6 +7,7 @@
           [dataSource]="data"
           [allowPaging]='true'
           [allowResizing]='true'
+          [allowSorting]='true'
           [showColumnMenu]='true'
           gridLines='Both'
           [locale]='locale'
@@ -16,6 +17,7 @@
           [allowExcelExport]='true'
           (toolbarClick)='toolbarClick($event)'
           [editSettings]='editSettings'
+          [sortSettings]='sortSettings'
         >
           <e-columns>
             <e-column field="#" textAlign='Center' width="80"  [allowEditing]='false' headerText="#">
@@ -24,7 +26,7 @@
               </ng-template>
             </e-column>
             <e-column field="code" textAlign='Center' headerText="{{ 'ID'}}"> </e-column>
-            <e-column field="fullName" textAlign='Center' [allowEditing]='false' headerText="{{ 'Name'}}">  </e-column>
+            <e-column field="fullName" textAlign='Left' [allowEditing]='false' headerText="{{ 'Name'}}">  </e-column>
             <e-column field="department" textAlign='Center' [allowEditing]='false' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="createdTime" textAlign='Center' type='date' format='MM-dd-yyy HH:mm' [allowEditing]='false' headerText="{{ 'Date Time'}}"> </e-column>
           </e-columns>

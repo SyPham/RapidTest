@@ -60,7 +60,7 @@ export class AlertifyService {
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire(
           'Cancelled',
-          'Your imaginary file is safe :)',
+          'The data is safe :)',
           'error'
         );
       }

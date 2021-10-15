@@ -17,13 +17,14 @@ namespace RapidTest.Models
         public int Result { get; set; } // Negative
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
+        public bool IsDelete { get; set; }
 
         public DateTime ExpiryTime { get; set; } // Enter factory exp. date
         public DateTime RapidTestTime { get; set; } // Rapid Test date
         public DateTime FactoryEntryTime { get; set; } // Entering factory date
         public DateTime CreatedTime { get; set; } // Rapid-Test date
         public DateTime? ModifiedTime { get; set; }
-
+        public DateTime? DeletedTime { get; set; }
         [ForeignKey(nameof(EmployeeId))]
         public virtual Employee Employee { get; set; }
         [ForeignKey(nameof(TestKindId))]

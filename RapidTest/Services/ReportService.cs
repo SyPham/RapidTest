@@ -32,6 +32,9 @@ namespace RapidTest.Services
         Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
         Task<List<CheckInDto>> CheckInFilter(DateTime date, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
+
+        Task<OperationResult> DeleteCheckIn(object id);
+
     }
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
@@ -79,14 +82,14 @@ namespace RapidTest.Services
 
             if (string.IsNullOrEmpty(code))
             {
-                var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date)
+                var data = (await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
                .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
             }
             else
             {
-                var data = (await _repo.FindAll(x => x.CreatedTime.Date >= startDate.Date && x.CreatedTime.Date <= endDate.Date && x.Employee.Code.Contains(code))
+                var data = (await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
@@ -138,9 +141,9 @@ namespace RapidTest.Services
             var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
             var checkIn = new CheckIn();
             if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             else
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
             if (checkIn == null)
             {
                 return new OperationResult
@@ -175,7 +178,7 @@ namespace RapidTest.Services
                     Data = null
                 };
             }
-            var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date).AnyAsync();
+            var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
 
             if (checkExist)
                 return new OperationResult
@@ -339,10 +342,10 @@ namespace RapidTest.Services
 
         public async Task<object> Dashboard(DateTime startTime, DateTime endTime)
         {
-            var checkIn = await _repoCheckIn.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
-            var checkOutPositive = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).Select(x => x.EmployeeId).Distinct().CountAsync();
-            var checkOutNegative = await _repo.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
-            var accessControl = await _repoFactoryReport.FindAll(x => x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkIn = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkOutPositive = await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Positive).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkOutNegative = await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var accessControl = await _repoFactoryReport.FindAll(x => !x.IsDelete && x.CreatedTime.Date >= startTime.Date && x.CreatedTime.Date <= endTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             var employee = await _repoEmployee.FindAll(x => x.SEAInform).CountAsync();
             var comeToWork = await _repoEmployee.FindAll(x => x.Setting != null && x.Setting.IsDefault).CountAsync();
             var baTaiCho = await _repoEmployee.FindAll(x => x.Setting != null && !x.Setting.IsDefault).CountAsync();
@@ -389,13 +392,13 @@ namespace RapidTest.Services
         {
             if (string.IsNullOrEmpty(code))
             {
-                var data = (await _repoCheckIn.FindAll(x => x.CreatedTime.Date == date.Date)
+                var data = (await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == date.Date)
                .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
             else
             {
-                var data = (await _repoCheckIn.FindAll(x => x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
+                var data = (await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
               .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
@@ -403,8 +406,57 @@ namespace RapidTest.Services
 
         public async Task<object> CountWorkerScanQRCodeByToday()
         {
-            var total = await _repo.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var total = await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             return total;
+        }
+
+        public async Task<OperationResult> DeleteCheckIn(object id)
+        {
+            var item = _repoCheckIn.FindById(id);
+            item.IsDelete = true;
+            item.DeletedTime = DateTime.Now;
+
+            _repoCheckIn.Update(item);
+            try
+            {
+                await _unitOfWork.SaveChangeAsync();
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = MessageReponse.DeleteSuccess,
+                    Success = true,
+                    Data = item
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
+        }
+        public override async Task<OperationResult> DeleteAsync(object id)
+        {
+            var item = _repo.FindById(id);
+            item.IsDelete = true;
+            item.DeletedTime = DateTime.Now;
+
+            _repo.Update(item);
+            try
+            {
+                await _unitOfWork.SaveChangeAsync();
+                operationResult = new OperationResult
+                {
+                    StatusCode = HttpStatusCode.OK,
+                    Message = MessageReponse.DeleteSuccess,
+                    Success = true,
+                    Data = item
+                };
+            }
+            catch (Exception ex)
+            {
+                operationResult = ex.GetMessageError();
+            }
+            return operationResult;
         }
     }
 }

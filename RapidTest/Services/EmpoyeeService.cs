@@ -30,7 +30,6 @@ namespace RapidTest.Services
         Task<OperationResult> CheckIn(string code, int testKindId);
         Task<List<EmployeeDto>> GetPrintOff();
         Task<bool> CheckCode(string code);
-
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
@@ -259,7 +258,7 @@ namespace RapidTest.Services
         {
             try
             {
-                var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                var employee = await _repo.FindAll(x => x.Code == code ).FirstOrDefaultAsync();
             if (employee == null)
                 return new OperationResult
                 {
@@ -295,7 +294,7 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
-            var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date).AnyAsync();
+            var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
 
             if (checkExist)
                 return new OperationResult
@@ -526,7 +525,7 @@ namespace RapidTest.Services
 
         public async Task<object> CountWorkerScanQRCodeByToday()
         {
-            var total = await _repoCheckIn.FindAll(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var total = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             return total;
         }
 
@@ -605,5 +604,7 @@ namespace RapidTest.Services
                 return false;
             }
         }
+
+       
     }
 }
