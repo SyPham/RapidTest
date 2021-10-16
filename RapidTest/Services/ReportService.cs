@@ -117,6 +117,22 @@ namespace RapidTest.Services
                     Success = true,
                     Data = null
                 };
+
+            var testDate = employee.TestDate.ToSafetyString();
+            if (testDate != "")
+            {
+                var testDateArray = testDate.Split(".").ToList();
+                string dayOfWeekValue = ((int)DateTime.Now.DayOfWeek + 1) + "";
+                var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
+                if (checkTestDate == false)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = "Người này không nằm trong danh sách xét nghiệm của nhân sự ngày hôm nay, không được để anh ấy hoặc cô ấy đi qua chốt này",
+                        Success = true,
+                        Data = null
+                    };
+            }
             var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
             if (checkBlackList && request.Result == Result.Negative)

@@ -18,6 +18,7 @@ namespace RapidTest.DTO
         public string Gender { get; set; } // Leo
         public string IsPrint { get; set; }
         public string Kind { get; set; }
+        public string TestDate { get; set; }
 
         public string BirthDate { get; set; } // Leo
         public DateTime BirthDay { get; set; } // Leo
@@ -36,6 +37,7 @@ namespace RapidTest.DTO
         public DateTime BirthDate { get; set; }
         public string FullName { get; set; }
         public string Code { get; set; }
+        public string TestDate { get; set; }
         public int CreatedBy { get; set; }
         public bool SEAInform { get; set; }
         public int? SettingId { get; set; }
@@ -47,6 +49,20 @@ namespace RapidTest.DTO
         public List<int> Ids { get; set; }
         public int PrintBy { get; set; }
 
+    }
+    public class ExportExcelRequest
+    {
+        public string Code { get; set; }
+        public string FullName { get; set; }
+        public string TestDate { get; set; }
+        public string Kind { get; set; } // settingId (3 tại chỗ || đi làm)
+    }
+    public class ImportExcelRequest
+    {
+        public string Code { get; set; }
+        public string FullName { get; set; }
+        public string TestDate { get; set; }
+        public string Kind { get; set; } // settingId (3 tại chỗ || đi làm)
     }
     public class ImportRequest
     {

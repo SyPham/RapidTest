@@ -5,6 +5,7 @@ export interface Employee {
   birthDate: any;
   birthDay: any;
   gender: string;
+  testDate: string;
   isPrint: string;
   code: string;
   settingId: number| null;

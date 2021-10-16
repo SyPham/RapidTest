@@ -90,6 +90,7 @@ import { AutoSelectDirective } from './_core/_directive/select.directive';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
 import { ChartAllModule } from '@syncfusion/ej2-angular-charts';
 
+
 declare var require: any;
 loadCldr(
   require('cldr-data/supplemental/numberingSystems.json'),

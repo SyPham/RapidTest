@@ -29,6 +29,8 @@ namespace RapidTest.Models
         public int DepartmentId { get; set; }
         public int? SettingId { get; set; }
         public int CreatedBy { get; set; }
+        [MaxLength(200)]
+        public string TestDate { get; set; }
 
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get ; set ; }
@@ -39,6 +41,7 @@ namespace RapidTest.Models
         public virtual Department Department { get; set; }
         [ForeignKey(nameof(SettingId))]
         public virtual Setting Setting { get; set; }
+
         public virtual ICollection<FactoryReport> FactoryReports { get; set; }
         public virtual ICollection<Report> Reports { get; set; }
         public virtual ICollection<CheckIn> CheckIns { get; set; }

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
 using OfficeOpenXml;
+using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.Style;
 using RapidTest.Constants;
 using RapidTest.Data;
 using RapidTest.DTO;
@@ -12,6 +14,8 @@ using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -22,6 +26,7 @@ namespace RapidTest.Services
     {
         Task<bool> ImportExcel();
         Task<bool> ImportExcel2();
+        Task<bool> ImportExcel3();
         Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
         Task<object> CountWorkerScanQRCodeByToday();
@@ -30,6 +35,7 @@ namespace RapidTest.Services
         Task<OperationResult> CheckIn(string code, int testKindId);
         Task<List<EmployeeDto>> GetPrintOff();
         Task<bool> CheckCode(string code);
+        Task<byte[]> ExportExcel();
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
@@ -155,14 +161,14 @@ namespace RapidTest.Services
                 var item = await _repo.FindByIdAsync(model.Id);
 
                 var employee = await _repo.FindAll(x => x.Code == model.Code).FirstOrDefaultAsync();
-                if (employee!= null && item.Code != model.Code)
-                        return new OperationResult
-                        {
-                            StatusCode = HttpStatusCode.BadRequest,
-                            Message = "Already existed code! Đã tồn tại số thẻ này!",
-                            Success = true,
-                            Data = null
-                        };
+                if (employee != null && item.Code != model.Code)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Already existed code! Đã tồn tại số thẻ này!",
+                        Success = true,
+                        Data = null
+                    };
 
                 if (factory == null)
                 {
@@ -195,9 +201,10 @@ namespace RapidTest.Services
                 item.ModifiedBy = accountId;
                 item.Code = model.Code;
                 item.SettingId = model.SettingId;
+                item.TestDate = model.TestDate;
 
                 _repo.Update(item);
-                 
+
                 await _unitOfWork.SaveChangeAsync();
                 var result = _mapper.Map<EmployeeDto>(item);
 
@@ -253,66 +260,88 @@ namespace RapidTest.Services
             return operationResult;
         }
 
-
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
             try
             {
-                var employee = await _repo.FindAll(x => x.Code == code ).FirstOrDefaultAsync();
-            if (employee == null)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Not found this person. No entry.Please establish data in Staff info page!",
-                    Success = true,
-                    Data = null
-                };
+                var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                if (employee == null)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "Not found this person. No entry.Please establish data in Staff info page!",
+                        Success = true,
+                        Data = null
+                    };
 
 
-            if (!employee.SEAInform)
-                return new OperationResult
+                if (!employee.SEAInform)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "No entry.Please wait for SEA inform !",
+                        Success = true,
+                        Data = null
+                    };
+                var testDate = employee.TestDate.ToSafetyString();
+                if (testDate != "")
                 {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No entry.Please wait for SEA inform !",
-                    Success = true,
-                    Data = null
-                };
-               if (employee.Setting == null)
+                    var testDateArray = testDate.Split(".").ToList();
+                    string dayOfWeekValue = ((int) DateTime.Now.DayOfWeek + 1) + "";
+                    var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
+                    if (checkTestDate == false)
+                        return new OperationResult
+                        {
+                            StatusCode = HttpStatusCode.Forbidden,
+                            Message = "Người này không nằm trong danh sách xét nghiệm của nhân sự ngày hôm nay, không được để anh ấy hoặc cô ấy đi qua chốt này",
+                            Success = true,
+                            Data = null
+                        };
+                }
+                if (!employee.SEAInform)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "No entry.Please wait for SEA inform!",
+                        Success = true,
+                        Data = null
+                    };
+                if (employee.Setting == null)
                 {
-                    var setting = await _repoSetting.FindAll(x=> x.SettingType == "CHECK_OUT" && x.IsDefault).FirstOrDefaultAsync();
+                    var setting = await _repoSetting.FindAll(x => x.SettingType == "CHECK_OUT" && x.IsDefault).FirstOrDefaultAsync();
                     employee.Setting = setting;
                     _repo.Update(employee);
-                   await _unitOfWork.SaveChangeAsync();
+                    await _unitOfWork.SaveChangeAsync();
                 }
-            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
+                var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
-            if (checkBlackList)
-                return new OperationResult
+                if (checkBlackList)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
+
+                if (checkExist)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
+                        Success = true,
+                        Data = null
+                    };
+
+                var data = new CheckIn
                 {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
-                    Success = true,
-                    Data = null
-                };
-            var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
-
-            if (checkExist)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
-                    Success = true,
-                    Data = null
+                    TestKindId = testKindId,
+                    EmployeeId = employee.Id
                 };
 
-            var data = new CheckIn
-            {
-                TestKindId = testKindId,
-                EmployeeId = employee.Id
-            };
-
-            await  _repoCheckIn.AddAsync(data);
-            await _unitOfWork.SaveChangeAsync();
+                await _repoCheckIn.AddAsync(data);
+                await _unitOfWork.SaveChangeAsync();
                 var checkOutTime = data.CreatedTime.AddMinutes(employee.Setting.Mins + 1).ToRemoveSecond().ToString("HH:mm:ss");
                 operationResult = new OperationResult
                 {
@@ -343,7 +372,7 @@ namespace RapidTest.Services
             {
                 try
                 {
-                    string fileName = file.FileName; 
+                    string fileName = file.FileName;
                     int userid = createdBy.ToInt();
                     using (var package = new ExcelPackage(file.OpenReadStream()))
                     {
@@ -363,6 +392,7 @@ namespace RapidTest.Services
                             var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
                             var isPrint = workSheet.Cells[rowIterator, 8].Value.ToSafetyString();
                             var kind = workSheet.Cells[rowIterator, 9].Value.ToSafetyString();
+                            var testDate = workSheet.Cells[rowIterator, 10].Value.ToSafetyString();
                             DateTime birthDate = DateTime.FromOADate(birthDateTemp);
                             if (!factoryName.IsNullOrEmpty()
                                 && !fullName.IsNullOrEmpty()
@@ -406,7 +436,8 @@ namespace RapidTest.Services
                                 if (kindItem != null)
                                 {
                                     kindId = kindItem.Id;
-                                } else
+                                }
+                                else
                                 {
                                     var defaultItem = await _repoSetting.FindAll(x => x.IsDefault).FirstOrDefaultAsync();
                                     kindId = defaultItem.Id;
@@ -425,7 +456,8 @@ namespace RapidTest.Services
                                         Gender = gender.ToLower() == "nam" ? true : false,
                                         CreatedBy = accountId,
                                         SEAInform = SEAInform.ToLower() == "true" ? true : false,
-                                        SettingId = kindId
+                                        SettingId = kindId,
+                                        TestDate = testDate
                                     });
                                 }
                                 else
@@ -437,6 +469,7 @@ namespace RapidTest.Services
                                     item.BirthDate = birthDate;
                                     item.DepartmentId = departmentId;
                                     item.SettingId = kindId;
+                                    item.TestDate = testDate;
                                     updateList.Add(item);
                                 }
 
@@ -570,7 +603,7 @@ namespace RapidTest.Services
                             if (
                                  !fullName.IsNullOrEmpty()
                                 && !code.IsNullOrEmpty())
-                              
+
                             {
                                 datasList2.Add(new ImportRequest
                                 {
@@ -582,15 +615,15 @@ namespace RapidTest.Services
                         }
                     }
 
-                    var data3 = (await _repoReport.FindAll(x => datasList2.Select(a => a.Code).Contains(x.Employee.Code)).OrderByDescending(x=>x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
+                    var data3 = (await _repoReport.FindAll(x => datasList2.Select(a => a.Code).Contains(x.Employee.Code)).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
                     foreach (var item in data3)
                     {
                         item.ExpiryTime = new DateTime(2021, 10, 14);
                     }
                     //var data = _mapper.Map<List<Employee>>(datasList);
                     //_repo.AddRange(data);
-                    _repoReport.UpdateRange(data3);
-                    await _unitOfWork.SaveChangeAsync();
+                    //_repoReport.UpdateRange(data3);
+                    //await _unitOfWork.SaveChangeAsync();
                     return true;
                 }
                 catch (Exception ex)
@@ -605,6 +638,188 @@ namespace RapidTest.Services
             }
         }
 
-       
+        public async Task<bool> ImportExcel3()
+        {
+            IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files["UploadedFile"];
+            object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
+            var updateList = new List<Employee>();
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var kindModel = await _repoSetting.FindAll().ToListAsync();
+            if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
+            {
+                try
+                {
+                    string fileName = file.FileName;
+                    int userid = createdBy.ToInt();
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
+                    {
+                        var currentSheet = package.Workbook.Worksheets;
+                        var workSheet = currentSheet.First();
+                        var noOfCol = workSheet.Dimension.End.Column;
+                        var noOfRow = workSheet.Dimension.End.Row;
+
+                        for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
+                        {
+                            var code = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
+                            var fullName = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
+                            var kind = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
+                            var testDate = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
+                            if (!code.IsNullOrEmpty())
+                            {
+                                // kiểm tra đẫ tồn tại trong db chưa
+
+                                var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                                int? kindId = null;
+                                var kindItem = kindModel.FirstOrDefault(x => x.Name.ToLower() == kind.ToLower());
+                                if (kindItem != null)
+                                    kindId = kindItem.Id;
+                                else
+                                    kindId = kindModel.FirstOrDefault(x => x.IsDefault).Id;
+                                if (item != null)
+                                {
+                                    item.SettingId = kindId;
+                                    item.TestDate = testDate;
+                                    updateList.Add(item);
+                                }
+
+                            }
+                        }
+                    }
+                    _repo.UpdateRange(updateList);
+                    await _unitOfWork.SaveChangeAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<byte[]> ExportExcel()
+        {
+            try
+            {
+                var data = await _repo.FindAll().Select(x => new ExportExcelRequest
+                {
+                    Code = x.Code,
+                    FullName = x.FullName,
+                    Kind = x.SettingId.HasValue ? x.Setting.Name : string.Empty,
+                    TestDate = x.TestDate
+                }).ToListAsync();
+                var currentTime = DateTime.Now;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var memoryStream = new MemoryStream();
+                using (ExcelPackage p = new ExcelPackage(memoryStream))
+                {
+                    // đặt tên người tạo file
+                    p.Workbook.Properties.Author = "Henry Pham";
+
+                    // đặt tiêu đề cho file
+                    p.Workbook.Properties.Title = "Employee";
+                    //Tạo một sheet để làm việc trên đó
+                    p.Workbook.Worksheets.Add("Employee");
+
+                    // lấy sheet vừa add ra để thao tác
+                    ExcelWorksheet ws = p.Workbook.Worksheets["Employee"];
+
+                    // đặt tên cho sheet
+                    ws.Name = "Employee";
+                    // fontsize mặc định cho cả sheet
+                    ws.Cells.Style.Font.Size = 11;
+                    // font family mặc định cho cả sheet
+                    ws.Cells.Style.Font.Name = "Calibri";
+                    var headerArray = new List<string>()
+                    {
+                        "Số thẻ",
+                        "Họ Và Tên",
+                        "Kind",
+                        "Ngày xét nghiệm"
+                    };
+                    ws.Cells["H1"].Value = "Dữ Liệu Ngày Xét Nghiệm";
+                    ws.Cells["H1"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells["H1"].Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#1F4E78"));
+                    ws.Cells["H1"].Style.Font.Color.SetColor(ColorTranslator.FromHtml("#fff"));
+                    ws.Cells["H1"].Style.Font.Size = 16;
+                    ws.Cells["H2"].Value = $"1 = {nameof(DayOfWeek.Sunday)}";
+                    ws.Cells["H3"].Value = $"2 = {nameof(DayOfWeek.Monday)}";
+                    ws.Cells["H4"].Value = $"3 = {nameof(DayOfWeek.Tuesday)}";
+                    ws.Cells["H5"].Value = $"4 = {nameof(DayOfWeek.Wednesday)}";
+                    ws.Cells["H6"].Value = $"5 = {nameof(DayOfWeek.Thursday)}";
+                    ws.Cells["H7"].Value = $"6 = {nameof(DayOfWeek.Friday)}";
+                    ws.Cells["H8"].Value = $"7 = {nameof(DayOfWeek.Saturday)}";
+                    ws.Cells["H9"].Value = "Để trống là tất cả các ngày trong tuần";
+                    int headerRowIndex = 1;
+                    foreach (var headerItem in headerArray.Select((value, i) => new { i, value }))
+                    {
+                        var headerColIndex = headerItem.i + 1;
+                        var headerExcelRange = ws.Cells[headerRowIndex, headerColIndex];
+                        headerExcelRange.Value = headerItem.value;
+                        headerExcelRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        headerExcelRange.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#1F4E78"));
+                        headerExcelRange.Style.Font.Color.SetColor(ColorTranslator.FromHtml("#fff"));
+                        headerExcelRange.Style.Font.Size = 16;
+
+                    }
+
+                    int bodyRowIndex = 1;
+                    int bodyColIndex = 1;
+                    int total = data.Count + 1;
+                    foreach (var bodyItem in data)
+                    {
+                        bodyColIndex = 1;
+                        bodyRowIndex++;
+
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Code;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.FullName;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Kind;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.TestDate;
+
+                    }
+
+
+                    //Make all text fit the cells
+                    //ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                    ws.Cells[$"A1:D{total}"].Style.Font.Bold = true;
+                    ws.Cells[$"A1:D{total}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    ws.Cells[$"A1:D{total}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    //make the borders of cell F6 thick
+                    ws.Cells[$"A1:D{total}"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].AutoFitColumns();
+
+
+                    ws.Cells[$"H1:H9"].Style.Font.Bold = true;
+                    ws.Cells[$"H1:H9"].Style.VerticalAlignment = ExcelVerticalAlignment.Justify;
+                    ws.Cells[$"H1:H9"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Justify;
+
+                    //make the borders of cell F6 thick
+                    ws.Cells[$"H1:H9"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].AutoFitColumns();
+                    //Lưu file lại
+                    Byte[] bin = p.GetAsByteArray();
+                    return bin;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mes = ex.Message;
+                Console.WriteLine(mes);
+                return new Byte[] { };
+            }
+        }
     }
 }

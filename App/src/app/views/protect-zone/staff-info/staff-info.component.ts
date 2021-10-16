@@ -10,6 +10,7 @@ import { DisplayTextModel } from '@syncfusion/ej2-angular-barcode-generator';
 import { MessageConstants } from 'src/app/_core/_constants/system';
 import { SettingService } from 'src/app/_core/_service/setting.service';
 import { Setting } from 'src/app/_core/_model/setting';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 
 @Component({
   selector: 'app-staff-info',
@@ -20,7 +21,7 @@ import { Setting } from 'src/app/_core/_model/setting';
 })
 export class StaffInfoComponent implements OnInit {
   data;
-  toolbarOptions = ['ExcelExport', 'Search', 'Add',  {
+  toolbarOptions = ['ExcelExport','Search', 'Add',  {
     text: 'Filter Off',
     tooltipText: 'Filter Off',
     prefixIcon: 'fa fa-check',
@@ -38,8 +39,11 @@ export class StaffInfoComponent implements OnInit {
   excelDownloadUrl: string;
   modalReference: NgbModalRef;
   file: any;
+  file2: any;
   @ViewChild('importModal', { static: true })
   importModal: TemplateRef<any>;
+  @ViewChild('import2Modal', { static: true })
+  import2Modal: TemplateRef<any>;2
   selectOptions = { persistSelection: true };
   selectedData: Employee[] = [];
   genderData = ["NAM", "NỮ"];
@@ -58,7 +62,9 @@ export class StaffInfoComponent implements OnInit {
   settingId: number;
   settingData: Setting[];
   settingFields: object = { text: 'name', value: 'id' };
-
+  excel2DownloadUrl: string;
+  progress = 0;
+  showClose = true;
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -69,15 +75,54 @@ export class StaffInfoComponent implements OnInit {
 
   ngOnInit() {
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
+    this.excel2DownloadUrl = `${environment.apiUrl}Employee/ExcelExportTemplate`;
     this.loadSettingData();
     this.loadData();
   }
 
   showModal() {
-    this.modalReference = this.modalService.open(this.importModal, { size: 'xl' });
+    this.modalReference = this.modalService.open(this.importModal, { size: 'xl', keyboard: false });
+  }
+  showModal2() {
+    this.modalReference = this.modalService.open(this.import2Modal, { size: 'xl', keyboard: false });
   }
   fileProgress(event) {
     this.file = event.target.files[0];
+  }
+  fileProgress2(event) {
+    this.file2 = event.target.files[0];
+  }
+  submitUser() {
+    this.service.importExcel3(this.file2
+    ).subscribe((event: HttpEvent<any>) => {
+      this.showClose = false;
+      switch (event.type) {
+        case HttpEventType.Sent:
+          console.log('Request has been made!');
+          break;
+        case HttpEventType.ResponseHeader:
+          console.log('Response header has been received!');
+          break;
+        case HttpEventType.UploadProgress:
+          this.progress = Math.round(event.loaded / event.total * 100);
+          console.log(`Uploaded! ${this.progress}%`);
+          break;
+        case HttpEventType.Response:
+          console.log('User successfully created!', event.body);
+          setTimeout(() => {
+            this.progress = 0;
+            this.showClose = true;
+
+            this.loadData();
+            this.modalReference.close();
+            this.alertify.success('The excel has been imported into system!');
+          }, 1500);
+
+      }
+    }, error => {
+      this.showClose = true;
+      this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
+    })
   }
   toggleSEAInform(id, callBack): void {
     this.service.toggleSEAInform(id).subscribe(
@@ -158,6 +203,9 @@ export class StaffInfoComponent implements OnInit {
       case 'grid_excelexport':
         this.grid.excelExport({ hierarchyExportMode: 'All' });
         break;
+        case 'grid_ExcelExport2':
+          this.downloadExcel();
+          break;
         case 'printoff':
           this.loadPrintOffData();
           break;
@@ -168,6 +216,21 @@ export class StaffInfoComponent implements OnInit {
         break;
     }
   }
+   downloadExcel() {
+    this.spinner.show();
+    this.service.exportExcel().subscribe((data: any) => {
+      const blob = new Blob([data],
+        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+      const downloadURL = window.URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = downloadURL;
+      link.download = 'export.xlsx';
+      link.click();
+      this.spinner.hide();
+    });
+  }
+
   uploadFile() {
     this.spinner.show();
     this.service
@@ -287,6 +350,7 @@ export class StaffInfoComponent implements OnInit {
         createdTime: new Date().toLocaleDateString(),
         modifiedBy: 0,
         modifiedTime: null,
+        testDate: args.data.testDate,
         departmentId: args.data.departmentId || 0,
       };
 
@@ -326,6 +390,7 @@ export class StaffInfoComponent implements OnInit {
         modifiedBy: JSON.parse(localStorage.getItem('user')).id,
         modifiedTime: new Date().toLocaleDateString(),
         departmentId: args.data.departmentId,
+        testDate: args.data.testDate,
       };
       this.update().subscribe(
         (res) => {

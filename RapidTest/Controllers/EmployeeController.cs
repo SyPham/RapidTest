@@ -75,6 +75,11 @@ namespace RapidTest.Controllers
             return Ok(await _service.ImportExcel());
         }
         [HttpPost]
+        public async Task<ActionResult> ImportExcel3([FromForm] IFormFile file)
+        {
+            return Ok(await _service.ImportExcel3());
+        }
+        [HttpPost]
         public async Task<ActionResult> ImportExcel2(IFormFile file)
         {
             return Ok(await _service.ImportExcel2());
@@ -88,6 +93,25 @@ namespace RapidTest.Controllers
         public async Task<IActionResult> ExcelExport()
         {
             string filename = "employee.xlsx";
+            if (filename == null)
+                return Content("filename not present");
+
+            var path = Path.Combine(
+                           Directory.GetCurrentDirectory(),
+                           "wwwroot/excelTemplate", filename);
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(path, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+            return File(memory, GetContentType(path), Path.GetFileName(path));
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExcelExportTemplate()
+        {
+            string filename = "template3.xlsx";
             if (filename == null)
                 return Content("filename not present");
 
@@ -143,6 +167,13 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.CheckCode(code));
 
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExportEmployeeExcel()
+        {
+            var bin = await _service.ExportExcel();
+            return File(bin, "application/octet-stream", "employee.xlsx");
         }
     }
 }
