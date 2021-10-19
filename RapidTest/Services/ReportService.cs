@@ -126,12 +126,12 @@ namespace RapidTest.Services
                 var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
                 if (checkTestDate == false)
                     return new OperationResult
-                    {
-                        StatusCode = HttpStatusCode.Forbidden,
-                        Message = "Người này không nằm trong danh sách xét nghiệm của nhân sự ngày hôm nay, không được để anh ấy hoặc cô ấy đi qua chốt này",
-                        Success = true,
-                        Data = null
-                    };
+                        {
+                            StatusCode = HttpStatusCode.Forbidden,
+                            Message = $"<h2>You can not get test today. your test date is {testDate} <br> Bạn không thể xét nghiệm hôm nay . ngày xét nghiệm của bạn là {testDate}</h2>",
+                            Success = true,
+                            Data = null
+                        };
             }
             var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 

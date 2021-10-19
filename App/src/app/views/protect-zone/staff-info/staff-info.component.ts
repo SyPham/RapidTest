@@ -81,10 +81,10 @@ export class StaffInfoComponent implements OnInit {
   }
 
   showModal() {
-    this.modalReference = this.modalService.open(this.importModal, { size: 'xl', keyboard: false });
+    this.modalReference = this.modalService.open(this.importModal, { size: 'xl', backdrop: 'static' , keyboard: false });
   }
   showModal2() {
-    this.modalReference = this.modalService.open(this.import2Modal, { size: 'xl', keyboard: false });
+    this.modalReference = this.modalService.open(this.import2Modal, { size: 'xl', backdrop: 'static', keyboard: false });
   }
   fileProgress(event) {
     this.file = event.target.files[0];

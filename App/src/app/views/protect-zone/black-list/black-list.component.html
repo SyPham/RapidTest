@@ -29,6 +29,11 @@
             <e-column field="fullName" textAlign='Left' [allowEditing]='false' headerText="{{ 'Name'}}">  </e-column>
             <e-column field="department" textAlign='Center' [allowEditing]='false' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="createdTime" textAlign='Center' type='date' format='MM-dd-yyy HH:mm' [allowEditing]='false' headerText="{{ 'Date Time'}}"> </e-column>
+            <e-column field="firstWorkDate" textAlign='Center' type='date' format='MM-dd-yyy' [allowEditing]='false' headerText="{{ 'First Work Date'}}">
+              <!-- <ng-template #template let-data>
+                {{data.firstWorkDate != null ? (data.firstWorkDate | date: 'MM-dd-yyyy') : 'N/A' }}
+              </ng-template> -->
+            </e-column>
           </e-columns>
         </ejs-grid>
       </div>

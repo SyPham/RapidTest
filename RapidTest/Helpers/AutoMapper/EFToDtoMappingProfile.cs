@@ -73,22 +73,26 @@ namespace RapidTest.Helpers.AutoMapper
             CreateMap<Models.TestKind, TestKindDto>();
             CreateMap<Models.CheckIn, CheckInDto>()
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
-                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
+                .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.CheckOutTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy HH:mm:ss")))
                 .ForMember(d => d.CheckInTime, o => o.MapFrom(s => s.CreatedTime.ToString("MM/dd/yyyy HH:mm:ss")))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-              .ForMember(d => d.CheckOutTime, o => o.MapFrom(s =>
+                .ForMember(d => d.CheckOutTime, o => o.MapFrom(s =>
                 s.Employee.Reports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
                 s.Employee.Reports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm:ss") : "N/A")
                 )
                 .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
-            CreateMap<BlackList, BlackListDto>()
+                CreateMap<BlackList, BlackListDto>()
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
-                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
+                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>
+                s.Employee.FactoryReports.Any() ?
+                (DateTime?)s.Employee.FactoryReports.FirstOrDefault().FactoryEntryTime: null)
+                );
 
         }
     }

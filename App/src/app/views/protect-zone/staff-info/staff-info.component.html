@@ -5,7 +5,7 @@
 <div class="row">
   <div class="col-md-12 mb-2">
     <button type="button" class="btn btn-secondary mr-2" (click)='showModal()'>Import Excel</button>
-    <button type="button" class="btn btn-secondary mr-2" (click)='showModal2()'>Import Excel 2</button>
+    <button type="button" class="btn btn-secondary mr-2" data-toggle="tooltip" data-placement="bottom" title="Chức năng này sẽ cập nhật dữ liệu cột test date" data-toggle="tooltip" data-placement="top" title="Tooltip on top" (click)='showModal2()'>Import Excel 2</button>
     <button type="button" class="btn btn-secondary" [disabled]='disable' (click)='printData()'>
       <span *ngIf="loading == 0" class="spinner-border spinner-border-sm text-danger" role="status" aria-hidden="true"></span>
       <span *ngIf="loading == 0">Loading... Chờ chút nhé... </span>
@@ -75,24 +75,9 @@
       <!-- /.card-body -->
     </div>
   </div>
-  <!-- <ejs-grid #grid
-  id='grid'
-  [dataSource]="selectedData"
-  height='350'
-  >
-  <e-columns>
-    <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'QR Code'}}">
-      <ng-template #template let-item>
-        <ejs-qrcodegenerator [id]='item.code' style="display: block;" [displayText]='displayTextMethod'
-        width="120px" height="160px" mode="SVG"
-        value="{{item.code}}"></ejs-qrcodegenerator>
-      </ng-template>
-    </e-column>
 
-  </e-columns>
-</ejs-grid> -->
   <div class="col-md-12">
-    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; ">
+    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; left: 999999999999px;">
       <tbody>
         <ng-container *ngFor="let item of selectedData">
           <tr *ngIf="selectedData.length > 0">
@@ -119,14 +104,14 @@
   </div>
   <div class="modal-body">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-12">
         <div class="form-group">
-          <label for="Name">
+          <label for="file">
             Select File (*Notice: Excel file must be followed a system template. If you do not have a
             template, please <a [href]="excelDownloadUrl" style="font-weight: bolder;">click here</a> to download. Thank you!)
 
           </label>
-          <input (change)="fileProgress($event)" name="file" type="file" class="form-control" />
+          <input (change)="fileProgress($event)" name="file" id='file' type="file" class="form-control" />
         </div>
       </div>
     </div>
@@ -153,17 +138,17 @@
     <div class="row">
       <div class="col-md-12">
         <div class="form-group">
-          <label for="Name">Select File (*Notice: Excel file must be followed a system template. If you do not have a template, please <a [href]="excel2DownloadUrl" style="font-weight: bolder;">click here</a> to download excel template without system data
+          <label for="file2">Select File (*Notice: Excel file must be followed a system template. If you do not have a template, please <a [href]="excel2DownloadUrl" style="font-weight: bolder;">click here</a> to download excel template without system data
             or <a (click)='downloadExcel()' style="font-weight: bolder;color: #20a8d8; cursor: pointer;; text-decoration: none; background-color: transparent;">click here</a> to download excel file with system data. Thank you!)
 
           </label>
-          <input (change)="fileProgress2($event)" name="file" type="file" class="form-control" />
+          <input (change)="fileProgress2($event)" name="file" id="file2" type="file" class="form-control" />
         </div>
       </div>
       <div class="col-md-12">
         <div class="progress form-group" *ngIf="progress > 0" style="height:30px; font-size:20px">
           <div class="progress-bar progress-bar-striped bg-success" role="progressbar" [style.width.%]="progress" >
-            Chờ chút nhé. Hệ thống đang xử lý dữ liệu. Sẽ mất 1 vài phút để hoàn thành công việc này...
+            Chờ chút nhé. Hệ thống đang xử lý dữ liệu...
           </div>
       </div>
       </div>

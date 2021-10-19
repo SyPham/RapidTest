@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
 using OfficeOpenXml;
-using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Style;
 using RapidTest.Constants;
 using RapidTest.Data;
@@ -293,7 +292,7 @@ namespace RapidTest.Services
                         return new OperationResult
                         {
                             StatusCode = HttpStatusCode.Forbidden,
-                            Message = "Người này không nằm trong danh sách xét nghiệm của nhân sự ngày hôm nay, không được để anh ấy hoặc cô ấy đi qua chốt này",
+                            Message = $"<h2>You can not get test today. your test date is {testDate} <br> Bạn không thể xét nghiệm hôm nay . ngày xét nghiệm của bạn là {testDate}</h2>",
                             Success = true,
                             Data = null
                         };
@@ -821,5 +820,91 @@ namespace RapidTest.Services
                 return new Byte[] { };
             }
         }
+
+        public async Task<byte[]> ExportExcel2()
+        {
+            try
+            {
+
+                var data = await _repo.FindAll().Select(x => new 
+                {
+                    Factory = x.Factory.Name,
+                    Code = x.Code,
+                    Department = x.Department.Code,
+                    FullName = x.FullName,
+                    Gender = x.Gender.HasValue && x.Gender.Value ? "NAM" : "NỮ",
+                    BirthDate = x.BirthDate,
+                    SEAInform = x.SEAInform.ToString().ToUpper(),
+                    IsPrint = x.IsPrint ? "ON" : "OFF",
+                    Kind = x.SettingId.HasValue ? x.Setting.Name : "Đi làm",
+                    TestDate = x.TestDate
+                }).Take(9).ToListAsync();
+                var currentTime = DateTime.Now;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var memoryStream = new MemoryStream();
+                using (ExcelPackage p = new ExcelPackage(memoryStream))
+                {
+                    // lấy sheet ra để thao tác
+                    ExcelWorksheet ws = p.Workbook.Worksheets["Employee"];
+                  
+                    int bodyRowIndex = 1;
+                    int bodyColIndex = 1;
+                    int total = data.Count + 1;
+                    foreach (var bodyItem in data)
+                    {
+                        bodyColIndex = 1;
+                        bodyRowIndex++;
+
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Factory;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Code;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Department;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.FullName;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Gender;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.BirthDate;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.SEAInform;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.IsPrint;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Kind;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.TestDate;
+
+                    }
+
+                    //Make all text fit the cells
+                    //ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                    ws.Cells[$"A1:D{total}"].Style.Font.Bold = true;
+                    ws.Cells[$"A1:D{total}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    ws.Cells[$"A1:D{total}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    //make the borders of cell F6 thick
+                    ws.Cells[$"A1:D{total}"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:D{total}"].AutoFitColumns();
+
+
+                    ws.Cells[$"H1:H9"].Style.Font.Bold = true;
+                    ws.Cells[$"H1:H9"].Style.VerticalAlignment = ExcelVerticalAlignment.Justify;
+                    ws.Cells[$"H1:H9"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Justify;
+
+                    //make the borders of cell F6 thick
+                    ws.Cells[$"H1:H9"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"H1:H9"].AutoFitColumns();
+                    //Lưu file lại
+                    Byte[] bin = p.GetAsByteArray();
+                    return bin;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mes = ex.Message;
+                Console.WriteLine(mes);
+                return new Byte[] { };
+            }
+        }
+
     }
 }

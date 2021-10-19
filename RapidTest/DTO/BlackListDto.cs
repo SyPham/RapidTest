@@ -20,6 +20,7 @@ namespace RapidTest.DTO
         public DateTime? DeletedTime { get; set; }
         public DateTime CreatedTime { get; set; } 
         public DateTime? ModifiedTime { get; set; }
+        public DateTime? FirstWorkDate { get; set; }
 
     }
 }
