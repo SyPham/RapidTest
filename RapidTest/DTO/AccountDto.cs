@@ -20,5 +20,7 @@ namespace RapidTest.DTO
         public int? ModifiedBy { get; set; }
         public DateTime CreatedTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
+        public string Area { get; set; }
+
     }
 }

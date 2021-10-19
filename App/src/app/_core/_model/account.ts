@@ -20,4 +20,5 @@ export interface Account {
   manager: number;
   leaderName: string;
   managerName: string;
+  area: string;
 }

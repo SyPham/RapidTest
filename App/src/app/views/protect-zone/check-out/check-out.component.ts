@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { Employee } from 'src/app/_core/_model/employee';
 import { TestKind } from 'src/app/_core/_model/test-kind';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
@@ -25,6 +26,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
   message: any;
   switchColor = false;
   total = 0;
+  employeeData :Employee;
   successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
   errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
@@ -82,6 +84,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
       (res) => {
         this.loadTotalScan();
 
+        this.employeeData = res.data;
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;

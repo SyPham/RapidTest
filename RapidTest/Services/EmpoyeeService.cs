@@ -282,21 +282,7 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
-                var testDate = employee.TestDate.ToSafetyString();
-                if (testDate != "")
-                {
-                    var testDateArray = testDate.Split(".").ToList();
-                    string dayOfWeekValue = ((int)DateTime.Now.DayOfWeek + 1) + "";
-                    var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
-                    if (checkTestDate == false)
-                        return new OperationResult
-                        {
-                            StatusCode = HttpStatusCode.Forbidden,
-                            Message = $"<h2>You can not get test today. your test date is {testDate} <br> Bạn không thể xét nghiệm hôm nay . ngày xét nghiệm của bạn là {testDate}</h2>",
-                            Success = true,
-                            Data = null
-                        };
-                }
+               
                 if (!employee.SEAInform)
                     return new OperationResult
                     {

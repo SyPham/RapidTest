@@ -1,3 +1,4 @@
+import { Employee } from './../../../_core/_model/employee';
 import { TestKindService } from 'src/app/_core/_service/test.kind.service';
 import { EmployeeService } from './../../../_core/_service/employee.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
@@ -23,6 +24,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   switchColor = false;
   total = 0;
   message = '';
+  employeeData :Employee;
   successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
   errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
@@ -72,6 +74,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
     this.success = 0;
     this.service.checkin2(this.QRCode, this.kindId).subscribe(
       (res) => {
+        this.employeeData = res.data;
         this.loadTotalScan();
         this.message = res.message;
         this.switchColor = !this.switchColor;

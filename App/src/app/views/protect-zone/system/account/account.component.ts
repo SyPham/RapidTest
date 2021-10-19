@@ -87,6 +87,7 @@ export class AccountComponent extends BaseComponent implements OnInit {
       manager: this.managerId,
       leaderName: null,
       managerName: null,
+      area: null,
     };
 
   }
@@ -123,6 +124,7 @@ export class AccountComponent extends BaseComponent implements OnInit {
         manager: this.managerId,
         leaderName: null,
         managerName: null,
+        area: null,
       };
 
       if (args.data.username === undefined) {
@@ -157,6 +159,7 @@ export class AccountComponent extends BaseComponent implements OnInit {
         manager: this.managerId,
         leaderName: null,
         managerName: null,
+        area: null,
       };
       this.update();
     }

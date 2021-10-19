@@ -41,6 +41,7 @@
                 <ejs-dropdownlist [(ngModel)]='accountTypeId' [fields]="accountTypeFields" placeholder='Select account type' [dataSource]='accountTypes'></ejs-dropdownlist>
               </ng-template>
             </e-column>
+            <e-column field="area" textAlign='Center' headerText="{{ 'Area'}}"> </e-column>
 
             <e-column field="option" width="100" textAlign='Center' headerText="{{ 'Option'}}">
               <ng-template #template let-data>

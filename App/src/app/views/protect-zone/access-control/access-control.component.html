@@ -27,12 +27,14 @@
       <div class="card-body bg-success" *ngIf="!switchColor">
        <h2>HỌ TÊN: {{fullName}}</h2>
        <h2>SỐ THẺ: {{QRCode}}</h2>
+       <h2>ĐỊNH KỲ: {{employeeData.testDate}}</h2>
        <div [innerHTML]="message"></div>
       </div>
 
       <div class="card-body bg-info" *ngIf="switchColor">
         <h2>HỌ TÊN: {{fullName}}</h2>
         <h2>SỐ THẺ: {{QRCode}}</h2>
+       <h2>ĐỊNH KỲ: {{employeeData.testDate}}</h2>
         <div [innerHTML]="message"></div>
        </div>
     </div>

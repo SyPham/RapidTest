@@ -20,6 +20,8 @@ namespace RapidTest.Models
         public string Password { get; set; }
         [MaxLength(255)]
         public string Email { get; set; }
+        [MaxLength(1000)]
+        public string Area { get; set; }
         public bool IsLock { get; set; }
         public int? AccountTypeId { get; set; }
         public int CreatedBy { get; set; }

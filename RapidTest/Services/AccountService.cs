@@ -96,6 +96,7 @@ namespace RapidTest.Services
                 item.Username = model.Username;
                 item.FullName = model.FullName;
                 item.Email = model.Email;
+                item.Area = model.Area;
                 item.AccountTypeId = model.AccountTypeId;
                 _repo.Update(item);
                 await _unitOfWork.SaveChangeAsync();

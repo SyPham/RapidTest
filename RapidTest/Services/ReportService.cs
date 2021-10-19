@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using NetUtility;
 using OfficeOpenXml;
@@ -46,6 +47,7 @@ namespace RapidTest.Services
         private readonly IRepositoryBase<Employee> _repoEmployee;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly MapperConfiguration _configMapper;
         private OperationResult operationResult;
@@ -60,6 +62,7 @@ namespace RapidTest.Services
             IRepositoryBase<Employee> repoEmployee,
             IRepositoryBase<CheckIn> repoCheckIn,
             IUnitOfWork unitOfWork,
+            IHttpContextAccessor httpContextAccessor,
             IMapper mapper,
             MapperConfiguration configMapper
             )
@@ -73,6 +76,7 @@ namespace RapidTest.Services
             _repoEmployee = repoEmployee;
             _repoCheckIn = repoCheckIn;
             _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
             _configMapper = configMapper;
         }
@@ -118,21 +122,6 @@ namespace RapidTest.Services
                     Data = null
                 };
 
-            var testDate = employee.TestDate.ToSafetyString();
-            if (testDate != "")
-            {
-                var testDateArray = testDate.Split(".").ToList();
-                string dayOfWeekValue = ((int)DateTime.Now.DayOfWeek + 1) + "";
-                var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
-                if (checkTestDate == false)
-                    return new OperationResult
-                        {
-                            StatusCode = HttpStatusCode.Forbidden,
-                            Message = $"<h2>You can not get test today. your test date is {testDate} <br> Bạn không thể xét nghiệm hôm nay . ngày xét nghiệm của bạn là {testDate}</h2>",
-                            Success = true,
-                            Data = null
-                        };
-            }
             var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
             if (checkBlackList && request.Result == Result.Negative)
@@ -473,6 +462,64 @@ namespace RapidTest.Services
                 operationResult = ex.GetMessageError();
             }
             return operationResult;
+        }
+
+        public async Task<bool> ImportExcel3()
+        {
+            IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files["UploadedFile"];
+            object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
+            var updateList = new List<Report>();
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var kindModel = await _repoSetting.FindAll(x => x.SettingType == SettingType.CHECK_OUT).ToListAsync();
+            if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
+            {
+                try
+                {
+                    string fileName = file.FileName;
+                    int userid = createdBy.ToInt();
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
+                    {
+                        var currentSheet = package.Workbook.Worksheets;
+                        var workSheet = currentSheet.First();
+                        var noOfCol = workSheet.Dimension.End.Column;
+                        var noOfRow = workSheet.Dimension.End.Row;
+
+                        for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
+                        {
+                            var code = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
+                            var expiryTimeTemp = workSheet.Cells[rowIterator, 2].Value.ToLong();
+                            DateTime expiryTime = DateTime.FromOADate(expiryTimeTemp);
+
+                            if (!code.IsNullOrEmpty())
+                            {
+                                // kiểm tra đẫ tồn tại trong db chưa
+
+                                var item = await _repo.FindAll(x => x.Employee.Code == code).FirstOrDefaultAsync();
+                                if (item != null)
+                                {
+                                    item.ExpiryTime = expiryTime;
+                                    updateList.Add(item);
+                                }
+
+                            }
+                        }
+                    }
+                    _repo.UpdateRange(updateList);
+                    await _unitOfWork.SaveChangeAsync();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

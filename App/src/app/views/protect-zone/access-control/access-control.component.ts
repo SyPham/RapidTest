@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { Employee } from 'src/app/_core/_model/employee';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { FactoryReportService } from 'src/app/_core/_service/factory.report.service';
 import { environment } from 'src/environments/environment';
@@ -20,6 +21,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   fullName: any;
   switchColor = false;
   total = 0;
+  employeeData :Employee;
   successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
   errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
   constructor(
@@ -62,6 +64,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
     this.service.accessControl(this.QRCode).subscribe(
       (res) => {
         this.loadTotalScan();
+        this.employeeData = res.data;
         this.switchColor = !this.switchColor;
         this.success = res.statusCode;
         this.message = res.message;
