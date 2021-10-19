@@ -57,7 +57,7 @@ export class EmployeeService extends CURDService<Employee> {
     return this.http.get<boolean>(`${this.base}Employee/CheckCode?code=${code}`);
   }
   exportExcel() {
-    return this.http.get(`${this.base}Employee/ExportEmployeeExcel`, { responseType: 'blob' });
+    return this.http.get(`${this.base}Employee/ExportEmployeeExcel`, { responseType: 'blob', observe: 'response' });
   }
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = '';

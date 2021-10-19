@@ -1,8 +1,9 @@
+import { DatePipe } from '@angular/common';
 import { EmployeeService } from './../../../_core/_service/employee.service';
 import { BaseComponent } from 'src/app/_core/_component/base.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
-import { GridComponent } from '@syncfusion/ej2-angular-grids';
+import { ExcelExportProperties, GridComponent } from '@syncfusion/ej2-angular-grids';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { MessageConstants } from 'src/app/_core/_constants/system';
 import { BlackListService } from 'src/app/_core/_service/black-list.service';
@@ -11,7 +12,8 @@ import { BlackList } from 'src/app/_core/_model/black-list';
 @Component({
   selector: 'app-black-list',
   templateUrl: './black-list.component.html',
-  styleUrls: ['./black-list.component.scss']
+  styleUrls: ['./black-list.component.scss'],
+  providers: [DatePipe]
 })
 export class BlackListComponent extends BaseComponent implements OnInit {
   data: BlackList[] = [];
@@ -29,6 +31,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
     private service: BlackListService,
     public modalService: NgbModal,
     private alertify: AlertifyService,
+    private datePipe:DatePipe
   ) { super(); }
 
   ngOnInit() {
@@ -61,6 +64,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
       employeeId: 0,
       deletedTime:  null,
       deletedBy: null,
+      firstWorkDate: null,
     };
 
   }
@@ -85,6 +89,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         employeeId: 0,
         deletedBy: null,
         deletedTime: null,
+        firstWorkDate: null,
       };
 
       if (args.data.code === undefined) {
@@ -119,6 +124,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         employeeId: args.data.employeeId,
         deletedBy: args.data.deletedBy,
         deletedTime: args.data.deletedTime,
+        firstWorkDate: null,
       };
       this.serviceEmployee.checkCode(args.data.code).toPromise().then(x=> {
         if (x == false) {
@@ -143,7 +149,26 @@ export class BlackListComponent extends BaseComponent implements OnInit {
   toolbarClick(args) {
     switch (args.item.id) {
       case 'grid_excelexport':
-        this.grid.excelExport({ hierarchyExportMode: 'All' });
+        const data = this.data.map((x, index)=> {
+          return {
+            number: index + 1,
+            code: x.code,
+            fullName: x.fullName,
+            department: x.department,
+            createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
+            firstWorkDate: this.datePipe.transform(x.firstWorkDate, 'MM-dd-yyyy'),
+
+          }
+        });
+        const y = new Date().getFullYear();
+        const d = new Date().getDay();
+        const m = new Date().getMonth() + 1;
+        const excelExportProperties: ExcelExportProperties = {
+          dataSource: data,
+          hierarchyExportMode: 'All',
+          fileName: `black-list${m}${d}${y}.xlsx`
+      };
+        this.grid.excelExport(excelExportProperties);
         break;
       default:
         break;

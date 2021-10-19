@@ -111,7 +111,7 @@ namespace RapidTest.Controllers
         [HttpGet]
         public async Task<IActionResult> ExcelExportTemplate()
         {
-            string filename = "template3.xlsx";
+            string filename = "template2.xlsx";
             if (filename == null)
                 return Content("filename not present");
 
@@ -173,7 +173,7 @@ namespace RapidTest.Controllers
         public async Task<IActionResult> ExportEmployeeExcel()
         {
             var bin = await _service.ExportExcel();
-            return File(bin, "application/octet-stream", "employee.xlsx");
+            return File(bin, "application/octet-stream", $"employee{DateTime.Now.ToString("MMddyyyy")}.xlsx");
         }
     }
 }

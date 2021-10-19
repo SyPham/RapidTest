@@ -63,6 +63,7 @@ export class StaffInfoComponent implements OnInit {
   settingData: Setting[];
   settingFields: object = { text: 'name', value: 'id' };
   excel2DownloadUrl: string;
+  excel3DownloadUrl: string;
   progress = 0;
   showClose = true;
   constructor(
@@ -76,6 +77,7 @@ export class StaffInfoComponent implements OnInit {
   ngOnInit() {
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
     this.excel2DownloadUrl = `${environment.apiUrl}Employee/ExcelExportTemplate`;
+    this.excel3DownloadUrl = `${environment.apiUrl}Employee/ExportEmployeeExcel`;
     this.loadSettingData();
     this.loadData();
   }
@@ -217,17 +219,15 @@ export class StaffInfoComponent implements OnInit {
     }
   }
    downloadExcel() {
-    this.spinner.show();
     this.service.exportExcel().subscribe((data: any) => {
-      const blob = new Blob([data],
-        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
       const downloadURL = window.URL.createObjectURL(data);
       const link = document.createElement('a');
       link.href = downloadURL;
-      link.download = 'export.xlsx';
+      const y = new Date().getFullYear();
+      const d = new Date().getDay();
+      const m = new Date().getMonth() + 1;
+      link.download = `employee${m}${d}${y}.xlsx`;
       link.click();
-      this.spinner.hide();
     });
   }
 

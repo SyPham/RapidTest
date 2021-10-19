@@ -130,7 +130,7 @@
     <h4 class="modal-title">
       <i class="fas fa-plus"></i> Import Excel 2
     </h4>
-    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+    <button type="button" class="close" aria-label="Close" *ngIf="showClose" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -139,7 +139,7 @@
       <div class="col-md-12">
         <div class="form-group">
           <label for="file2">Select File (*Notice: Excel file must be followed a system template. If you do not have a template, please <a [href]="excel2DownloadUrl" style="font-weight: bolder;">click here</a> to download excel template without system data
-            or <a (click)='downloadExcel()' style="font-weight: bolder;color: #20a8d8; cursor: pointer;; text-decoration: none; background-color: transparent;">click here</a> to download excel file with system data. Thank you!)
+            or <a  style="font-weight: bolder;" [href]="excel3DownloadUrl" >click here</a> to download excel file with system data. Thank you!)
 
           </label>
           <input (change)="fileProgress2($event)" name="file" id="file2" type="file" class="form-control" />

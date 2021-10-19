@@ -286,7 +286,7 @@ namespace RapidTest.Services
                 if (testDate != "")
                 {
                     var testDateArray = testDate.Split(".").ToList();
-                    string dayOfWeekValue = ((int) DateTime.Now.DayOfWeek + 1) + "";
+                    string dayOfWeekValue = ((int)DateTime.Now.DayOfWeek + 1) + "";
                     var checkTestDate = testDateArray.Any(x => x == dayOfWeekValue);
                     if (checkTestDate == false)
                         return new OperationResult
@@ -645,7 +645,7 @@ namespace RapidTest.Services
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var kindModel = await _repoSetting.FindAll().ToListAsync();
+            var kindModel = await _repoSetting.FindAll(x => x.SettingType == SettingType.CHECK_OUT).ToListAsync();
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
             {
                 try
@@ -826,7 +826,7 @@ namespace RapidTest.Services
             try
             {
 
-                var data = await _repo.FindAll().Select(x => new 
+                var data = await _repo.FindAll().Select(x => new
                 {
                     Factory = x.Factory.Name,
                     Code = x.Code,
@@ -847,7 +847,7 @@ namespace RapidTest.Services
                 {
                     // lấy sheet ra để thao tác
                     ExcelWorksheet ws = p.Workbook.Worksheets["Employee"];
-                  
+
                     int bodyRowIndex = 1;
                     int bodyColIndex = 1;
                     int total = data.Count + 1;
