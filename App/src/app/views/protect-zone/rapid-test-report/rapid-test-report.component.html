@@ -10,13 +10,15 @@
 
     <div class="e-toolbar-item e-search-wrapper" aria-disabled="false" title="Search">
       <div class="e-input-group e-search" role="search">
-        <input id="grid_1706664052_0_searchbar" [(ngModel)]="code" (keyup.enter)="filter()" class="e-input" name="input" type="search" placeholder="Search">
+        <input id="grid_1706664052_0_searchbar" [(ngModel)]="code" (keyup.enter)="filter()" class="e-input" name="input" type="search" placeholder="Search code">
         <span id="grid_1706664052_0_searchbutton" (click)='filter()' class="e-input-group-icon e-search-icon e-icons" tabindex="-1" title="Search" aria-label="search">
           <i class="fa fa-search"></i>
         </span>
       </div>
    </div>
    <button type="button" class="btn btn-secondary mx-3" (click)='excelExport()'>Export Excel</button>
+   <button type="button" class="btn btn-secondary" (click)='showModal()'>Import Excel</button>
+
 
   </div>
   <div class="col-md-12">
@@ -78,3 +80,42 @@
     </div>
   </div>
 </div>
+
+<ng-template #importModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <i class="fas fa-plus"></i> Import Excel (Note: This function update latest entry factory exp. date time by employee code)
+    </h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="form-group">
+          <label for="file2">   Select File (*Notice: Excel file must be followed a system template. If you do not have a
+            template, please <a [href]="excelDownloadUrl" style="font-weight: bolder;">click here</a> to download. Thank you!)
+            <br>
+            Hướng dẫn format cell "Ngày hết hạn" <a [href]="apiUrl">preview</a>
+          </label>
+          <input (change)="fileProgress($event)" name="file" id="file2" type="file" class="form-control" />
+        </div>
+      </div>
+      <div class="col-md-12">
+        <div class="progress form-group" *ngIf="progress > 0" style="height:30px; font-size:20px">
+          <div class="progress-bar progress-bar-striped bg-success" role="progressbar" [style.width.%]="progress" >
+            Chờ chút nhé. Hệ thống đang xử lý dữ liệu...
+          </div>
+      </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+
+    <button type="button" class="btn btn-primary" (click)="submitUser()">Upload File</button>
+    <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
+  </div>
+
+</ng-template>

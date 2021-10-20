@@ -73,7 +73,11 @@ namespace RapidTest.Controllers
         {
             return StatusCodeResult(await _service.ScanQRCode(request));
         }
-
+        [HttpPost]
+        public async Task<ActionResult> ImportExcel([FromForm] IFormFile file)
+        {
+            return Ok(await _service.ImportExcel());
+        }
         [HttpGet]
         public async Task<ActionResult> RapidTestReport()
         {
@@ -93,6 +97,12 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.CountWorkerScanQRCodeByToday());
 
+        }
+        [HttpGet]
+        public async Task<IActionResult> ExportEmployeeExcel()
+        {
+            var bin = await _service.ExportExcel();
+            return File(bin, "application/octet-stream", $"Rapid-Test-Report{DateTime.Now.ToString("MMddyyyy")}.xlsx");
         }
     }
 }

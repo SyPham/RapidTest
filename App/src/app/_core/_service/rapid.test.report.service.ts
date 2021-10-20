@@ -1,7 +1,7 @@
 import { CURDService } from './CURD.service';
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { KPI } from '../_model/kpi';
 import { UtilitiesService } from './utilities.service';
 import { environment } from 'src/environments/environment';
@@ -40,6 +40,29 @@ export class RapidTestReportService  {
     return this.http
       .delete<OperationResult>(`${this.baseUrl}Report/delete?id=${id}`)
       .pipe(catchError(this.handleError));
+  }
+  importExcel3(file) {
+    const formData = new FormData();
+    formData.append('UploadedFile', file);
+    formData.append('CreatedBy', JSON.parse(localStorage.getItem('user')).id);
+    return this.http.post(this.baseUrl + 'Report/ImportExcel', formData, {
+      reportProgress: true,
+      observe: 'events'
+    }).pipe(
+      catchError(this.errorMgmt)
+    );
+  }
+  errorMgmt(error: HttpErrorResponse) {
+    let errorMessage = '';
+    if (error.error instanceof ErrorEvent) {
+      // Get client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Get server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    console.log(errorMessage);
+    return throwError(errorMessage);
   }
   protected handleError(errorResponse: any) {
     if (errorResponse?.error?.message) {

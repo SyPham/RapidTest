@@ -66,6 +66,7 @@ export class StaffInfoComponent implements OnInit {
   excel3DownloadUrl: string;
   progress = 0;
   showClose = true;
+  apiUrl = environment.apiUrl.replace('/api', '') + 'images/Format-Birth-Date.png';
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,

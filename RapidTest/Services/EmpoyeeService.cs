@@ -13,6 +13,7 @@ using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -29,7 +30,6 @@ namespace RapidTest.Services
         Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
         Task<object> CountWorkerScanQRCodeByToday();
-
         Task<OperationResult> CheckIn(string code);
         Task<OperationResult> CheckIn(string code, int testKindId);
         Task<List<EmployeeDto>> GetPrintOff();
@@ -632,10 +632,14 @@ namespace RapidTest.Services
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var kindModel = await _repoSetting.FindAll(x => x.SettingType == SettingType.CHECK_OUT).ToListAsync();
+            var data = (await _repo.FindAll().OrderByDescending(x => x.CreatedTime).ToListAsync()).ToHashSet();
+
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
             {
                 try
                 {
+                    Stopwatch stopWatch = new Stopwatch();
+                    stopWatch.Start();
                     string fileName = file.FileName;
                     int userid = createdBy.ToInt();
                     using (var package = new ExcelPackage(file.OpenReadStream()))
@@ -655,25 +659,29 @@ namespace RapidTest.Services
                             {
                                 // kiểm tra đẫ tồn tại trong db chưa
 
-                                var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                                var item = data.Where(x => x.Code == code).FirstOrDefault();
                                 int? kindId = null;
                                 var kindItem = kindModel.FirstOrDefault(x => x.Name.ToLower() == kind.ToLower());
                                 if (kindItem != null)
                                     kindId = kindItem.Id;
                                 else
                                     kindId = kindModel.FirstOrDefault(x => x.IsDefault).Id;
+
                                 if (item != null)
                                 {
                                     item.SettingId = kindId;
                                     item.TestDate = testDate;
-                                    updateList.Add(item);
+                                   _repo.Update(item);
+
+                                    //updateList.Add(item);
                                 }
 
                             }
                         }
                     }
-                    _repo.UpdateRange(updateList);
+                   //_repo.UpdateRange(updateList);
                     await _unitOfWork.SaveChangeAsync();
+                 
                     return true;
                 }
                 catch (Exception ex)
