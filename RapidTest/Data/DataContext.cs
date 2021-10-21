@@ -27,7 +27,8 @@ namespace RapidTest.Data
         public DbSet<BlackList> BlackList { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
 
             // Xóa user1 trong bảng account thì những accountId của user1 trong bảng Performance không bị xóa theo
             //modelBuilder.Entity<Performance>()
@@ -35,7 +36,7 @@ namespace RapidTest.Data
             //    .WithMany(ta => ta.Performances)
             //    .HasForeignKey(u => u.UploadBy)
             //    .OnDelete(DeleteBehavior.NoAction);
-     
+
 
         }
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -48,11 +49,15 @@ namespace RapidTest.Data
                 {
                     if (item.State == EntityState.Added)
                     {
-                        changedOrAddedItem.CreatedTime = DateTime.Now;
+                        var check = item.Metadata.DisplayName() == nameof(BlackList);
+                        if (check == false)
+                            changedOrAddedItem.CreatedTime = DateTime.Now;
                     }
                     else
                     {
-                        changedOrAddedItem.ModifiedTime = DateTime.Now;
+                        var check = item.Metadata.DisplayName() == nameof(BlackList);
+                        if (check == false)
+                            changedOrAddedItem.ModifiedTime = DateTime.Now;
                     }
                 }
             }

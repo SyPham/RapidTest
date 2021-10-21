@@ -8,6 +8,7 @@ using RapidTest.Helpers;
 using RapidTest.Installer;
 using System.IO;
 using System;
+using Newtonsoft.Json.Serialization;
 
 namespace RapidTest
 {
@@ -44,6 +45,7 @@ namespace RapidTest
                  options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Unspecified;
                  options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                  //options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                 //options.SerializerSettings.ContractResolver = new DefaultContractResolver();
              });
 
             services.InstallServicesInAssembly(Configuration);

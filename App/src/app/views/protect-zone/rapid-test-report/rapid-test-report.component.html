@@ -1,3 +1,4 @@
+
 <div class="row">
   <div class="col-md-12 mb-2 d-flex justify-content-start align-items-center">
 
@@ -36,7 +37,7 @@
           [pageSettings]='pageSettings'
           [allowExcelExport]='true'
           [sortSettings]='sortSettings'
-
+          (excelExportComplete)='excelExportComplete()'
         >
           <e-columns>
             <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
@@ -51,16 +52,20 @@
             <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Left' headerTextAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
             <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}"> </e-column>
-            <e-column field="birthDate" textAlign='Center' headerText="{{ 'Birth Date'}}"> </e-column>
+            <e-column field="birthDate" textAlign='Center' type='date' format='MM/dd/yyy' headerText="{{ 'Birth Date'}}"> </e-column>
             <e-column field="testKindId" textAlign='Center' headerText="{{ 'Test Kind'}}"> </e-column>
             <e-column field="kindName" textAlign='Center' headerText="{{ 'Kind'}}"> </e-column>
 
             <e-column field="result" textAlign='Center' headerText="{{ 'Test result'}}"> </e-column>
-            <e-column field="createdTime" textAlign='Center' headerText="{{ 'Test date'}}"> </e-column>
-            <e-column field="expiryTime" textAlign='Center' headerText="{{ 'Entry factory exp. date'}}"> </e-column>
-            <e-column field="checkInTime" textAlign='Center' headerText="{{ 'Check in time'}}"> </e-column>
-            <e-column field="checkOutTime" textAlign='Center' headerText="{{ 'Check out time'}}"> </e-column>
-            <e-column field="factoryEntryTime" textAlign='Center' headerText="{{ 'Entry factory time'}}"> </e-column>
+            <e-column field="createdTime" textAlign='Center' type='date' format='MM/dd/yyy' headerText="{{ 'Test date'}}"> </e-column>
+            <e-column field="expiryTime" textAlign='Center' type='date' format='MM/dd/yyy HH:mm:ss' headerText="{{ 'Entry factory exp. date'}}"> </e-column>
+            <e-column field="checkInTime" textAlign='Center' type='date' format='MM/dd/yyy HH:mm:ss' headerText="{{ 'Check in time'}}"> </e-column>
+            <e-column field="checkOutTime" textAlign='Center' type='date' format='MM/dd/yyy HH:mm:ss' headerText="{{ 'Check out time'}}"> </e-column>
+            <e-column field="factoryEntryTime" textAlign='Center' type='date' format='MM/dd/yyy HH:mm:ss' headerText="{{ 'Entry factory time'}}">
+               <ng-template #template let-data>
+                {{data.factoryEntryTime != null ? (data.factoryEntryTime | date: 'MM/dd/yyy HH:mm:ss') : 'N/A' }}
+              </ng-template>
+            </e-column>
 
             <e-column field="option" width="100" textAlign='Center' headerText="{{ 'Option'}}" [visible]="visible">
               <ng-template #template let-data>
@@ -96,10 +101,14 @@
         <div class="form-group">
           <label for="file2">   Select File (*Notice: Excel file must be followed a system template. If you do not have a
             template, please <a [href]="excelDownloadUrl" style="font-weight: bolder;">click here</a> to download. Thank you!)
-            <br>
-            Hướng dẫn format cell "Ngày hết hạn" <a [href]="apiUrl">preview</a>
           </label>
-          <input (change)="fileProgress($event)" name="file" id="file2" type="file" class="form-control" />
+          <div class="input-group mb-3">
+            <input (change)="fileProgress($event)" name="file" id="file2" type="file" class="form-control" />
+
+            <div class="input-group-append">
+              <button type="button" class="btn btn-primary" (click)="submitUser()">Upload File</button>
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-md-12">
@@ -109,12 +118,17 @@
           </div>
       </div>
       </div>
+      <div class="col-md-12">
+        <p class="text-danger font-2xl">
+          Hướng dẫn format cell "Ngày hết hạn"
+         </p>
+        <img [src]="apiUrl" height="300px" class="img-fluid" alt="Responsive image">
+      </div>
     </div>
 
   </div>
   <div class="modal-footer">
 
-    <button type="button" class="btn btn-primary" (click)="submitUser()">Upload File</button>
     <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
   </div>
 

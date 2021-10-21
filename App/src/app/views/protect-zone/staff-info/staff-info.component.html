@@ -109,18 +109,27 @@
           <label for="file">
             Select File (*Notice: Excel file must be followed a system template. If you do not have a
             template, please <a [href]="excelDownloadUrl" style="font-weight: bolder;">click here</a> to download. Thank you!)
-            <br>
-            Hướng dẫn format cell ngày sinh <a [href]="apiUrl">preview</a>
           </label>
-          <input (change)="fileProgress($event)" name="file" id='file' type="file" class="form-control" />
+          <div class="input-group mb-3">
+            <input (change)="fileProgress($event)" name="file" id="file" type="file" class="form-control" />
+
+            <div class="input-group-append">
+              <button type="button" class="btn btn-primary" (click)="uploadFile()">Upload File</button>
+            </div>
+          </div>
         </div>
+      </div>
+      <div class="col-md-12">
+        <p class="text-danger font-2xl">
+          Hướng dẫn format cell "NĂM SINH"
+         </p>
+        <img [src]="apiUrl" class="img-fluid" alt="Responsive image">
       </div>
     </div>
 
   </div>
   <div class="modal-footer">
 
-    <button type="button" class="btn btn-primary" (click)="uploadFile()">Upload File</button>
     <button type="button" class="btn btn-danger" (click)="modal.close('Close click')">Close</button>
   </div>
 

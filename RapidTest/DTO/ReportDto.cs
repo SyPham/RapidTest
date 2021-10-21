@@ -12,7 +12,7 @@ namespace RapidTest.DTO
         public string FullName { get; set; } // Leo
         public string Department { get; set; } // Leo
         public string Gender { get; set; } // Leo
-        public string BirthDate { get; set; } // Leo
+        public DateTime BirthDate { get; set; } // Leo
 
         public string Code { get; set; } // Leo
         public string TestKindId { get; set; } // RapidTest
@@ -22,12 +22,12 @@ namespace RapidTest.DTO
 
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }
-        public string ExpiryTime { get; set; } // Enter factory exp. date
-        public string CreatedTime { get; set; } // Rapid-Test date
+        public DateTime ExpiryTime { get; set; } // Enter factory exp. date
+        public DateTime CreatedTime { get; set; } // Rapid-Test date
         public DateTime? ModifiedTime { get; set; }
-        public string CheckInTime { get; set; }
-        public string CheckOutTime { get; set; }
-        public string FactoryEntryTime { get; set; } // Entering factory date
+        public DateTime? CheckInTime { get; set; }
+        public DateTime CheckOutTime { get; set; }
+        public DateTime? FactoryEntryTime { get; set; } // Entering factory date
 
     }
     public class ScanQRCodeRequestDto

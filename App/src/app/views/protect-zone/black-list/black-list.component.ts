@@ -3,11 +3,12 @@ import { EmployeeService } from './../../../_core/_service/employee.service';
 import { BaseComponent } from 'src/app/_core/_component/base.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
-import { ExcelExportProperties, GridComponent } from '@syncfusion/ej2-angular-grids';
+import { Column, ExcelExportProperties, GridComponent, IEditCell } from '@syncfusion/ej2-angular-grids';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 import { MessageConstants } from 'src/app/_core/_constants/system';
 import { BlackListService } from 'src/app/_core/_service/black-list.service';
 import { BlackList } from 'src/app/_core/_model/black-list';
+import { DateTimePicker } from '@syncfusion/ej2-angular-calendars';
 
 @Component({
   selector: 'app-black-list',
@@ -26,6 +27,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
   setFocus: any;
   locale = localStorage.getItem('lang');
   sortSettings = { columns: [{ field: 'createdTime', direction: 'Descending' }] };
+  public dpParams: IEditCell;
+  public elem: HTMLElement;
+  public datePickerObj: DateTimePicker;
   constructor(
     private serviceEmployee: EmployeeService,
     private service: BlackListService,
@@ -36,6 +40,26 @@ export class BlackListComponent extends BaseComponent implements OnInit {
 
   ngOnInit() {
     // this.Permission(this.route);
+    this.dpParams = {
+      create: () => {
+          this.elem = document.createElement('input');
+          return this.elem;
+      },
+      read: () => {
+          return this.datePickerObj.value;
+      },
+      destroy: () => {
+          this.datePickerObj.destroy();
+      },
+      write: (args: { rowData: object, column: Column }) => {
+          this.datePickerObj = new DateTimePicker({
+              value: new Date(args.rowData[args.column.field] || new Date()),
+              floatLabelType: 'Never',
+              step:1
+          });
+          this.datePickerObj.appendTo(this.elem);
+      }
+  };
     this.loadData();
   }
   loadData() {
@@ -65,6 +89,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
       deletedTime:  null,
       deletedBy: null,
       firstWorkDate: null,
+      systemDateTime: null,
     };
 
   }
@@ -83,13 +108,14 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         fullName:  '',
         department: '',
         createdBy: +JSON.parse(localStorage.getItem('user')).id,
-        createdTime: new Date().toLocaleDateString(),
+        createdTime: this.datePipe.transform(args.data.createdTime, 'MM-dd-yyyy HH:mm'),
         modifiedBy: null,
         modifiedTime: null,
         employeeId: 0,
         deletedBy: null,
         deletedTime: null,
         firstWorkDate: null,
+        systemDateTime: new Date().toLocaleDateString(),
       };
 
       if (args.data.code === undefined) {
@@ -118,13 +144,14 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         fullName:  '',
         department: '',
         createdBy: args.data.createdBy,
-        createdTime: args.data.createdTime,
+        createdTime: this.datePipe.transform(args.data.createdTime, 'MM-dd-yyyy HH:mm'),
         modifiedBy: +JSON.parse(localStorage.getItem('user')).id,
         modifiedTime: new Date().toLocaleDateString(),
         employeeId: args.data.employeeId,
         deletedBy: args.data.deletedBy,
         deletedTime: args.data.deletedTime,
         firstWorkDate: null,
+        systemDateTime: args.data.systemDateTime,
       };
       this.serviceEmployee.checkCode(args.data.code).toPromise().then(x=> {
         if (x == false) {

@@ -4,10 +4,8 @@ using RapidTest.DTO;
 using RapidTest.Helpers;
 using RapidTest.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using RapidTest.Constants;
+
 
 namespace RapidTest.Controllers
 {
@@ -54,9 +52,15 @@ namespace RapidTest.Controllers
             return Ok(await _service.GetByIdAsync(id));
         }
         [HttpGet]
-        public async Task<ActionResult> Filter(DateTime startDate, DateTime endDate, string code)
+        public async Task<ActionResult> Filter(DateTime date, string code)
         {
-            return Ok(await _service.Filter(startDate, endDate, code));
+            var queryString = Request.Query;
+            int skip = Convert.ToInt32(queryString["$skip"]);
+            int take = Convert.ToInt32(queryString["$top"]);
+            string orderBy = queryString["$orderby"];
+
+            var data = await _service.Filter(skip, take, orderBy, date, code);
+            return Ok(data);
         }
         [HttpGet]
         public async Task<ActionResult> CheckInFilter(DateTime date, string code)

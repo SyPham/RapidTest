@@ -62,6 +62,8 @@ namespace RapidTest.Services
             
                 item.EmployeeId = employee.Id;
                 item.CreatedBy = accountId;
+                item.CreatedTime = model.CreatedTime;
+                item.SystemDateTime = DateTime.Now;
                 _repo.Add(item);
 
                 await _unitOfWork.SaveChangeAsync();
@@ -91,6 +93,8 @@ namespace RapidTest.Services
                 var item = await _repo.FindByIdAsync(model.Id);
                 item.EmployeeId = employee.Id;
                 item.ModifiedBy = accountId;
+                item.CreatedTime = model.CreatedTime;
+
                 _repo.Update(item);
 
                 await _unitOfWork.SaveChangeAsync();

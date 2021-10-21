@@ -1,6 +1,6 @@
 import { filter } from 'rxjs/operators';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
-import { GridComponent } from '@syncfusion/ej2-angular-grids';
+import { ExcelExportProperties, GridComponent } from '@syncfusion/ej2-angular-grids';
 import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
 import { DatePipe } from '@angular/common';
 import { MessageConstants } from 'src/app/_core/_constants/system';
@@ -9,7 +9,7 @@ import { AccountTypeConstant } from 'src/app/_core/_constants';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-
+import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
 @Component({
   selector: 'app-rapid-test-report',
   templateUrl: './rapid-test-report.component.html',
@@ -18,7 +18,7 @@ import { environment } from 'src/environments/environment';
 })
 export class RapidTestReportComponent implements OnInit {
 
-  data = [];
+  data: DataManager;
   toolbarOptions = ['ExcelExport', 'Add', 'Update', 'Edit', 'Delete', 'Cancel', 'Search'];
   pageSettings = { pageCount: 20, pageSizes: true, pageSize: 10 };
   @ViewChild('grid') public grid: GridComponent;
@@ -34,7 +34,8 @@ export class RapidTestReportComponent implements OnInit {
   file: any;
   excelDownloadUrl: any;
   apiUrl = environment.apiUrl.replace('/api', '') + 'images/Format-Expiry-Date.png';
-
+  baseUrl = environment.apiUrl;
+  searchOptions: { fields: string[]; operator: string; key: string; ignoreCase: boolean; };
   constructor(
     private service: RapidTestReportService,
     public datePipe: DatePipe,
@@ -52,6 +53,8 @@ export class RapidTestReportComponent implements OnInit {
     this.endDate = new Date();
     this.startDate = new Date();
     this.loadData();
+
+
   }
   showModal() {
     this.modalReference = this.modalService.open(this.importModal, { size: 'xl', backdrop: 'static' , keyboard: false });
@@ -66,9 +69,11 @@ export class RapidTestReportComponent implements OnInit {
     this.filter();
   }
   excelExport() {
+    this.grid.showSpinner();
     const fileName = `Rapid Test Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
-    const excelExportProperties = {
-      fileName: fileName + '.xlsx'
+    const excelExportProperties: ExcelExportProperties = {
+      fileName: fileName + '.xlsx',
+      hierarchyExportMode: 'All'
     };
     this.grid.excelExport(excelExportProperties);
   }
@@ -83,16 +88,19 @@ export class RapidTestReportComponent implements OnInit {
   }
   loadData() {
     const startDate = this.startDate.toLocaleDateString();
-    const endDate = this.startDate.toLocaleDateString();
     const code = this.code || '';
-    this.service.filter(startDate, endDate, code).subscribe(
-      (res) => {
-      this.data = res;
-      },
-      (error) => {
-        this.data = [];
-      }
-    );
+    this.data = new DataManager({
+      url: `${this.baseUrl}Report/Filter?date=${startDate}&code=${code}`,
+      adaptor: new WebApiAdaptor
+  });
+    // this.service.filter(startDate, endDate, code).subscribe(
+    //   (res) => {
+    //   this.data = res;
+    //   },
+    //   (error) => {
+    //     this.data = [];
+    //   }
+    // );
   }
 
   NO(index) {
@@ -146,5 +154,7 @@ export class RapidTestReportComponent implements OnInit {
       this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG)
     })
   }
-
+  excelExportComplete(): void {
+    this.grid.hideSpinner();
+}
 }

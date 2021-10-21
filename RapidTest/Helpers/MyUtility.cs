@@ -1,8 +1,12 @@
-﻿using System;
+﻿using NetUtility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RapidTest.Helpers
@@ -88,5 +92,64 @@ namespace RapidTest.Helpers
             timeNow = timeNow.AddTicks(-(timeNow.Ticks % 10000000));
             return timeNow;
         }
+        public static string ToCamelCase(this string str)
+        {
+            if (!string.IsNullOrEmpty(str) && str.Length > 1)
+            {
+                return char.ToLowerInvariant(str[0]) + str.Substring(1);
+            }
+            return str;
+        }
+        public static string ToPascalCase(this string s)
+        {
+            // Find word parts using the following rules:
+            // 1. all lowercase starting at the beginning is a word
+            // 2. all caps is a word.
+            // 3. first letter caps, followed by all lowercase is a word
+            // 4. the entire string must decompose into words according to 1,2,3.
+            // Note that 2&3 together ensure MPSUser is parsed as "MPS" + "User".
+
+            var m = Regex.Match(s, "^(?<word>^[a-z]+|[A-Z]+|[A-Z][a-z]+)+$");
+            var g = m.Groups["word"];
+
+            // Take each word and convert individually to TitleCase
+            // to generate the final output.  Note the use of ToLower
+            // before ToTitleCase because all caps is treated as an abbreviation.
+            var t = Thread.CurrentThread.CurrentCulture.TextInfo;
+            var sb = new StringBuilder();
+            foreach (var c in g.Captures.Cast<Capture>())
+                sb.Append(t.ToTitleCase(c.Value.ToLower()));
+            return sb.ToString();
+        }
+        public static IQueryable<T> EJ2OrderBy<T>(this IQueryable<T> source, string ordering)
+        {
+            string method = string.Empty;
+            string orderbyValue = string.Empty;
+            if (ordering.ToSafetyString() != string.Empty && ordering != "option")
+            {
+                var orderTemp = ordering.Split(" ");
+                if (orderTemp.Length > 1)
+                {
+                    orderbyValue = orderTemp[0];
+                    method = "OrderByDescending";
+                }
+                else
+                {
+                    orderbyValue = ordering;
+                    method = "OrderBy";
+
+                }
+
+            var type = typeof(T);
+            var property = type.GetProperty(orderbyValue.ToPascalCase());
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExp = Expression.Lambda(propertyAccess, parameter);
+            MethodCallExpression resultExp = Expression.Call(typeof(Queryable), method, new Type[] { type, property.PropertyType }, source.Expression, Expression.Quote(orderByExp));
+            return source.Provider.CreateQuery<T>(resultExp);
+            }
+            return source;
+        }
+
     }
 }

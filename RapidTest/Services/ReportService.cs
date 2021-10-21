@@ -32,13 +32,14 @@ namespace RapidTest.Services
         Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request); //Check Out
         Task<object> Dashboard(DateTime startTime, DateTime endTime);
         Task<object> CountWorkerScanQRCodeByToday();
-        Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code);
+        Task<object> Filter(int skip, int take, string orderby, DateTime startDate, string code);
         Task<List<CheckInDto>> CheckInFilter(DateTime date, string code);
         Task<Byte[]> RapidTestReport(DateTime startTime, DateTime endTime);
 
         Task<OperationResult> DeleteCheckIn(object id);
         Task<bool> ImportExcel();
         Task<byte[]> ExportExcel();
+        Task<byte[]> ExportExcelAllData(DateTime date);
     }
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
@@ -84,22 +85,38 @@ namespace RapidTest.Services
             _configMapper = configMapper;
         }
 
-        public async Task<List<ReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
+        public async Task<object> Filter(int skip, int take, string orderby, DateTime startDate, string code)
         {
 
             if (string.IsNullOrEmpty(code))
             {
-                var data = (await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
+               .ProjectTo<ReportDto>(_configMapper).EJ2OrderBy(orderby);
+              
+                var count = await source.CountAsync();
+                var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
+                items = items.DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
-                return data;
+                return new EJ2DataSource
+                {
+                    Items = items,
+                    Count = count
+                };
             }
             else
             {
-                var data = (await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<ReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
+              .ProjectTo<ReportDto>(_configMapper).EJ2OrderBy(orderby);
 
-                return data;
+                var count = await source.CountAsync();
+                var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
+                items = items.DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+
+                return new EJ2DataSource
+                {
+                    Items = items,
+                    Count = count
+                };
             }
         }
 
@@ -163,14 +180,14 @@ namespace RapidTest.Services
                 };
             }
             if (employee.Setting == null)
-            return new OperationResult
-            {
-                StatusCode = HttpStatusCode.Forbidden,
-                Message = $"<h2>Vui lòng cài đặt hình thức đi làm (3 tại chỗ hoặc đi làm)! Please set up kind on staff info page</h2>",
-                Success = true,
-                Data = null
-            };
-            
+                return new OperationResult
+                {
+                    StatusCode = HttpStatusCode.Forbidden,
+                    Message = $"<h2>Vui lòng cài đặt hình thức đi làm (3 tại chỗ hoặc đi làm)! Please set up kind on staff info page</h2>",
+                    Success = true,
+                    Data = null
+                };
+
             var mins = employee.Setting.Mins + 1;
             var checkOutTime = DateTime.Now.AddMinutes(-mins).ToRemoveSecond();
 
@@ -345,12 +362,12 @@ namespace RapidTest.Services
         public async Task<byte[]> RapidTestReport(DateTime startTime, DateTime endTime)
         {
             var data = new List<ReportDto>();
-            return await Task.FromResult( ExcelExport(data));
+            return await Task.FromResult(ExcelExport(data));
         }
 
         public async Task<object> Dashboard(DateTime startTime, DateTime endTime)
         {
-            var checkIn = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date ).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var checkIn = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             var checkOutNegative = await _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date && x.Result == Result.Negative).Select(x => x.EmployeeId).Distinct().CountAsync();
             var accessControl = await _repoFactoryReport.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
             var employee = await _repoEmployee.FindAll(x => x.SEAInform).CountAsync();
@@ -368,7 +385,7 @@ namespace RapidTest.Services
                          y = employee,
                          x = "SEA Informed"
                   },
-                
+
                    new {
                          y = baTaiCho,
                          x = "3 tại chỗ"
@@ -384,7 +401,7 @@ namespace RapidTest.Services
                 new {
                          y = checkOutNegative,
                          x = "Check Out (-)"
-                  }, 
+                  },
                 new {
                          y = positiveToday,
                          x = "Positive (today)"
@@ -498,7 +515,7 @@ namespace RapidTest.Services
                         {
                             var code = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
                             var fullName = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
-                            var expiryTime = workSheet.Cells[rowIterator, 3].GetValue<DateTime>(); 
+                            var expiryTime = workSheet.Cells[rowIterator, 3].GetValue<DateTime>();
 
                             if (!code.IsNullOrEmpty())
                             {
@@ -508,9 +525,9 @@ namespace RapidTest.Services
                                 if (item != null && item.ExpiryTime != expiryTime)
                                 {
                                     item.ExpiryTime = expiryTime;
-                                    item.ModifiedBy  = userid;
+                                    item.ModifiedBy = userid;
                                     item.ModifiedTime = DateTime.Now;
-                                   _repo.Update(item);
+                                    _repo.Update(item);
 
                                 }
 
@@ -536,7 +553,7 @@ namespace RapidTest.Services
         {
             try
             {
-                var data = (await _repo.FindAll(x=> x.Employee.SEAInform).Select(x => new 
+                var data = (await _repo.FindAll(x => x.Employee.SEAInform).Select(x => new
                 {
                     Code = x.Employee.Code,
                     FullName = x.Employee.FullName,
@@ -635,6 +652,108 @@ namespace RapidTest.Services
                 return new Byte[] { };
             }
         }
+        public async Task<byte[]> ExportExcelAllData(DateTime date)
+        {
+            try
+            {
+                var data = (await _repo.FindAll(x => x.Employee.SEAInform).Select(x => new
+                {
+                    Code = x.Employee.Code,
+                    FullName = x.Employee.FullName,
+                    ExpiryTime = x.ExpiryTime,
+                    x.EmployeeId,
+                    x.CreatedTime
+                }).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
+                var currentTime = DateTime.Now;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var memoryStream = new MemoryStream();
+                using (ExcelPackage p = new ExcelPackage(memoryStream))
+                {
+                    // đặt tên người tạo file
+                    p.Workbook.Properties.Author = "Henry Pham";
 
+                    // đặt tiêu đề cho file
+                    p.Workbook.Properties.Title = "Check Out Report";
+                    //Tạo một sheet để làm việc trên đó
+                    p.Workbook.Worksheets.Add("Check Out Report");
+
+                    // lấy sheet vừa add ra để thao tác
+                    ExcelWorksheet ws = p.Workbook.Worksheets["Check Out Report"];
+
+                    // đặt tên cho sheet
+                    ws.Name = "Check Out Report";
+                    // fontsize mặc định cho cả sheet
+                    ws.Cells.Style.Font.Size = 11;
+                    // font family mặc định cho cả sheet
+                    ws.Cells.Style.Font.Name = "Calibri";
+                    var headerArray = new List<string>()
+                    {
+                        "Số thẻ",
+                        "Họ và tên",
+                        "Ngày hết hạn"
+                    };
+                    ws.Cells[$"E1"].Value = "*Note: Cột 'Ngày hết hạn' vui lòng format theo dạng mm/dd/yyyy hh:mm:ss";
+                    ws.Cells[$"E1"].Style.Font.Bold = true;
+                    ws.Cells[$"E1"].Style.Font.Size = 16;
+                    ws.Cells[$"E1"].Style.Font.Color.SetColor(ColorTranslator.FromHtml("#FF0000"));
+                    ws.Cells[$"E1"].AutoFitColumns();
+                    int headerRowIndex = 1;
+                    foreach (var headerItem in headerArray.Select((value, i) => new { i, value }))
+                    {
+                        var headerColIndex = headerItem.i + 1;
+                        var headerExcelRange = ws.Cells[headerRowIndex, headerColIndex];
+                        headerExcelRange.Value = headerItem.value;
+                        headerExcelRange.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        headerExcelRange.Style.Fill.BackgroundColor.SetColor(ColorTranslator.FromHtml("#1F4E78"));
+                        headerExcelRange.Style.Font.Color.SetColor(ColorTranslator.FromHtml("#fff"));
+                        headerExcelRange.Style.Font.Size = 16;
+
+                    }
+
+                    int bodyRowIndex = 1;
+                    int bodyColIndex = 1;
+                    int total = data.Count + 1;
+                    foreach (var bodyItem in data)
+                    {
+                        bodyColIndex = 1;
+                        bodyRowIndex++;
+
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Code;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.FullName;
+                        int temp = bodyColIndex++;
+                        var exp = ws.Cells[bodyRowIndex, temp];
+                        exp.Style.Numberformat.Format = "MM/dd/yyyy HH:mm:ss";
+
+                        exp.Value = bodyItem.ExpiryTime;
+
+                    }
+
+
+                    //Make all text fit the cells
+                    //ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                    ws.Cells[$"A1:C{total}"].Style.Font.Bold = true;
+                    ws.Cells[$"A1:C{total}"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    ws.Cells[$"A1:C{total}"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+
+                    //make the borders of cell F6 thick
+                    ws.Cells[$"A1:C{total}"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:C{total}"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:C{total}"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:C{total}"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    ws.Cells[$"A1:C{total}"].AutoFitColumns();
+
+                    //Lưu file lại
+                    Byte[] bin = p.GetAsByteArray();
+                    return bin;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mes = ex.Message;
+                Console.WriteLine(mes);
+                return new Byte[] { };
+            }
+        }
     }
 }

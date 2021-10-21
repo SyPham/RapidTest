@@ -21,6 +21,8 @@ namespace RapidTest.DTO
         public DateTime CreatedTime { get; set; } 
         public DateTime? ModifiedTime { get; set; }
         public DateTime? FirstWorkDate { get; set; }
+        public DateTime SystemDateTime { get; set; }
+
 
     }
 }

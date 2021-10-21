@@ -18,6 +18,7 @@ namespace RapidTest.Models
         public int? DeletedBy { get; set; }
         public bool IsDelete { get; set; }
         public DateTime CreatedTime { get; set; }
+        public DateTime SystemDateTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
         [ForeignKey(nameof(EmployeeId))]
