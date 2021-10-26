@@ -32,29 +32,22 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.BirthDate.ToString("MM/dd/yyyy")))
                 .ForMember(d => d.FactoryName, o => o.MapFrom(s => s.Factory.Name))
                   .ForMember(d => d.Kind, o => o.MapFrom(s =>
-                s.Setting != null ?
+                s.SettingId != null ?
                 s.Setting.Name : "N/A")
                 );
             CreateMap<Report, ReportDto>()
                 .ForMember(d => d.Result, o => o.MapFrom(s => s.Result == 2 ? "Âm tính" : "Dương tính"))
                 .ForMember(d => d.TestKindId, o => o.MapFrom(s => s.TestKind.Name))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
-                 .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
+                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
+                .ForMember(d => d.Gender, o => o.MapFrom(s => s.Employee.Gender == true ? "NAM" : "NỮ"))
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.Employee.BirthDate))
                 .ForMember(d => d.ExpiryTime, o => o.MapFrom(s => s.ExpiryTime))
                 .ForMember(d => d.CreatedTime, o => o.MapFrom(s => s.CreatedTime))
                 .ForMember(d => d.CheckOutTime, o => o.MapFrom(s => s.CreatedTime))
-                .ForMember(d => d.CheckInTime, o => o.MapFrom(s =>
-                s.Employee.CheckIns.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
-               (DateTime?)s.Employee.CheckIns.OrderByDescending(x=> x.Id).FirstOrDefault(x=> x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime : null)
-                )
-                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-                  .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s =>
-                s.Employee.FactoryReports.Any(x => x.CreatedTime.Date == s.CreatedTime.Date) ?
-                (DateTime?)s.Employee.FactoryReports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime : null)
-                )
+                .ForMember(d => d.CheckInTime, o => o.MapFrom(s => s.Employee.CheckIns.OrderByDescending(x=> x.Id).Select(x=> (DateTime?)x.CreatedTime).FirstOrDefault(x=> x.Value.Date == s.CreatedTime.Date)) )
+                .ForMember(d => d.FactoryEntryTime, o => o.MapFrom(s => s.Employee.FactoryReports.OrderByDescending(x => x.Id).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault(x => x.Value.Date == s.CreatedTime.Date) ))
                 .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
             CreateMap<FactoryReport, FactoryReportDto>()
                 .ForMember(d => d.Result, o => o.MapFrom(s => s.Result == 2 ? "Âm tính" : "Dương tính"))
@@ -89,9 +82,7 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>
-                s.Employee.FactoryReports.Any() ?
-                (DateTime?)s.Employee.FactoryReports.FirstOrDefault().FactoryEntryTime: null)
+                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>s.Employee.FactoryReports.Select(x=> (DateTime?)x.FactoryEntryTime).FirstOrDefault())
                 );
 
         }

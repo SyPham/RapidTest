@@ -39,7 +39,6 @@ namespace RapidTest.Services
         public async Task<Account> Login(string username, string password)
         {
             var account = await _repo.FindAll().FirstOrDefaultAsync(x => x.Username == username);
-
             if (account == null)
                 return null;
             if (account.Password.ToDecrypt() == password)

@@ -40,6 +40,7 @@ namespace RapidTest.Services
         Task<bool> ImportExcel();
         Task<byte[]> ExportExcel();
         Task<byte[]> ExportExcelAllData(DateTime date);
+        Task<byte[]> ExportExcelAllDataRapidTest(DateTime date);
     }
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
@@ -87,11 +88,10 @@ namespace RapidTest.Services
 
         public async Task<object> Filter(int skip, int take, string orderby, DateTime startDate, string code)
         {
-
             if (string.IsNullOrEmpty(code))
             {
                 var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).EJ2OrderBy(orderby);
+               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x=> x.CreatedTime).EJ2OrderBy(orderby);
               
                 var count = await source.CountAsync();
                 var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
@@ -106,7 +106,7 @@ namespace RapidTest.Services
             else
             {
                 var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<ReportDto>(_configMapper).EJ2OrderBy(orderby);
+               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
 
                 var count = await source.CountAsync();
                 var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
@@ -488,7 +488,46 @@ namespace RapidTest.Services
             }
             return operationResult;
         }
+        private Dictionary<string, DateTime> ReadExcel(IFormFile file)
+        {
+            var list = new Dictionary<string, DateTime>();
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
+            {
+                try
+                {
+                    using (var package = new ExcelPackage(file.OpenReadStream()))
+                    {
+                        var currentSheet = package.Workbook.Worksheets;
+                        var workSheet = currentSheet.First();
+                        var noOfCol = workSheet.Dimension.End.Column;
+                        var noOfRow = workSheet.Dimension.End.Row;
 
+                        for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
+                        {
+                            var code = workSheet.Cells[rowIterator, 1].Value.ToSafetyString();
+                            var fullName = workSheet.Cells[rowIterator, 2].Value.ToSafetyString();
+                            var expiryTime = workSheet.Cells[rowIterator, 3].GetValue<DateTime>();
+
+                            if (!code.IsNullOrEmpty())
+                            {
+                                list.Add(code, expiryTime);
+                            }
+                        }
+                    }
+                    return list;
+                }
+                catch 
+                {
+                    return list;
+                }
+
+            }
+            else
+            {
+                return list;
+            }
+        }
         public async Task<bool> ImportExcel()
         {
             IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files["UploadedFile"];
@@ -496,8 +535,45 @@ namespace RapidTest.Services
             var updateList = new List<Report>();
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+            var employeeDict = ReadExcel(file);
+            int userid = createdBy.ToInt();
+            List<String> employeeKeys = employeeDict.Keys.ToList();
+            var data = (await _repo.FindAll(x => x.Employee.SEAInform && employeeKeys.Contains(x.Employee.Code)).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToDictionary(x => x.Employee.Code, x => x);
+          
+            try
+            {
+                foreach (var item in employeeDict)
+                {
+                    var itemDataDict = data.Where(x => x.Key == item.Key).FirstOrDefault();
+                    var itemData = itemDataDict.Value;
+                    if (itemData.ExpiryTime != item.Value)
+                    {
+                        itemData.ExpiryTime = item.Value;
+                        itemData.ModifiedBy = userid;
+                        itemData.ModifiedTime = DateTime.Now;
+                        updateList.Add(itemData);
+
+                    }
+                }
+                _repo.UpdateRange(updateList);
+                await _unitOfWork.SaveChangeAsync();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                    return false;
+            }
+        }
+        public async Task<bool> ImportExcel2()
+        {
+            IFormFile file = _httpContextAccessor.HttpContext.Request.Form.Files["UploadedFile"];
+            object createdBy = _httpContextAccessor.HttpContext.Request.Form["CreatedBy"];
+            var updateList = new List<Report>();
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var data = (await _repo.FindAll(x => x.Employee.SEAInform).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToHashSet();
+            var data = (await _repo.FindAll(x => x.Employee.SEAInform).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).AsEnumerable();
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
             {
                 try
@@ -742,6 +818,124 @@ namespace RapidTest.Services
                     ws.Cells[$"A1:C{total}"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
                     ws.Cells[$"A1:C{total}"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
                     ws.Cells[$"A1:C{total}"].AutoFitColumns();
+
+                    //Lưu file lại
+                    Byte[] bin = p.GetAsByteArray();
+                    return bin;
+                }
+            }
+            catch (Exception ex)
+            {
+                var mes = ex.Message;
+                Console.WriteLine(mes);
+                return new Byte[] { };
+            }
+        }
+
+        public async Task<byte[]> ExportExcelAllDataRapidTest(DateTime date)
+        {
+            try
+            {
+                var data = (await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Employee.SEAInform).AsNoTracking().Select(x => new
+                {
+                    Code = x.Employee.Code,
+                    FullName = x.Employee.FullName,
+                    Department = x.Employee.Department.Code,
+                    Kind = x.Employee.SettingId != null ? x.Employee.Setting.Name : "N/A",
+                    ExpiryTime = x.ExpiryTime.ToString("MM/dd/yyyy HH:mm:ss"),
+                    TestResult = x.Result == 2 ? "Âm tính" : "Dương tính",
+                    Gender = x.Employee.Gender == true ? "NAM" : "NỮ",
+                    BirthDate = x.Employee.BirthDate.ToString("MM/dd/yyyy"),
+                    TestKind = x.TestKind.Name,
+                    TestDate = x.CreatedTime.ToString("MM/dd/yyyy"),
+                    CreatedTime = x.CreatedTime,
+                    CheckOutTime = x.CreatedTime.ToString("MM/dd/yyyy HH:mm:ss"),
+                    EmployeeId = x.EmployeeId,
+                    CheckInTime = x.Employee.CheckIns.Any(a => a.CreatedTime.Date == x.CreatedTime.Date) ? x.Employee.CheckIns.OrderByDescending(a => a.Id).FirstOrDefault(a => a.CreatedTime.Date == x.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm:ss") : null,
+                    FactoryEntryTime = x.Employee.FactoryReports.Any(a => a.CreatedTime.Date == x.CreatedTime.Date) ? x.Employee.FactoryReports.OrderByDescending(a => a.Id).FirstOrDefault(a => a.CreatedTime.Date == x.CreatedTime.Date).FactoryEntryTime.ToString("MM/dd/yyyy HH:mm:ss") : "",
+
+                }).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
+                var currentTime = DateTime.Now;
+                ExcelPackage.LicenseContext = LicenseContext.Commercial;
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                var memoryStream = new MemoryStream();
+                using (ExcelPackage p = new ExcelPackage(memoryStream))
+                {
+                    // đặt tên người tạo file
+                    p.Workbook.Properties.Author = "Henry Pham";
+
+                    // đặt tiêu đề cho file
+                    p.Workbook.Properties.Title = "Check Out Report";
+                    //Tạo một sheet để làm việc trên đó
+                    p.Workbook.Worksheets.Add("Check Out Report");
+
+                    // lấy sheet vừa add ra để thao tác
+                    ExcelWorksheet ws = p.Workbook.Worksheets["Check Out Report"];
+
+                    // đặt tên cho sheet
+                    ws.Name = "Check Out Report";
+                    // fontsize mặc định cho cả sheet
+                    ws.Cells.Style.Font.Size = 11;
+                    // font family mặc định cho cả sheet
+                    ws.Cells.Style.Font.Name = "Calibri";
+                    var headerArray = new List<string>()
+                    {
+                        "#",
+                        "Code",
+                        "Department",
+                        "FullName",
+                         "Gender",
+                        "Birth Date",
+                        "Test Kind",
+                         "Kind",
+                        "Test result",
+                        "Test date",
+                        "Entry factory exp. date",
+                        "Check in time",
+                        "Check out time",
+                         "Entry factory time",
+                         "Option"
+                    };
+                    int headerRowIndex = 1;
+                    foreach (var headerItem in headerArray.Select((value, i) => new { i, value }))
+                    {
+                        var headerColIndex = headerItem.i + 1;
+                        ws.Cells[headerRowIndex, headerColIndex].Value = headerItem.value;
+                    }
+
+                    int bodyRowIndex = 1;
+                    int bodyColIndex = 1;
+                    int total = data.Count + 1;
+                    int index = 0;
+
+                    foreach (var bodyItem in data)
+                    {
+                        bodyColIndex = 1;
+                        bodyRowIndex++;
+                        index++;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = index;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Code;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Department;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.FullName;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Gender;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.BirthDate;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.TestKind;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.Kind;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.TestResult;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.TestDate;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.ExpiryTime;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.CheckInTime;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.CheckOutTime;
+                        ws.Cells[bodyRowIndex, bodyColIndex++].Value = bodyItem.FactoryEntryTime;
+                    }
+
+
+                    //Make all text fit the cells
+                    //ws.Cells[ws.Dimension.Address].AutoFitColumns();
+                    ws.Cells[$"A1:O1"].Style.Font.Bold = true;
+                    ws.Cells[$"A1:O1"].Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    ws.Cells[$"A1:O1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    ws.Cells[$"A1:O{total}"].AutoFitColumns();
 
                     //Lưu file lại
                     Byte[] bin = p.GetAsByteArray();

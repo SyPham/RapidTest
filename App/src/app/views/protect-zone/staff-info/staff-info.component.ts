@@ -67,6 +67,7 @@ export class StaffInfoComponent implements OnInit {
   progress = 0;
   showClose = true;
   apiUrl = environment.apiUrl.replace('/api', '') + 'images/Format-Birth-Date.png';
+  searchOptions: { fields: string[]; operator: string; key: string; ignoreCase: boolean; };
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -76,6 +77,7 @@ export class StaffInfoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.searchOptions = { fields: ['code', 'fullName', 'department', 'department' ], operator: 'contains', key: '', ignoreCase: true };
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
     this.excel2DownloadUrl = `${environment.apiUrl}Employee/ExcelExportTemplate`;
     this.excel3DownloadUrl = `${environment.apiUrl}Employee/ExportEmployeeExcel`;
@@ -95,6 +97,11 @@ export class StaffInfoComponent implements OnInit {
   fileProgress2(event) {
     this.file2 = event.target.files[0];
   }
+  created(): void {
+    document.getElementById(this.grid.element.id + "_searchbar").addEventListener('keyup', () => {
+            this.grid.search((event.target as HTMLInputElement).value)
+    });
+}
   submitUser() {
     this.service.importExcel3(this.file2
     ).subscribe((event: HttpEvent<any>) => {
@@ -183,7 +190,6 @@ export class StaffInfoComponent implements OnInit {
     }, (err) => this.alertify.warning("Faild to update print!"));
   }
   onChange(args, data) {
-    console.log(args);
     data.seaInform = args.checked;
     this.toggleSEAInform(data.id, (res) => {
       if (res.success === true) {
@@ -221,7 +227,7 @@ export class StaffInfoComponent implements OnInit {
   }
    downloadExcel() {
     this.service.exportExcel().subscribe((data: any) => {
-      const downloadURL = window.URL.createObjectURL(data);
+      const downloadURL = window.URL.createObjectURL(data.body);
       const link = document.createElement('a');
       link.href = downloadURL;
       const y = new Date().getFullYear();

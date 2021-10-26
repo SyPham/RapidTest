@@ -108,5 +108,11 @@ namespace RapidTest.Controllers
             var bin = await _service.ExportExcel();
             return File(bin, "application/octet-stream", $"Rapid-Test-Report{DateTime.Now.ToString("MMddyyyy")}.xlsx");
         }
+        [HttpGet]
+        public async Task<IActionResult> ExportExcelAllDataRapidTest(DateTime date)
+        {
+            var bin = await _service.ExportExcelAllDataRapidTest(date);
+            return File(bin, "application/octet-stream", $"Rapid-Test-Report{DateTime.Now.ToString("MMddyyyy")}.xlsx");
+        }
     }
 }

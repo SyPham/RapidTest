@@ -80,8 +80,8 @@ namespace RapidTest.Services
         }
         public override async Task<List<EmployeeDto>> GetAllAsync()
         {
-            return await _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper).OrderBy(x => x.IsPrint).ToListAsync();
-
+            return await _repo.FindAll().AsNoTracking()
+                .ProjectTo<EmployeeDto>(_configMapper).OrderBy(x => x.IsPrint).ToListAsync();
         }
         public override async Task<OperationResult> AddAsync(EmployeeDto model)
         {
@@ -282,7 +282,7 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
-               
+
                 if (!employee.SEAInform)
                     return new OperationResult
                     {
@@ -412,8 +412,7 @@ namespace RapidTest.Services
                                     await _unitOfWork.SaveChangeAsync();
                                     departmentId = departmentItem.Id;
                                 }
-                                else
-                                    departmentId = department.Id;
+                                else departmentId = department.Id;
 
                                 var item = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
                                 int? kindId = null;
@@ -671,7 +670,7 @@ namespace RapidTest.Services
                                 {
                                     item.SettingId = kindId;
                                     item.TestDate = testDate;
-                                   _repo.Update(item);
+                                    _repo.Update(item);
 
                                     //updateList.Add(item);
                                 }
@@ -679,9 +678,9 @@ namespace RapidTest.Services
                             }
                         }
                     }
-                   //_repo.UpdateRange(updateList);
+                    //_repo.UpdateRange(updateList);
                     await _unitOfWork.SaveChangeAsync();
-                 
+
                     return true;
                 }
                 catch (Exception ex)

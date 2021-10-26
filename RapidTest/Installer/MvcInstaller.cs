@@ -23,7 +23,8 @@ namespace RapidTest.Installer
                 o => o.MigrationsAssembly("RapidTest"));
                 options.UseLazyLoadingProxies();
             });
-
+            // this assumes DataContext is already registered in container
+            // if not - register it first
             services.AddScoped<Func<DataContext>>((provider) => () => provider.GetService<DataContext>());
 
             services.AddScoped<DbFactory>();

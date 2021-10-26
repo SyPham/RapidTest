@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "A4KPI": {
+    "RapidTest": {
       "commandName": "Project",
       "launchBrowser": false,
       "launchUrl": "swagger",
@@ -26,9 +26,6 @@
       },
       "dotnetRunMessages": "true",
       "applicationUrl": "http://localhost:60"
-    },
-    "API": {
-      "commandName": "Executable"
     }
   }
 }

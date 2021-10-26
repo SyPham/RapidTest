@@ -31,9 +31,11 @@
           [pageSettings]="pageSettings"
           gridLines='Both'
           [editSettings]='editSettings'
+          [searchSettings]='searchOptions'
           (checkBoxChange)='checkBoxChange($event)'
           (toolbarClick)='toolbarClick($event)'
           (actionBegin)="actionBegin($event)"
+          (created)='created()'
           (rowSelected)='rowSelected($event)'        >
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>

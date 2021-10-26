@@ -1,3 +1,4 @@
+import { NgxSpinnerService } from 'ngx-spinner';
 import { filter } from 'rxjs/operators';
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ExcelExportProperties, GridComponent } from '@syncfusion/ej2-angular-grids';
@@ -41,6 +42,7 @@ export class RapidTestReportComponent implements OnInit {
     public datePipe: DatePipe,
     public modalService: NgbModal,
     private alertify: AlertifyService,
+    private spinner: NgxSpinnerService,
 
   ) { }
 
@@ -59,6 +61,21 @@ export class RapidTestReportComponent implements OnInit {
   showModal() {
     this.modalReference = this.modalService.open(this.importModal, { size: 'xl', backdrop: 'static' , keyboard: false });
   }
+  downloadExcel() {
+    this.spinner.show();
+    const date  = this.datePipe.transform(this.startDate, 'MM/dd/yyyy');
+    this.service.exportExcel(date).subscribe((data: any) => {
+      const downloadURL = window.URL.createObjectURL(data.body);
+      const link = document.createElement('a');
+      link.href = downloadURL;
+      const y = new Date().getFullYear();
+      const d = new Date().getDay();
+      const m = new Date().getMonth() + 1;
+      link.download = `Rapid Test Report ${m}${d}${y}.xlsx`;
+      link.click();
+      this.spinner.hide();
+    }, () => this.spinner.hide());
+  }
 
   startDateOnchange(args) {
     this.startDate = (args.value as Date);
@@ -70,12 +87,32 @@ export class RapidTestReportComponent implements OnInit {
   }
   excelExport() {
     this.grid.showSpinner();
-    const fileName = `Rapid Test Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
-    const excelExportProperties: ExcelExportProperties = {
-      fileName: fileName + '.xlsx',
-      hierarchyExportMode: 'All'
-    };
-    this.grid.excelExport(excelExportProperties);
+    const fileName = `Rapid Test Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`;
+    console.log(this.data.adaptor)
+    const data = (this.data.dataSource.data as any ).map((x, index)=> {
+      return {
+        number: index + 1,
+        code: x.code,
+        department: x.department,
+        fullName: x.fullName,
+        gender: x.gender,
+        birthDate:  this.datePipe.transform(x.birthDate, 'MM-dd-yyyy'),
+        testKindId: x.testKindId,
+        kindName: x.kindName,
+        result: x.result,
+        createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
+        expiryTime: this.datePipe.transform(x.expiryTime, 'MM-dd-yyyy HH:mm'),
+        checkInTime: this.datePipe.transform(x.checkInTime, 'MM-dd-yyyy HH:mm'),
+        checkOutTime: this.datePipe.transform(x.checkOutTime, 'MM-dd-yyyy HH:mm'),
+        factoryEntryTime: this.datePipe.transform(x.factoryEntryTime, 'MM-dd-yyyy'),
+
+      }
+    });
+    // const excelExportProperties: ExcelExportProperties = {
+    //   fileName: fileName + '.xlsx',
+    //   hierarchyExportMode: 'All'
+    // };
+    // this.grid.excelExport(excelExportProperties);
   }
   filter() {
     this.loadData();
@@ -93,14 +130,6 @@ export class RapidTestReportComponent implements OnInit {
       url: `${this.baseUrl}Report/Filter?date=${startDate}&code=${code}`,
       adaptor: new WebApiAdaptor
   });
-    // this.service.filter(startDate, endDate, code).subscribe(
-    //   (res) => {
-    //   this.data = res;
-    //   },
-    //   (error) => {
-    //     this.data = [];
-    //   }
-    // );
   }
 
   NO(index) {

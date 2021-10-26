@@ -39,6 +39,7 @@ namespace RapidTest.Data
 
 
         }
+
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             IEnumerable<EntityEntry> modified = ChangeTracker.Entries()

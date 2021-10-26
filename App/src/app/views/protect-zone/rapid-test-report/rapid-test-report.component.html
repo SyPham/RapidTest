@@ -1,4 +1,7 @@
 
+<ngx-spinner [fullScreen]="false" type="square-jelly-box" size="medium">
+  <p class="loading">Loading data... Chờ chút nhé...</p>
+</ngx-spinner>
 <div class="row">
   <div class="col-md-12 mb-2 d-flex justify-content-start align-items-center">
 
@@ -17,7 +20,7 @@
         </span>
       </div>
    </div>
-   <button type="button" class="btn btn-secondary mx-3" (click)='excelExport()'>Export Excel</button>
+   <button type="button" class="btn btn-secondary mx-3" (click)='downloadExcel()'>Export Excel</button>
    <button type="button" class="btn btn-secondary" (click)='showModal()'>Import Excel</button>
 
 
@@ -40,7 +43,7 @@
           (excelExportComplete)='excelExportComplete()'
         >
           <e-columns>
-            <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+            <e-column field="number" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
               <ng-template #template let-data>
                 {{NO(data.index)}}
               </ng-template>
@@ -48,10 +51,10 @@
                 #
               </ng-template>
             </e-column>
-            <e-column field="code" textAlign='Center' [width]="80" headerText="{{ 'Code'}}"> </e-column>
-            <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
+            <e-column field="code" textAlign='Center' [width]="90" headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="department" textAlign='Center' [width]="150" headerText="{{ 'Department'}}"> </e-column>
             <e-column field="fullName" textAlign='Left' headerTextAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
-            <e-column field="gender" textAlign='Center' [width]="80" headerText="{{ 'Gender'}}"> </e-column>
+            <e-column field="gender" textAlign='Center' [width]="90" headerText="{{ 'Gender'}}"> </e-column>
             <e-column field="birthDate" textAlign='Center' type='date' format='MM/dd/yyy' headerText="{{ 'Birth Date'}}"> </e-column>
             <e-column field="testKindId" textAlign='Center' headerText="{{ 'Test Kind'}}"> </e-column>
             <e-column field="kindName" textAlign='Center' headerText="{{ 'Kind'}}"> </e-column>

@@ -52,6 +52,9 @@ export class RapidTestReportService  {
       catchError(this.errorMgmt)
     );
   }
+  exportExcel(date) {
+    return this.http.get(`${this.baseUrl}Report/ExportExcelAllDataRapidTest?date=${date}`, { responseType: 'blob', observe: 'response' });
+  }
   errorMgmt(error: HttpErrorResponse) {
     let errorMessage = '';
     if (error.error instanceof ErrorEvent) {
