@@ -82,8 +82,12 @@ namespace RapidTest.Helpers.AutoMapper
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
                 .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
                 .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>s.Employee.FactoryReports.Select(x=> (DateTime?)x.FactoryEntryTime).FirstOrDefault())
-                );
+                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>s.Employee.FactoryReports.OrderBy(x=> x.FactoryEntryTime).Select(x=> (DateTime?)x.FactoryEntryTime).FirstOrDefault())
+                )
+                .ForMember(d => d.LastCheckInDateTime, o => o.MapFrom(s => s.Employee.CheckIns.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
+                .ForMember(d => d.LastCheckOutDateTime, o => o.MapFrom(s => s.Employee.Reports.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
+                .ForMember(d => d.LastAccessControlDateTime, o => o.MapFrom(s => s.Employee.FactoryReports.OrderByDescending(x => x.FactoryEntryTime).Select(x => (DateTime?) x.FactoryEntryTime).FirstOrDefault() ));
+                
 
         }
     }

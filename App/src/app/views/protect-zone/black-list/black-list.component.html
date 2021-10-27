@@ -25,14 +25,18 @@
                 {{NO(data.index)}}
               </ng-template>
             </e-column>
-            <e-column field="code" textAlign='Center' headerText="{{ 'ID'}}"> </e-column>
+            <e-column field="code" textAlign='Center' width="100" headerText="{{ 'Code'}}"> </e-column>
             <e-column field="fullName" textAlign='Left' [allowEditing]='false' headerText="{{ 'Name'}}">  </e-column>
             <e-column field="department" textAlign='Center' [allowEditing]='false' headerText="{{ 'Department'}}"> </e-column>
             <e-column field="createdTime" textAlign='Center' type='date' editType= 'datetimepickeredit' [edit]='dpParams' format='MM-dd-yyy HH:mm' headerText="{{ 'Date Time'}}"> </e-column>
             <e-column field="firstWorkDate" textAlign='Center' type='date' format='MM-dd-yyy' [allowEditing]='false' headerText="{{ 'First Work Date'}}">
-              <!-- <ng-template #template let-data>
-                {{data.firstWorkDate != null ? (data.firstWorkDate | date: 'MM-dd-yyyy') : 'N/A' }}
-              </ng-template> -->
+            </e-column>
+
+            <e-column field="lastCheckInDateTime" textAlign='Center' type='date' format='MM-dd-yyy HH:mm' [allowEditing]='false' headerText="{{ 'Last Check In Date Time'}}">
+            </e-column>
+            <e-column field="lastCheckOutDateTime" textAlign='Center' type='date' format='MM-dd-yyy HH:mm' [allowEditing]='false' headerText="{{ 'Last Check Out Date Time'}}">
+            </e-column>
+            <e-column field="lastAccessControlDateTime" textAlign='Center' type='date' format='MM-dd-yyy HH:mm' [allowEditing]='false' headerText="{{ 'Last Access Control Date Time'}}">
             </e-column>
           </e-columns>
         </ejs-grid>

@@ -10,6 +10,9 @@ export interface BlackList {
   deletedTime: string | null;
   createdTime: string;
   modifiedTime: string | null;
-  firstWorkDate: any;
-  systemDateTime: any;
+  firstWorkDate: string | null;
+  systemDateTime: string;
+  lastCheckInDateTime: string| null;
+  lastCheckOutDateTime: string| null;
+  lastAccessControlDateTime: string| null;
 }

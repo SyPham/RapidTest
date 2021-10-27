@@ -90,6 +90,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
       deletedBy: null,
       firstWorkDate: null,
       systemDateTime: null,
+      lastCheckInDateTime:  null,
+      lastCheckOutDateTime:  null,
+      lastAccessControlDateTime:  null,
     };
 
   }
@@ -116,6 +119,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         deletedTime: null,
         firstWorkDate: null,
         systemDateTime: new Date().toLocaleDateString(),
+        lastCheckInDateTime:  null,
+        lastCheckOutDateTime:  null,
+        lastAccessControlDateTime:  null,
       };
 
       if (args.data.code === undefined) {
@@ -152,6 +158,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
         deletedTime: args.data.deletedTime,
         firstWorkDate: null,
         systemDateTime: args.data.systemDateTime,
+        lastCheckInDateTime: args.data.lastCheckInDateTime,
+        lastCheckOutDateTime: args.data.lastCheckOutDateTime,
+        lastAccessControlDateTime: args.data.lastAccessControlDateTime,
       };
       this.serviceEmployee.checkCode(args.data.code).toPromise().then(x=> {
         if (x == false) {
@@ -184,6 +193,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
             department: x.department,
             createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
             firstWorkDate: this.datePipe.transform(x.firstWorkDate, 'MM-dd-yyyy'),
+            lastCheckInDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
+            lastCheckOutDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
+            lastAccessControlDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
 
           }
         });
