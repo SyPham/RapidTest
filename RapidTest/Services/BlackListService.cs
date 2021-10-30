@@ -10,6 +10,7 @@ using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -45,8 +46,24 @@ namespace RapidTest.Services
             _httpContextAccessor = httpContextAccessor;
             _configMapper = configMapper;
         }
+       
         public override async Task<List<BlackListDto>> GetAllAsync()
         {
+            //var data = await _repo.FindAll(x => x.IsDelete == false).ToListAsync();
+            //foreach (var item in data)
+            //{
+            //    var employee = item.Employee;
+            //    var firstWorkDate = employee.FactoryReports.OrderBy(x => x.Id).Select(x => (DateTime?)x.FactoryEntryTime).FirstOrDefault();
+            //    var lastCheckInDateTime = employee.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+            //    var lastCheckOutDateTime = employee.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+            //    var lastAccessControlDateTime = employee.FactoryReports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+            //    item.FirstWorkDate = firstWorkDate;
+            //    item.LastCheckInDateTime = lastCheckInDateTime;
+            //    item.LastCheckOutDateTime = lastCheckOutDateTime;
+            //    item.LastAccessControlDateTime = lastAccessControlDateTime;
+            //}
+            //await _unitOfWork.SaveChangeAsync();
+
             return await _repo.FindAll(x=>x.IsDelete == false).ProjectTo<BlackListDto>(_configMapper).ToListAsync();
 
         }
@@ -54,16 +71,35 @@ namespace RapidTest.Services
         {
             try
             {
+
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 var employee = await _repoEmployee.FindAll(x => x.Code == model.Code).FirstOrDefaultAsync();
-
+                var check = await _repo.FindAll(x => x.EmployeeId == employee.Id && DateTime.Now.Date == x.CreatedTime.Date).AnyAsync();
+                if (check)
+                {
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Ngày hôm nay số thẻ này đã được thêm! Nếu muốn chỉ sửa thời gian vui lòng sử dụng chức năng cập nhật!",
+                        Success = false,
+                        Data = model
+                    };
+                }
                 var item = _mapper.Map<BlackList>(model);
             
                 item.EmployeeId = employee.Id;
                 item.CreatedBy = accountId;
                 item.CreatedTime = model.CreatedTime;
                 item.SystemDateTime = DateTime.Now;
+                var firstWorkDate = employee.FactoryReports.OrderBy(x => x.Id).Select(x => (DateTime?)x.FactoryEntryTime).FirstOrDefault();
+                var lastCheckInDateTime = employee.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                var lastCheckOutDateTime = employee.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                var lastAccessControlDateTime = employee.FactoryReports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                item.FirstWorkDate = firstWorkDate;
+                item.LastCheckInDateTime = lastCheckInDateTime;
+                item.LastCheckOutDateTime = lastCheckOutDateTime;
+                item.LastAccessControlDateTime = lastAccessControlDateTime;
                 _repo.Add(item);
 
                 await _unitOfWork.SaveChangeAsync();
@@ -94,7 +130,10 @@ namespace RapidTest.Services
                 item.EmployeeId = employee.Id;
                 item.ModifiedBy = accountId;
                 item.CreatedTime = model.CreatedTime;
-
+                item.FirstWorkDate = model.FirstWorkDate;
+                item.LastCheckInDateTime = model.LastCheckInDateTime;
+                item.LastCheckOutDateTime = model.LastCheckOutDateTime;
+                item.LastAccessControlDateTime = model.LastAccessControlDateTime;
                 _repo.Update(item);
 
                 await _unitOfWork.SaveChangeAsync();

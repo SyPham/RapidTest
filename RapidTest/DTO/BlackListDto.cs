@@ -27,7 +27,5 @@ namespace RapidTest.DTO
         public DateTime? LastCheckOutDateTime { get; set; }
         public DateTime? LastAccessControlDateTime { get; set; }
 
-
-
     }
 }

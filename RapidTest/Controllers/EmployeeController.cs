@@ -30,11 +30,7 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
-        [HttpGet]
-        public async Task<ActionResult> CheckIn(string code)
-        {
-            return Ok(await _service.CheckIn(code));
-        }
+      
         [HttpGet]
         public async Task<ActionResult> CheckIn2(string code, int testKindId)
         {

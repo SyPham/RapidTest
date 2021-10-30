@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { BehaviorSubject, throwError } from 'rxjs';
 import { MessageConstants } from '../_constants/system';
 export class BaseService {
@@ -6,20 +7,26 @@ export class BaseService {
     constructor() { }
 
     protected handleError(errorResponse: any) {
-        if (errorResponse?.error?.message) {
-            return throwError(errorResponse?.error?.message || 'Server error');
+      if (errorResponse instanceof HttpErrorResponse) {
+        if (errorResponse.status === 401) {
+          return throwError(errorResponse.statusText);
         }
-
-        if (errorResponse?.error?.errors) {
-            let modelStateErrors = '';
-
-            // for now just concatenate the error descriptions, alternative we could simply pass the entire error response upstream
-            for (const errorMsg of errorResponse?.error?.errors) {
-                modelStateErrors += errorMsg + '<br/>';
+        const applicationError = errorResponse.headers.get('Application-Error');
+        if (applicationError) {
+          console.error(applicationError);
+          return throwError(applicationError);
+        }
+        const serverError = errorResponse.error;
+        let modalStateErrors = '';
+        if (serverError && typeof serverError === 'object') {
+          for (const key in serverError) {
+            if (serverError[key]) {
+              modalStateErrors += serverError[key] + '\n';
             }
-            return throwError(modelStateErrors || 'Server error');
+          }
         }
-        return throwError('Server error');
+        return throwError(modalStateErrors || serverError || 'Server Error');
+      }
     }
     changeValue(message: MessageConstants) {
         this.valueSource.next(message);

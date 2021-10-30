@@ -7,36 +7,47 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RapidTest.Constants;
 
 namespace RapidTest.Controllers
 {
-    public class BlackListController : ApiControllerBase
+    public class RecordErrorController : ApiControllerBase
     {
-        private readonly IBlackListService _service;
+        private readonly IRecordErrorService _service;
 
-        public BlackListController(IBlackListService service)
+        public RecordErrorController(IRecordErrorService service)
         {
             _service = service;
         }
-      
+       
         [HttpGet]
         public async Task<ActionResult> GetAllAsync()
         {
             return Ok(await _service.GetAllAsync());
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetAccessFailed()
+        {
+            return Ok(await _service.GetAccessFailed());
+        }
+        [HttpGet]
+        public async Task<ActionResult> GetRecordError()
+        {
+            return Ok(await _service.GetRecordError());
+        }
         [HttpPost]
-        public async Task<ActionResult> AddAsync([FromBody] BlackListDto model)
+        public async Task<ActionResult> AddAsync([FromBody] RecordErrorDto model)
         {
             return StatusCodeResult(await _service.AddAsync(model));
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateAsync([FromBody] BlackListDto model)
+        public async Task<ActionResult> UpdateAsync([FromBody] RecordErrorDto model)
         {
             return StatusCodeResult(await _service.UpdateAsync(model));
         }
-
+     
         [HttpDelete]
         public async Task<ActionResult> DeleteAsync(int id)
         {

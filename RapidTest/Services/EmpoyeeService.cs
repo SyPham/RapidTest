@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NetUtility;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -18,6 +19,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RapidTest.Services
@@ -30,7 +32,6 @@ namespace RapidTest.Services
         Task<bool> UpdateIsPrint(UpdateIsPrintRequest request);
         Task<OperationResult> ToggleSEAInformAsync(int id);
         Task<object> CountWorkerScanQRCodeByToday();
-        Task<OperationResult> CheckIn(string code);
         Task<OperationResult> CheckIn(string code, int testKindId);
         Task<List<EmployeeDto>> GetPrintOff();
         Task<bool> CheckCode(string code);
@@ -39,12 +40,14 @@ namespace RapidTest.Services
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
         private readonly IRepositoryBase<Employee> _repo;
+        private readonly IRepositoryBase<RecordError> _repoRecordError;
         private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<Department> _repoDepartment;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IRepositoryBase<Report> _repoReport;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Factory> _repoFactory;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -53,12 +56,14 @@ namespace RapidTest.Services
 
         public EmployeeService(
             IRepositoryBase<Employee> repo,
+            IRepositoryBase<RecordError> repoRecordError,
             IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<Department> repoDepartment,
             IRepositoryBase<CheckIn> repoCheckIn,
             IRepositoryBase<Report> repoReport,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Factory> repoFactory,
+            IServiceScopeFactory serviceScopeFactory,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             IHttpContextAccessor httpContextAccessor,
@@ -67,12 +72,14 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoRecordError = repoRecordError;
             _repoBlackList = repoBlackList;
             _repoDepartment = repoDepartment;
             _repoCheckIn = repoCheckIn;
             _repoReport = repoReport;
             _repoSetting = repoSetting;
             _repoFactory = repoFactory;
+            _serviceScopeFactory = serviceScopeFactory;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _httpContextAccessor = httpContextAccessor;
@@ -221,50 +228,42 @@ namespace RapidTest.Services
             }
             return operationResult;
         }
-        public async Task<OperationResult> CheckIn(string code)
+
+        private void Logging(int? employeeId, string station, string reason)
         {
-            var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
-            if (employee == null)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "Not found this person. No entry.Please establish data in Staff info page!",
-                    Success = true,
-                    Data = null
-                };
-
-            if (!employee.SEAInform)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No entry.Please wait for SEA inform !",
-                    Success = true,
-                    Data = null
-                };
-
-            try
+            _ = Task.Run(async () =>
             {
-                operationResult = new OperationResult
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    StatusCode = HttpStatusCode.OK,
-                    Message = "Successfully!",
-                    Success = true,
-                    Data = employee
-                };
-            }
-            catch (Exception ex)
-            {
-                operationResult = ex.GetMessageError();
-            }
-            return operationResult;
+                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    await context.RecordError.AddAsync(new RecordError
+                    (
+                        employeeId,
+                        station,
+                        reason,
+                        DateTime.Now,
+                        accountId
+                   ));
+                    await context.SaveChangesAsync();
+                  
+                }
+            });
         }
-
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
+
             try
             {
                 var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
                 if (employee == null)
+                {
+                    Logging(
+                        null,
+                        Station.CHECK_IN,
+                        $" (QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE
+                        );
                     return new OperationResult
                     {
                         StatusCode = HttpStatusCode.NotFound,
@@ -272,9 +271,16 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
+                }
 
 
                 if (!employee.SEAInform)
+                {
+                    Logging(
+                       employee.Id,
+                       Station.CHECK_IN,
+                        ErrorKindMessage.SEA_INFORM
+                       );
                     return new OperationResult
                     {
                         StatusCode = HttpStatusCode.BadRequest,
@@ -282,15 +288,9 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
+                }
 
-                if (!employee.SEAInform)
-                    return new OperationResult
-                    {
-                        StatusCode = HttpStatusCode.BadRequest,
-                        Message = "No entry.Please wait for SEA inform!",
-                        Success = true,
-                        Data = null
-                    };
+
                 if (employee.Setting == null)
                 {
                     var setting = await _repoSetting.FindAll(x => x.SettingType == "CHECK_OUT" && x.IsDefault).FirstOrDefaultAsync();
@@ -301,6 +301,13 @@ namespace RapidTest.Services
                 var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
                 if (checkBlackList)
+                {
+                    Logging(
+                      employee.Id,
+                      Station.CHECK_IN,
+                      ErrorKindMessage.BLACK_LIST
+                      );
+
                     return new OperationResult
                     {
                         StatusCode = HttpStatusCode.Forbidden,
@@ -308,9 +315,17 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
+                }
                 var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
 
                 if (checkExist)
+                {
+                    Logging(
+                    employee.Id,
+                    Station.CHECK_IN,
+                     ErrorKindMessage.ALREADY_CHECK_IN
+                    );
+
                     return new OperationResult
                     {
                         StatusCode = HttpStatusCode.Forbidden,
@@ -318,7 +333,17 @@ namespace RapidTest.Services
                         Success = true,
                         Data = null
                     };
-
+                }
+                // Nếu đi sai ngày thi log ra db
+                string dayOfWeek = ((int)DateTime.Today.DayOfWeek + 1) + "";
+                var testDateArray = employee.TestDate.ToSafetyString().Split(".");
+                if (testDateArray.Contains(dayOfWeek) == false && employee.TestDate.ToSafetyString().Contains(".")) {
+                    Logging(
+                    employee.Id,
+                    Station.CHECK_IN,
+                     ErrorKindMessage.WRONG_SCHEDULE
+                    );
+                }
                 var data = new CheckIn
                 {
                     TestKindId = testKindId,
@@ -339,6 +364,11 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                Logging(
+                   null,
+                   Station.CHECK_IN,
+                    $"{Station.CHECK_IN}: {ex.Message}"
+                   );
             }
             return operationResult;
         }

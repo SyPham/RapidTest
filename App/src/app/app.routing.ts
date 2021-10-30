@@ -1,3 +1,4 @@
+import { RecordErrorComponent } from './views/protect-zone/record-error/record-error.component';
 import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
 import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
 import { DashboardComponent } from './views/protect-zone/dashboard/dashboard.component';
@@ -24,6 +25,7 @@ import { CheckOutComponent } from './views/protect-zone/check-out/check-out.comp
 import { AuthLocalGuard } from './_core/_guards/auth-local.guard';
 import { CheckOutSettingComponent } from './views/protect-zone/check-out-setting/check-out-setting.component';
 import { AccessDayComponent } from './views/protect-zone/access-day/access-day.component';
+import { AccessFailedComponent } from './views/protect-zone/access-failed/access-failed.component';
 
 export const routes: Routes = [
   {
@@ -177,6 +179,22 @@ export const routes: Routes = [
         component: BlackListComponent,
         data: {
           title: 'Black List'
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'record-error',
+        component: RecordErrorComponent,
+        data: {
+          title: 'Record Error'
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'access-failed',
+        component: AccessFailedComponent,
+        data: {
+          title: 'Access failed'
         },
         canActivate: [AuthLocalGuard]
       },

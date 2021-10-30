@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NetUtility;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -45,10 +46,12 @@ namespace RapidTest.Services
     public class ReportService : ServiceBase<Report, ReportDto>, IReportService
     {
         private readonly IRepositoryBase<Report> _repo;
+        private readonly IRepositoryBase<RecordError> _repoRecordError;
         private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<FactoryReport> _repoFactoryReport;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Models.TestKind> _repoTestKind;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IRepositoryBase<Employee> _repoEmployee;
         private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IUnitOfWork _unitOfWork;
@@ -59,11 +62,12 @@ namespace RapidTest.Services
 
         public ReportService(
             IRepositoryBase<Report> repo,
+            IRepositoryBase<RecordError> repoRecordError,
             IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<FactoryReport> repoFactoryReport,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Models.TestKind> repoTestKind,
-
+            IServiceScopeFactory serviceScopeFactory,
             IRepositoryBase<Employee> repoEmployee,
             IRepositoryBase<CheckIn> repoCheckIn,
             IUnitOfWork unitOfWork,
@@ -74,10 +78,12 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoRecordError = repoRecordError;
             _repoBlackList = repoBlackList;
             _repoFactoryReport = repoFactoryReport;
             _repoSetting = repoSetting;
             _repoTestKind = repoTestKind;
+            _serviceScopeFactory = serviceScopeFactory;
             _repoEmployee = repoEmployee;
             _repoCheckIn = repoCheckIn;
             _unitOfWork = unitOfWork;
@@ -91,8 +97,8 @@ namespace RapidTest.Services
             if (string.IsNullOrEmpty(code))
             {
                 var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x=> x.CreatedTime).EJ2OrderBy(orderby);
-              
+               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
+
                 var count = await source.CountAsync();
                 var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
                 items = items.DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
@@ -119,113 +125,173 @@ namespace RapidTest.Services
                 };
             }
         }
-
+        private void Logging(int? employeeId, string station, string reason)
+        {
+            _ = Task.Run(async () =>
+            {
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    await context.RecordError.AddAsync(new RecordError
+                    (
+                        employeeId,
+                        station,
+                        reason,
+                        DateTime.Now,
+                        accountId
+                   ));
+                    await context.SaveChangesAsync();
+                }
+            });
+        }
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
         {
-            var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode).FirstOrDefaultAsync();
-            if (employee == null)
-            {
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "The QRCode not exist!",
-                    Success = true,
-                    Data = null
-                };
-            }
-            if (!employee.SEAInform)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "No entry.Please wait for SEA inform !",
-                    Success = true,
-                    Data = null
-                };
-
-            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
-
-            if (checkBlackList && request.Result == Result.Negative)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
-                    Success = true,
-                    Data = null
-                };
-
-            if (request.KindId == 0)
-            {
-                operationResult = new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Please select a test kind! ,<br><span>Vui lòng chọn loại xét nghiệm!</span></h2>",
-                    Success = false,
-                    Data = null
-                };
-            }
-            var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
-            var checkIn = new CheckIn();
-            if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
-            else
-                checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
-            if (checkIn == null)
-            {
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.BadRequest,
-                    Message = "Please check in first!",
-                    Success = true,
-                    Data = null
-                };
-            }
-            if (employee.Setting == null)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Vui lòng cài đặt hình thức đi làm (3 tại chỗ hoặc đi làm)! Please set up kind on staff info page</h2>",
-                    Success = true,
-                    Data = null
-                };
-
-            var mins = employee.Setting.Mins + 1;
-            var checkOutTime = DateTime.Now.AddMinutes(-mins).ToRemoveSecond();
-
-            var checkInTime = checkIn.CreatedTime.ToRemoveSecond();
-            if (checkOutTime < checkInTime)
-            {
-                var checkOutHour = checkInTime.AddMinutes(mins).ToString("HH:mm:ss");
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Please wait until {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
-                    Success = true,
-                    Data = null
-                };
-            }
-            var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
-
-            if (checkExist)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
-                    Success = true,
-                    Data = null
-                };
-            string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
-
-            var setting = await _repoSetting.FindAll(x => x.ParentId == employee.SettingId && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
-            var expiryTime = DateTime.Now.AddDays(setting.Day + 1).Date.AddHours(setting.Hours);
-            var data = new Report
-            {
-                TestKindId = request.KindId,
-                EmployeeId = employee.Id,
-                Result = request.Result,
-                ExpiryTime = expiryTime
-            };
             try
             {
+                var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode).FirstOrDefaultAsync();
+                if (employee == null)
+                {
+
+                    Logging(
+                        null,
+                        Station.CHECK_OUT,
+                        $" (QR Code Input: {request.QRCode}) " + ErrorKindMessage.WRONG_CODE
+                        );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "The QR Code not exist!",
+                        Success = true,
+                        Data = null
+                    };
+                }
+                if (!employee.SEAInform)
+                {
+
+                    Logging(
+                           employee.Id,
+                           Station.CHECK_OUT,
+                           ErrorKindMessage.SEA_INFORM
+                           );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "No entry.Please wait for SEA inform !",
+                        Success = true,
+                        Data = null
+                    };
+                }
+
+                var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
+
+                if (checkBlackList && request.Result == Result.Negative)
+                {
+                    Logging(
+                         employee.Id,
+                         Station.CHECK_OUT,
+                         ErrorKindMessage.BLACK_LIST
+                         );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                }
+
+                if (request.KindId == 0)
+                {
+                    operationResult = new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Please select a test kind! <br><span>Vui lòng chọn loại xét nghiệm!</span></h2>",
+                        Success = false,
+                        Data = null
+                    };
+                }
+                var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
+                var checkIn = new CheckIn();
+                if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
+                    checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                else
+                    checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                if (checkIn == null)
+                {
+                    Logging(
+                          employee.Id,
+                          Station.CHECK_OUT,
+                          ErrorKindMessage.NOT_CHECK_IN
+                          );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Please check in first!",
+                        Success = true,
+                        Data = null
+                    };
+                }
+                if (employee.Setting == null)
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Vui lòng cài đặt hình thức đi làm (3 tại chỗ hoặc đi làm)! Please set up kind on staff info page</h2>",
+                        Success = true,
+                        Data = null
+                    };
+
+                var mins = employee.Setting.Mins + 1;
+                var checkOutTime = DateTime.Now.AddMinutes(-mins).ToRemoveSecond();
+
+                var checkInTime = checkIn.CreatedTime.ToRemoveSecond();
+                if (checkOutTime < checkInTime)
+                {
+                    Logging(
+                          employee.Id,
+                          Station.CHECK_OUT,
+                          ErrorKindMessage.NOT_ENOUGHT_WAITING_TIME
+                          );
+                    var checkOutHour = checkInTime.AddMinutes(mins).ToString("HH:mm:ss");
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Please wait until {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                }
+                var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
+
+                if (checkExist)
+                {
+                    Logging(
+                         employee.Id,
+                         Station.CHECK_OUT,
+                         ErrorKindMessage.ALREADY_CHECK_OUT
+                         );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                }
+
+                string dayOfWeek = Enum.GetName(DateTime.Now.DayOfWeek);
+
+                var setting = await _repoSetting.FindAll(x => x.ParentId == employee.SettingId && x.DayOfWeek == dayOfWeek).FirstOrDefaultAsync();
+                var expiryTime = DateTime.Now.AddDays(setting.Day + 1).Date.AddHours(setting.Hours);
+                var data = new Report
+                {
+                    TestKindId = request.KindId,
+                    EmployeeId = employee.Id,
+                    Result = request.Result,
+                    ExpiryTime = expiryTime
+                };
+
                 await _repo.AddAsync(data);
                 await _unitOfWork.SaveChangeAsync();
 
@@ -254,6 +320,11 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                Logging(
+                    null,
+                    Station.CHECK_OUT,
+                    $"{Station.CHECK_OUT}: {ex.Message}"
+                    );
             }
             return operationResult;
         }
@@ -374,8 +445,8 @@ namespace RapidTest.Services
             var comeToWork = await _repoEmployee.FindAll(x => x.Setting != null && x.Setting.IsDefault).CountAsync();
             var baTaiCho = await _repoEmployee.FindAll(x => x.Setting != null && !x.Setting.IsDefault).CountAsync();
 
-            var positiveToday = await _repoBlackList.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date).CountAsync();
-            var positiveBefore = await _repoBlackList.FindAll(x => !x.IsDelete && x.CreatedTime.Date < startTime.Date).CountAsync();
+            var positiveToday = await _repoBlackList.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var positiveBefore = await _repoBlackList.FindAll(x => !x.IsDelete && x.CreatedTime.Date < startTime.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
 
             return new
             {
@@ -517,7 +588,7 @@ namespace RapidTest.Services
                     }
                     return list;
                 }
-                catch 
+                catch
                 {
                     return list;
                 }
@@ -539,7 +610,7 @@ namespace RapidTest.Services
             int userid = createdBy.ToInt();
             List<String> employeeKeys = employeeDict.Keys.ToList();
             var data = (await _repo.FindAll(x => x.Employee.SEAInform && employeeKeys.Contains(x.Employee.Code)).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToDictionary(x => x.Employee.Code, x => x);
-          
+
             try
             {
                 foreach (var item in employeeDict)
@@ -562,7 +633,7 @@ namespace RapidTest.Services
             }
             catch (Exception ex)
             {
-                    return false;
+                return false;
             }
         }
         public async Task<bool> ImportExcel2()

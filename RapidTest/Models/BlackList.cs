@@ -21,6 +21,12 @@ namespace RapidTest.Models
         public DateTime SystemDateTime { get; set; }
         public DateTime? ModifiedTime { get; set; }
         public DateTime? DeletedTime { get; set; }
+
+        public DateTime? FirstWorkDate { get; set; }
+        public DateTime? LastCheckInDateTime { get; set; }
+        public DateTime? LastCheckOutDateTime { get; set; }
+        public DateTime? LastAccessControlDateTime { get; set; }
+
         [ForeignKey(nameof(EmployeeId))]
         public virtual Employee Employee { get; set; }
     }

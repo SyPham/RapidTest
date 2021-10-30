@@ -25,6 +25,7 @@ namespace RapidTest.Data
         public DbSet<TestKind> TestKinds { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<BlackList> BlackList { get; set; }
+        public DbSet<RecordError> RecordError { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,7 +65,7 @@ namespace RapidTest.Data
             }
             return base.SaveChangesAsync(cancellationToken);
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    => optionsBuilder.LogTo(Console.WriteLine);
+    //    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    //=> optionsBuilder.LogTo(Console.WriteLine);
     }
 }

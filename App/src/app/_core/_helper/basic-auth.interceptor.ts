@@ -15,6 +15,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
         private router: Router
     ) { }
     private handleError(error: HttpErrorResponse) {
+      let errorMessage = '';
         if (error.status === 0) {
             // A client-side or network error occurred. Handle it accordingly.
             // alert(`Hệ thống không hoạt động vì lỗi mạng. Vui lòng nhấn F5 để thử lại.
@@ -36,6 +37,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
                     break;
                 case 400:
                     console.log(error?.error);
+                    errorMessage = error?.error;
                     break;
                 case 500:
                     console.log("Máy chủ đang gặp vấn đề. Vui lòng thử lại sau!<br> The server error. Please try again after sometime!");
@@ -48,7 +50,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
         }
         // Return an observable with a user-facing error message.
         return throwError(
-            'Something bad happened; please try again later.');
+          error);
     }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {

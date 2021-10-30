@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [allowSorting]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          [allowSorting]='true'
+          [sortSettings]='sortSettings'
+          [toolbar]='toolbarOptions'
+          allowTextWrap='true'
+          (dataBound)='dataBound()'
+        >
+          <e-columns>
+            <e-column field="#" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="code" textAlign='Center' [width]="90" headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
+            <e-column field="fullName" textAlign='Left' headerTextAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
+            <e-column field="gender" textAlign='Center' [width]="90" headerText="{{ 'Gender'}}"> </e-column>
+            <e-column field="station" textAlign='Center' headerText="{{ 'Station'}}"> </e-column>
+            <e-column field="errorKind" headerTextAlign='Center' [disableHtmlEncode]='false' textAlign='Left' headerText="{{ 'Error Kind'}}"> </e-column>
+            <e-column field="lastCheckInDateTime" type='date' format='MM-dd-yyy HH:mm' textAlign='Center' headerText="{{ 'Check in time'}}"> </e-column>
+            <e-column field="lastCheckOutDateTime" type='date' format='MM-dd-yyy HH:mm' textAlign='Center' headerText="{{ 'Check out time'}}"> </e-column>
+            <e-column field="createdTime" type='date' format='MM-dd-yyy HH:mm' textAlign='Center' headerText="{{ 'Date Time'}}"> </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>

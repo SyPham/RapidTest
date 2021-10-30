@@ -1,3 +1,4 @@
+import { RecordErrorComponent } from './views/protect-zone/record-error/record-error.component';
 import { AccessDayComponent } from './views/protect-zone/access-day/access-day.component';
 import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
 import { CheckOutSettingComponent } from './views/protect-zone/check-out-setting/check-out-setting.component';
@@ -89,6 +90,7 @@ import { SwitchModule } from '@syncfusion/ej2-angular-buttons';
 import { AutoSelectDirective } from './_core/_directive/select.directive';
 import { L10n, loadCldr, setCulture } from '@syncfusion/ej2-base';
 import { ChartAllModule } from '@syncfusion/ej2-angular-charts';
+import { AccessFailedComponent } from './views/protect-zone/access-failed/access-failed.component';
 
 
 declare var require: any;
@@ -128,7 +130,9 @@ const rapidTestComponent = [
   CheckInReportComponent,
   CheckOutSettingComponent,
   BlackListComponent,
-  AccessDayComponent
+  AccessDayComponent,
+  RecordErrorComponent,
+  AccessFailedComponent
 ];
 @NgModule({
   imports: [
@@ -201,7 +205,6 @@ const rapidTestComponent = [
     AlertifyService,
     AuthGuard,
     NgxSpinnerService,
-    ErrorInterceptorProvider,
     Authv2Service,
     {
       provide: LocationStrategy,

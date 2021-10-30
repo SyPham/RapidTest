@@ -17,7 +17,7 @@ namespace RapidTest.Installer
         {
             var connetionString = configuration.GetConnectionString("DefaultConnection");
             // Configure DbContext with Scoped lifetime   
-            services.AddDbContext<DataContext>(options =>
+            services.AddDbContextPool<DataContext>(options =>
             {
                 options.UseSqlServer(connetionString,
                 o => o.MigrationsAssembly("RapidTest"));

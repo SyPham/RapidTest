@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NetUtility;
 using RapidTest.Constants;
 using RapidTest.Data;
@@ -26,10 +28,13 @@ namespace RapidTest.Services
     public class FactoryReportService : ServiceBase<FactoryReport, FactoryReportDto>, IFactoryReportService
     {
         private readonly IRepositoryBase<FactoryReport> _repo;
+        private readonly IRepositoryBase<RecordError> _repoRecordError;
         private readonly IRepositoryBase<BlackList> _repoBlackList;
         private readonly IRepositoryBase<Setting> _repoSetting;
         private readonly IRepositoryBase<Report> _repoReport;
         private readonly IRepositoryBase<Employee> _repoEmployee;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly MapperConfiguration _configMapper;
@@ -37,10 +42,13 @@ namespace RapidTest.Services
 
         public FactoryReportService(
             IRepositoryBase<FactoryReport> repo,
+            IRepositoryBase<RecordError> repoRecordError,
             IRepositoryBase<BlackList> repoBlackList,
             IRepositoryBase<Setting> repoSetting,
             IRepositoryBase<Report> repoReport,
             IRepositoryBase<Employee> repoEmployee,
+            IHttpContextAccessor httpContextAccessor,
+            IServiceScopeFactory serviceScopeFactory,
             IUnitOfWork unitOfWork,
             IMapper mapper,
             MapperConfiguration configMapper
@@ -48,17 +56,20 @@ namespace RapidTest.Services
             : base(repo, unitOfWork, mapper, configMapper)
         {
             _repo = repo;
+            _repoRecordError = repoRecordError;
             _repoBlackList = repoBlackList;
             _repoSetting = repoSetting;
             _repoReport = repoReport;
             _repoEmployee = repoEmployee;
+            _httpContextAccessor = httpContextAccessor;
+            _serviceScopeFactory = serviceScopeFactory;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _configMapper = configMapper;
         }
         public async Task<List<FactoryReportDto>> Filter(DateTime startDate, DateTime endDate, string code)
         {
-            var setting = await _repoSetting.FindAll(x =>  x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
+            var setting = await _repoSetting.FindAll(x => x.SettingType == SettingType.ACCESS_DAY).FirstOrDefaultAsync();
             var daySetting = setting.Day;
             if (string.IsNullOrEmpty(code))
             {
@@ -77,51 +88,107 @@ namespace RapidTest.Services
                 return data;
             }
         }
+        private void Logging(int? employeeId, string station, string reason, Employee employee)
+        {
+            _ = Task.Run(async () =>
+            {
+                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+                var lastCheckInDateTime = employee == null ? null : employee.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                var lastCheckOutDateTime = employee == null ? null : employee.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    await context.RecordError.AddAsync(new RecordError
+                    (
+                        employeeId,
+                        station,
+                        reason,
+                        DateTime.Now,
+                        accountId,
+                        lastCheckInDateTime,
+                        lastCheckOutDateTime
+                   ));
+                    await context.SaveChangesAsync();
+                }
+            });
+        }
         public async Task<OperationResult> AccessControl(string code)
         {
-            var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
-            if (employee == null)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = "<h2>Not found this person. No entry.Please establish data in Staff info page!<br>Không tìm thấy anh/chị trong hệ thống! Không được vào!</h2>",
-                    Success = true,
-                    Data = null
-                };
-            var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
-
-            if (checkBlackList)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.Forbidden,
-                    Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
-                    Success = true,
-                    Data = null
-                };
-
-            var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
-            if (testing == null)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "There's no data. Can not enter the factory. Please do rapid - test.",
-                    Success = true,
-                    Data = null
-                };
-            var tested = testing.ExpiryTime >= DateTime.Now; // 29 >= 28
-            if (!tested)
-                return new OperationResult
-                {
-                    StatusCode = HttpStatusCode.NotFound,
-                    Message = "There's no data. Can not enter the factory. Please do rapid - test.",
-                    Success = true,
-                    Data = null
-                };
-
-
             try
             {
+                var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                if (employee == null)
+                {
+                    Logging(
+                              null,
+                              Station.ACCESS_CONTROL,
+                              $" (QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE,
+                              null
+                              );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = "<h2>Not found this person. No entry.Please establish data in Staff info page!<br>Không tìm thấy anh/chị trong hệ thống! Không được vào!</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                }
+                var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
 
+                if (checkBlackList)
+                {
+                    Logging(
+                             employee.Id,
+                             Station.ACCESS_CONTROL,
+                             ErrorKindMessage.BLACK_LIST,
+                              employee
+                             );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.Forbidden,
+                        Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
+                        Success = true,
+                        Data = null
+                    };
+                }
+
+                var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                if (testing == null)
+                {
+                    Logging(
+                            employee.Id,
+                            Station.ACCESS_CONTROL,
+                            ErrorKindMessage.NOT_CHECK_IN_ACCESS_CONTROL,
+                            employee
+                            );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "There's no data. Can not enter the factory. Please do rapid - test.",
+                        Success = true,
+                        Data = null
+                    };
+                }
+
+                var tested = testing.ExpiryTime >= DateTime.Now; // 29 >= 28
+                if (!tested)
+                {
+                    Logging(
+                            employee.Id,
+                            Station.ACCESS_CONTROL,
+                            ErrorKindMessage.DEADLINE_IS_OVER,
+                              employee
+                            );
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.NotFound,
+                        Message = "There's no data. Can not enter the factory. Please do rapid - test.",
+                        Success = true,
+                        Data = null
+                    };
+
+                }
 
                 if (testing.Result == Result.Negative)
                 {
@@ -159,6 +226,12 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                Logging(
+                       null,
+                       Station.ACCESS_CONTROL,
+                       $"{Station.ACCESS_CONTROL}: {ex.Message}",
+                        null
+                       );
             }
             return operationResult;
         }

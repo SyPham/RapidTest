@@ -78,17 +78,23 @@ namespace RapidTest.Helpers.AutoMapper
                 s.Employee.Reports.OrderByDescending(x => x.Id).FirstOrDefault(x => x.CreatedTime.Date == s.CreatedTime.Date).CreatedTime.ToString("MM/dd/yyyy HH:mm:ss") : "N/A")
                 )
                 .ForMember(d => d.KindName, o => o.MapFrom(s => s.Employee.SettingId != null ? s.Employee.Setting.Name : "N/A") );
-                CreateMap<BlackList, BlackListDto>()
-                .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
-                .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
-                .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
-                 .ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>s.Employee.FactoryReports.OrderBy(x=> x.FactoryEntryTime).Select(x=> (DateTime?)x.FactoryEntryTime).FirstOrDefault())
-                )
-                .ForMember(d => d.LastCheckInDateTime, o => o.MapFrom(s => s.Employee.CheckIns.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
-                .ForMember(d => d.LastCheckOutDateTime, o => o.MapFrom(s => s.Employee.Reports.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
-                .ForMember(d => d.LastAccessControlDateTime, o => o.MapFrom(s => s.Employee.FactoryReports.OrderByDescending(x => x.FactoryEntryTime).Select(x => (DateTime?) x.FactoryEntryTime).FirstOrDefault() ));
-                
+            CreateMap<BlackList, BlackListDto>()
+            .ForMember(d => d.Department, o => o.MapFrom(s => s.Employee.Department.Code))
+            .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+            .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName));
+            //.ForMember(d => d.FirstWorkDate, o => o.MapFrom(s =>s.Employee.FactoryReports.OrderBy(x=> x.FactoryEntryTime).Select(x=> (DateTime?)x.FactoryEntryTime).FirstOrDefault())
+            //)
+            //.ForMember(d => d.LastCheckInDateTime, o => o.MapFrom(s => s.Employee.CheckIns.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
+            //.ForMember(d => d.LastCheckOutDateTime, o => o.MapFrom(s => s.Employee.Reports.OrderByDescending(x => x.CreatedTime).Select(x => (DateTime?) x.CreatedTime).FirstOrDefault() ))
+            //.ForMember(d => d.LastAccessControlDateTime, o => o.MapFrom(s => s.Employee.FactoryReports.OrderByDescending(x => x.FactoryEntryTime).Select(x => (DateTime?) x.FactoryEntryTime).FirstOrDefault() ));
 
+            CreateMap<RecordError, RecordErrorDto>()
+              .ForMember(d => d.Code, o => o.MapFrom(s => s.Employee.Code))
+              .ForMember(d => d.FullName, o => o.MapFrom(s => s.Employee.FullName))
+              .ForMember(d => d.Gender, o => o.MapFrom(s => s.EmployeeId.HasValue && s.Employee.Gender == true ? "NAM" : s.EmployeeId.HasValue && s.Employee.Gender == false ?"NỮ" : ""))
+              .ForMember(d => d.Department, o => o.MapFrom(s => s.EmployeeId.HasValue ? s.Employee.Department.Code : ""))
+              .ForMember(d => d.Kind, o => o.MapFrom(s => s.EmployeeId.HasValue ? s.Employee.Setting.Name : ""));
+            
         }
     }
 }

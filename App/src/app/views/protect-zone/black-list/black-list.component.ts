@@ -193,10 +193,9 @@ export class BlackListComponent extends BaseComponent implements OnInit {
             department: x.department,
             createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
             firstWorkDate: this.datePipe.transform(x.firstWorkDate, 'MM-dd-yyyy'),
-            lastCheckInDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
-            lastCheckOutDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
-            lastAccessControlDateTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
-
+            lastCheckInDateTime: this.datePipe.transform(x.lastCheckInDateTime, 'MM-dd-yyyy HH:mm'),
+            lastCheckOutDateTime: this.datePipe.transform(x.lastCheckOutDateTime, 'MM-dd-yyyy HH:mm'),
+            lastAccessControlDateTime: this.datePipe.transform(x.lastAccessControlDateTime, 'MM-dd-yyyy HH:mm'),
           }
         });
         const y = new Date().getFullYear();
@@ -240,12 +239,14 @@ export class BlackListComponent extends BaseComponent implements OnInit {
           this.loadData();
           this.createModel = {} as BlackList;
         } else {
-           this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+           this.alertify.warning(res.message, true);
+           this.grid.refresh();
         }
 
       },
       (error) => {
-        this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+        this.alertify.warning(error, true);
+        this.grid.refresh();
       }
     );
   }
@@ -256,7 +257,7 @@ export class BlackListComponent extends BaseComponent implements OnInit {
           this.alertify.success(MessageConstants.UPDATED_OK_MSG);
           this.loadData();
         } else {
-          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
+          this.alertify.warning(res.message);
         }
       },
       (error) => {
