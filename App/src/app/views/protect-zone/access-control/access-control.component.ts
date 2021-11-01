@@ -77,7 +77,7 @@ export class AccessControlComponent implements OnInit, OnDestroy {
         }
       },
       (error) => {
-        this.success = 0;
+        this.success = 500;
         this.errorBeep();
       }
     );

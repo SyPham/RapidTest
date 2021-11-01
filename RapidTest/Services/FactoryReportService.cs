@@ -88,12 +88,18 @@ namespace RapidTest.Services
                 return data;
             }
         }
-        private void Logging(int? employeeId, string station, string reason, Employee employee)
+        /// <summary>
+        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
+        /// Using background threads to logging
+        /// </summary>
+        /// <param name="employeeId">Mã nhân viên có thể để null</param>
+        /// <param name="station">Trạm nào bị lỗi</param>
+        /// <param name="reason">Thông tin lỗi</param>
+        private void Logging(int? employeeId, string station, string reason, Employee employee, int accountId)
         {
             _ = Task.Run(async () =>
             {
-                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+
                 var lastCheckInDateTime = employee == null ? null : employee.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
                 var lastCheckOutDateTime = employee == null ? null : employee.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
                 using (var scope = _serviceScopeFactory.CreateScope())
@@ -115,6 +121,8 @@ namespace RapidTest.Services
         }
         public async Task<OperationResult> AccessControl(string code)
         {
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
                 var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
@@ -123,8 +131,9 @@ namespace RapidTest.Services
                     Logging(
                               null,
                               Station.ACCESS_CONTROL,
-                              $" (QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE,
-                              null
+                              $"(QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE,
+                              null,
+                              accountId
                               );
                     return new OperationResult
                     {
@@ -142,7 +151,8 @@ namespace RapidTest.Services
                              employee.Id,
                              Station.ACCESS_CONTROL,
                              ErrorKindMessage.BLACK_LIST,
-                              employee
+                              employee,
+                              accountId
                              );
                     return new OperationResult
                     {
@@ -160,7 +170,8 @@ namespace RapidTest.Services
                             employee.Id,
                             Station.ACCESS_CONTROL,
                             ErrorKindMessage.NOT_CHECK_IN_ACCESS_CONTROL,
-                            employee
+                            employee,
+                              accountId
                             );
                     return new OperationResult
                     {
@@ -178,7 +189,8 @@ namespace RapidTest.Services
                             employee.Id,
                             Station.ACCESS_CONTROL,
                             ErrorKindMessage.DEADLINE_IS_OVER,
-                              employee
+                              employee,
+                              accountId
                             );
                     return new OperationResult
                     {
@@ -229,8 +241,9 @@ namespace RapidTest.Services
                 Logging(
                        null,
                        Station.ACCESS_CONTROL,
-                       $"{Station.ACCESS_CONTROL}: {ex.Message}",
-                        null
+                       $"(QR Code Input: {code}) " + $"{Station.ACCESS_CONTROL}: {ex.Message}",
+                        null,
+                        accountId
                        );
             }
             return operationResult;

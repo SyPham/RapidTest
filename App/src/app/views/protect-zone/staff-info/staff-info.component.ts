@@ -1,3 +1,4 @@
+import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
 import { Employee } from './../../../_core/_model/employee';
 import { Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -20,7 +21,7 @@ import { HttpEvent, HttpEventType } from '@angular/common/http';
   encapsulation: ViewEncapsulation.None
 })
 export class StaffInfoComponent implements OnInit {
-  data;
+  data: DataManager;
   toolbarOptions = ['ExcelExport','Search', 'Add',  {
     text: 'Filter Off',
     tooltipText: 'Filter Off',
@@ -43,7 +44,7 @@ export class StaffInfoComponent implements OnInit {
   @ViewChild('importModal', { static: true })
   importModal: TemplateRef<any>;
   @ViewChild('import2Modal', { static: true })
-  import2Modal: TemplateRef<any>;2
+  import2Modal: TemplateRef<any>;
   selectOptions = { persistSelection: true };
   selectedData: Employee[] = [];
   genderData = ["NAM", "NỮ"];
@@ -67,7 +68,10 @@ export class StaffInfoComponent implements OnInit {
   progress = 0;
   showClose = true;
   apiUrl = environment.apiUrl.replace('/api', '') + 'images/Format-Birth-Date.png';
+  baseUrl = environment.apiUrl;
   searchOptions: { fields: string[]; operator: string; key: string; ignoreCase: boolean; };
+  selectedRowIndex = undefined;
+  checkedAll = false;
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -77,7 +81,7 @@ export class StaffInfoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.searchOptions = { fields: ['code', 'fullName', 'department', 'department' ], operator: 'contains', key: '', ignoreCase: true };
+    this.searchOptions = { fields: ['code', 'fullName', 'department' ], operator: 'contains', key: '', ignoreCase: true };
     this.excelDownloadUrl = `${environment.apiUrl}Employee/ExcelExport`;
     this.excel2DownloadUrl = `${environment.apiUrl}Employee/ExcelExportTemplate`;
     this.excel3DownloadUrl = `${environment.apiUrl}Employee/ExportEmployeeExcel`;
@@ -101,7 +105,8 @@ export class StaffInfoComponent implements OnInit {
     document.getElementById(this.grid.element.id + "_searchbar").addEventListener('keyup', () => {
             this.grid.search((event.target as HTMLInputElement).value)
     });
-}
+
+ }
   submitUser() {
     this.service.importExcel3(this.file2
     ).subscribe((event: HttpEvent<any>) => {
@@ -144,26 +149,26 @@ export class StaffInfoComponent implements OnInit {
   }
 
   loadPrintData(args) {
-    const dataSource = this.grid.getSelectedRecords() as Employee[];
-    if (dataSource.length >= 150 && args.checked) {
-      this.selectedData = dataSource.slice(0, 150);
-      this.loading = 0;
-      this.alertify.message('Vui lòng đợi ít nhất 10 giây để hệ thống tạo ra 150 mã QR Code', true);
-      setTimeout(() => {
-        this.loading = 2;
-        this.disable = false;}, 10000);
+    if (args.target.className === "e-checkselectall e-focus" && args.checked) {
+      this.grid.pageSettings.pageSize = 150;
+      this.checkedAll = true;
+
+
     } else {
+      this.grid.pageSettings.pageSize = 12;
+      this.checkedAll = false;
       this.loading = 1;
       this.disable = false;
+      const dataSource = this.grid.getSelectedRecords() as Employee[];
       this.selectedData = dataSource;
     }
+
   }
   loadData() {
-    this.spinner.show();
-    this.service.getAll().subscribe(data => {
-      this.data = data;
-      this.spinner.hide();
-    }, (err) => this.spinner.hide());
+    this.data = new DataManager({
+      url: `${this.baseUrl}Employee/Filter`,
+      adaptor: new WebApiAdaptor
+  });
   }
   loadSettingData() {
     this.serviceSetting.getAll().subscribe(data => {
@@ -178,6 +183,8 @@ export class StaffInfoComponent implements OnInit {
     }, (err) => this.spinner.hide());
   }
   updateIsPrint() {
+    this.grid.pageSettings.pageSize = 12;
+    this.checkedAll = false;
     const ids = this.selectedData.map(x=> x.id);
     const model = {
       ids: ids,
@@ -187,6 +194,7 @@ export class StaffInfoComponent implements OnInit {
       this.loadPrintOffData();
       this.refresh();
       this.selectedData = [];
+
     }, (err) => this.alertify.warning("Faild to update print!"));
   }
   onChange(args, data) {
@@ -253,16 +261,31 @@ export class StaffInfoComponent implements OnInit {
       });
   }
   checkBoxChange(args) {
-    console.log(args);
     this.loadPrintData(args);
   }
   rowSelected(args) {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
     this.selectedData = dataSource;
+    if(this.selectedData.length >= 150) {
+      this.loading = 0;
+      this.alertify.message('Vui lòng đợi ít nhất 10 giây để hệ thống tạo ra 150 mã QR Code', true);
+      setTimeout(() => {
+        this.loading = 2;
+        this.disable = false;}, 10000);
+    }
   }
   printQRCode() {
     const dataSource = this.grid.getSelectedRecords() as Employee[];
     this.selectedData = dataSource;
+  }
+  dataBound() {
+    if (this.checkedAll === true) {
+     let arr = [];
+     for (let index = 0; index < 150; index++) {
+      arr.push(index);
+     }
+     this.grid.selectRows(arr);;
+    }
   }
   refresh() {
     this.grid.clearSelection();
@@ -309,6 +332,7 @@ export class StaffInfoComponent implements OnInit {
   </html>
   `);
     WindowPrt.document.close();
+
     this.updateIsPrint();
   }
   printData() {
@@ -332,6 +356,13 @@ export class StaffInfoComponent implements OnInit {
   }
 
   actionBegin(args) {
+    if (args.requestType === 'searching')
+    {
+      this.grid.clearSelection();
+      this.checkedAll = false;
+      this.grid.pageSettings.pageSize = 12;
+      this.selectedData = [];
+    }
     if (args.requestType === 'beginEdit') {
       const data = args.rowData;
       this.gender = data.gender || '';

@@ -36,7 +36,9 @@
           (toolbarClick)='toolbarClick($event)'
           (actionBegin)="actionBegin($event)"
           (created)='created()'
-          (rowSelected)='rowSelected($event)'        >
+          (dataBound)='dataBound()'
+          (rowSelected)='rowSelected($event)'
+          [selectedRowIndex]='selectedRowIndex'       >
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>
             <e-column field="id" textAlign='Center' [visible]="false" isPrimaryKey="true" headerText="{{ 'ID'}}"> </e-column>

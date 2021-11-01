@@ -125,12 +125,17 @@ namespace RapidTest.Services
                 };
             }
         }
-        private void Logging(int? employeeId, string station, string reason)
+        /// <summary>
+        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
+        /// Using background threads to logging
+        /// </summary>
+        /// <param name="employeeId">Mã nhân viên có thể để null</param>
+        /// <param name="station">Trạm nào bị lỗi</param>
+        /// <param name="reason">Thông tin lỗi</param>
+        private void Logging(int? employeeId, string station, string reason, int accountId)
         {
             _ = Task.Run(async () =>
             {
-                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
@@ -148,6 +153,8 @@ namespace RapidTest.Services
         }
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
         {
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
                 var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode).FirstOrDefaultAsync();
@@ -157,7 +164,9 @@ namespace RapidTest.Services
                     Logging(
                         null,
                         Station.CHECK_OUT,
-                        $" (QR Code Input: {request.QRCode}) " + ErrorKindMessage.WRONG_CODE
+                        $"(QR Code Input: {request.QRCode}) " + ErrorKindMessage.WRONG_CODE,
+                        accountId
+                        
                         );
                     return new OperationResult
                     {
@@ -173,7 +182,8 @@ namespace RapidTest.Services
                     Logging(
                            employee.Id,
                            Station.CHECK_OUT,
-                           ErrorKindMessage.SEA_INFORM
+                           ErrorKindMessage.SEA_INFORM,
+                        accountId
                            );
                     return new OperationResult
                     {
@@ -191,7 +201,8 @@ namespace RapidTest.Services
                     Logging(
                          employee.Id,
                          Station.CHECK_OUT,
-                         ErrorKindMessage.BLACK_LIST
+                         ErrorKindMessage.BLACK_LIST,
+                        accountId
                          );
                     return new OperationResult
                     {
@@ -223,7 +234,8 @@ namespace RapidTest.Services
                     Logging(
                           employee.Id,
                           Station.CHECK_OUT,
-                          ErrorKindMessage.NOT_CHECK_IN
+                          ErrorKindMessage.NOT_CHECK_IN,
+                        accountId
                           );
                     return new OperationResult
                     {
@@ -251,7 +263,8 @@ namespace RapidTest.Services
                     Logging(
                           employee.Id,
                           Station.CHECK_OUT,
-                          ErrorKindMessage.NOT_ENOUGHT_WAITING_TIME
+                          ErrorKindMessage.NOT_ENOUGHT_WAITING_TIME,
+                        accountId
                           );
                     var checkOutHour = checkInTime.AddMinutes(mins).ToString("HH:mm:ss");
                     return new OperationResult
@@ -269,7 +282,8 @@ namespace RapidTest.Services
                     Logging(
                          employee.Id,
                          Station.CHECK_OUT,
-                         ErrorKindMessage.ALREADY_CHECK_OUT
+                         ErrorKindMessage.ALREADY_CHECK_OUT,
+                        accountId
                          );
                     return new OperationResult
                     {
@@ -323,7 +337,8 @@ namespace RapidTest.Services
                 Logging(
                     null,
                     Station.CHECK_OUT,
-                    $"{Station.CHECK_OUT}: {ex.Message}"
+                    $"(QR Code Input: {request.QRCode}) " + $"{Station.CHECK_OUT}: {ex.Message}",
+                        accountId
                     );
             }
             return operationResult;

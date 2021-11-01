@@ -51,14 +51,6 @@ export class CURDService<T> extends BaseService implements ICURDService<T> {
   //#region LoadData
   getAll(): Observable<T[]> {
     return this.http.get<T[]>(`${this.base}${this.entity}/getall`, {}).pipe(
-      map((data) => {
-        let idSequence = 1;
-        data.forEach((item) => {
-          const sequence = 'sequence';
-          item[sequence] = idSequence++;
-        });
-        return data;
-      }),
       catchError(this.handleError)
     );
   }

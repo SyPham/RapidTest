@@ -6,6 +6,7 @@ import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TestKind } from 'src/app/_core/_model/test-kind';
 import { environment } from 'src/environments/environment';
+import { PingService } from 'src/app/_core/_service/ping.service';
 
 @Component({
   selector: 'app-check-in',
@@ -27,18 +28,23 @@ export class CheckInComponent implements OnInit,OnDestroy  {
   employeeData :Employee;
   successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
   errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
+  ping: number;
   constructor(
     private service: EmployeeService,
     private serviceTestKind: TestKindService
   ) { }
   ngOnDestroy(): void {
     this.subscription.forEach(item => item.unsubscribe());
+
   }
   ngOnInit() {
+
     this.loadData();
     this.checkQRCode();
     this.loadTotalScan();
+
   }
+
   loadData() {
     this.serviceTestKind.getAll().subscribe(data => {
       this.testKindData = data;
@@ -87,7 +93,7 @@ export class CheckInComponent implements OnInit,OnDestroy  {
         }
       },
       (error) => {
-        this.success = 0;
+        this.success = 500;
         this.errorBeep();
       }
     );

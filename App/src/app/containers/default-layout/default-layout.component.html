@@ -15,6 +15,8 @@
   </ul>
   <ul class="nav navbar-nav ml-auto p-0">
     <li class="nav-item d-md-down-none mr-2" style="width: 70px;">
+    </li>
+    <li class="nav-item d-md-down-none mr-2" style="width: 70px;">
       <div class="nav-link">
 <ejs-dropdownlist id='langs' #langs [dataSource]='langsData' (change)='onChange($event)' [value]='value'
   [fields]='fields'></ejs-dropdownlist>
@@ -346,7 +348,9 @@
 <app-footer>
   <span><a href="/">Copyright © 2021 SHYANG HUNG CHENG INDUSTRIAL CO., LTD All </a> &copy; Right reserved.</span><span class="text-danger font-weight-bold">(v2.10.1)</span>
   <span class="ml-auto mr-2">Powered by <a href="http://10.4.5.174:93">Lab-team</a></span>
-  <i class="fa fa-users"></i> {{online}}
+  <i class="fa fa-users" *ngIf="online"></i> <span class="mr-2" *ngIf="online">{{online}}</span>
+  <span class="text-info" *ngIf="ping">ping {{ping | number:'1.0-0'}} ms</span>
+
 </app-footer>
 
 <ng-template #versionHistoryModal let-modal>

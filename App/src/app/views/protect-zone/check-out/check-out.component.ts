@@ -99,7 +99,7 @@ export class CheckOutComponent implements OnInit, OnDestroy {
       },
       (error) => {
           this.errorBeep();
-          this.success = 0;
+          this.success = 500;
       }
     );
   }

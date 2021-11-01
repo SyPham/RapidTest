@@ -6,7 +6,7 @@ import { Employee } from '../_model/employee';
 import { UtilitiesService } from './utilities.service';
 import { OperationResult } from '../_model/operation.result';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, first } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -34,15 +34,16 @@ export class EmployeeService extends CURDService<Employee> {
     );
   }
   toggleSEAInform(id): Observable<OperationResult> {
-    return this.http.put<OperationResult>(`${this.base}Employee/ToggleSEAInform?id=${id}`, {}).pipe(
-      catchError(this.handleError)
-    );
+    return this.http.put<OperationResult>(`${this.base}Employee/ToggleSEAInform?id=${id}`, {});
   }
   checkin(code): Observable<OperationResult> {
     return this.http.get<OperationResult>(this.base + 'Employee/Checkin?code=' + code);
   }
   checkin2(code, testKindId): Observable<OperationResult> {
     return this.http.get<OperationResult>(`${this.base}Employee/Checkin2?code=${code}&testKindId=${testKindId}`);
+  }
+  ping(): Observable<any> {
+    return this.http.get<any>(`${this.base.replace("/api/","")}`, { observe: 'response' }).pipe(first());
   }
   updateIsPrint(model): Observable<any> {
     return this.http.put<any>(this.base + 'Employee/UpdateIsPrint', model);

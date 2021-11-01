@@ -141,7 +141,8 @@ namespace RapidTest.Helpers
                 }
 
             var type = typeof(T);
-            var property = type.GetProperty(orderbyValue.ToPascalCase());
+                var propertyValue = type.GetProperties().FirstOrDefault(x => x.Name.ToLower().Equals(orderbyValue.ToLower()));
+            var property = type.GetProperty(propertyValue.Name);
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderByExp = Expression.Lambda(propertyAccess, parameter);

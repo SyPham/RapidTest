@@ -30,7 +30,17 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
-      
+        [HttpGet]
+        public async Task<ActionResult> Filter()
+        {
+            var queryString = Request.Query;
+            string filter = queryString["$filter"];
+            int skip = Convert.ToInt32(queryString["$skip"]);
+            int take = Convert.ToInt32(queryString["$top"]);
+            string orderBy = queryString["$orderby"];
+            var data = await _service.Filter(skip, take, orderBy, filter);
+            return Ok(data);
+        }
         [HttpGet]
         public async Task<ActionResult> CheckIn2(string code, int testKindId)
         {

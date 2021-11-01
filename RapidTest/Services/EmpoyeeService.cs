@@ -36,6 +36,7 @@ namespace RapidTest.Services
         Task<List<EmployeeDto>> GetPrintOff();
         Task<bool> CheckCode(string code);
         Task<byte[]> ExportExcel();
+        Task<object> Filter(int skip, int take, string orderby, string code);
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
@@ -90,6 +91,7 @@ namespace RapidTest.Services
             return await _repo.FindAll().AsNoTracking()
                 .ProjectTo<EmployeeDto>(_configMapper).OrderBy(x => x.IsPrint).ToListAsync();
         }
+
         public override async Task<OperationResult> AddAsync(EmployeeDto model)
         {
             try
@@ -228,13 +230,18 @@ namespace RapidTest.Services
             }
             return operationResult;
         }
-
-        private void Logging(int? employeeId, string station, string reason)
+        /// <summary>
+        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
+        /// Using background threads to logging
+        /// </summary>
+        /// <param name="employeeId">Mã nhân viên có thể để null</param>
+        /// <param name="station">Trạm nào bị lỗi</param>
+        /// <param name="reason">Thông tin lỗi</param>
+        private void Logging(int? employeeId, string station, string reason, int accountId)
         {
             _ = Task.Run(async () =>
             {
-                var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
-                int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
+
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
@@ -247,13 +254,14 @@ namespace RapidTest.Services
                         accountId
                    ));
                     await context.SaveChangesAsync();
-                  
                 }
             });
         }
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
 
+            var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
+            int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
                 var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
@@ -262,7 +270,8 @@ namespace RapidTest.Services
                     Logging(
                         null,
                         Station.CHECK_IN,
-                        $" (QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE
+                        $"(QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE,
+                        accountId
                         );
                     return new OperationResult
                     {
@@ -279,7 +288,8 @@ namespace RapidTest.Services
                     Logging(
                        employee.Id,
                        Station.CHECK_IN,
-                        ErrorKindMessage.SEA_INFORM
+                        ErrorKindMessage.SEA_INFORM,
+                        accountId
                        );
                     return new OperationResult
                     {
@@ -305,7 +315,8 @@ namespace RapidTest.Services
                     Logging(
                       employee.Id,
                       Station.CHECK_IN,
-                      ErrorKindMessage.BLACK_LIST
+                      ErrorKindMessage.BLACK_LIST,
+                        accountId
                       );
 
                     return new OperationResult
@@ -323,7 +334,8 @@ namespace RapidTest.Services
                     Logging(
                     employee.Id,
                     Station.CHECK_IN,
-                     ErrorKindMessage.ALREADY_CHECK_IN
+                     ErrorKindMessage.ALREADY_CHECK_IN,
+                        accountId
                     );
 
                     return new OperationResult
@@ -337,11 +349,13 @@ namespace RapidTest.Services
                 // Nếu đi sai ngày thi log ra db
                 string dayOfWeek = ((int)DateTime.Today.DayOfWeek + 1) + "";
                 var testDateArray = employee.TestDate.ToSafetyString().Split(".");
-                if (testDateArray.Contains(dayOfWeek) == false && employee.TestDate.ToSafetyString().Contains(".")) {
+                if (testDateArray.Contains(dayOfWeek) == false && employee.TestDate.ToSafetyString().Contains("."))
+                {
                     Logging(
                     employee.Id,
                     Station.CHECK_IN,
-                     ErrorKindMessage.WRONG_SCHEDULE
+                     ErrorKindMessage.WRONG_SCHEDULE,
+                        accountId
                     );
                 }
                 var data = new CheckIn
@@ -367,7 +381,8 @@ namespace RapidTest.Services
                 Logging(
                    null,
                    Station.CHECK_IN,
-                    $"{Station.CHECK_IN}: {ex.Message}"
+                    $"(QR Code Input: {code}) " + $"{Station.CHECK_IN}: {ex.Message}",
+                        accountId
                    );
             }
             return operationResult;
@@ -843,7 +858,6 @@ namespace RapidTest.Services
                 return new Byte[] { };
             }
         }
-
         public async Task<byte[]> ExportExcel2()
         {
             try
@@ -929,5 +943,48 @@ namespace RapidTest.Services
             }
         }
 
+
+        public async Task<object> Filter(int skip, int take, string orderby, string filter)
+        {
+
+            if (string.IsNullOrEmpty(filter))
+            {
+
+                var source = _repo.FindAll()
+               .ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x => x.Id).EJ2OrderBy(orderby);
+
+                var count = await source.CountAsync();
+                var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<EmployeeDto> { };
+                return new EJ2DataSource
+                {
+                    Items = items,
+                    Count = count
+                };
+            }
+            else
+            {
+                var newfiltersplits = filter;
+                var filtersplits = newfiltersplits.Split('(', ')', ' ');
+                var filterfield = filtersplits[1];
+                var filtervalue = string.Empty;
+                if (filtersplits.Length == 32)
+                    filtervalue = filter.Split('(', ')', '\'')[3];
+                var source = _repo.FindAll()
+                    .ProjectTo<EmployeeDto>(_configMapper)
+                    .Where(x => x.Code.ToLower().Contains(filtervalue)
+               || x.Department.ToLower().Contains(filtervalue)
+               || x.FullName.ToLower().Contains(filtervalue)
+               ).OrderByDescending(x => x.Id).EJ2OrderBy(orderby);
+                var count = await source.CountAsync();
+                var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<EmployeeDto> { };
+
+                return new EJ2DataSource
+                {
+                    Items = items,
+                    Count = count
+                };
+            }
+
+        }
     }
 }

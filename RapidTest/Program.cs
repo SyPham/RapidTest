@@ -21,6 +21,7 @@ namespace RapidTest
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+
                 });
 }
 }

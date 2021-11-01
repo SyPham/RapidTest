@@ -16,8 +16,10 @@ namespace RapidTest.Services
 {
     public interface IRecordErrorService: IServiceBase<RecordError, RecordErrorDto>
     {
-        Task<IEnumerable<RecordErrorDto>> GetRecordError();
-        Task<IEnumerable<RecordErrorDto>> GetAccessFailed();
+        Task<List<RecordErrorDto>> GetRecordError();
+        Task<List<RecordErrorDto>> GetRecordError(DateTime date);
+        Task<List<RecordErrorDto>> GetAccessFailed();
+        Task<List<RecordErrorDto>> GetAccessFailed(DateTime date);
     }
     public class RecordErrorService : ServiceBase<RecordError, RecordErrorDto>, IRecordErrorService
     {
@@ -39,15 +41,29 @@ namespace RapidTest.Services
             _mapper = mapper;
             _configMapper = configMapper;
         }
-        public  async Task<IEnumerable<RecordErrorDto>> GetRecordError()
+        public  async Task<List<RecordErrorDto>> GetRecordError()
         {
             var data = await _repo.FindAll(x => x.Station == Station.CHECK_IN || x.Station == Station.CHECK_OUT).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
 
         }
-        public async Task<IEnumerable<RecordErrorDto>> GetAccessFailed()
+        public async Task<List<RecordErrorDto>> GetAccessFailed()
         {
             var data = await _repo.FindAll(x=> x.Station == Station.ACCESS_CONTROL).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            return data;
+
+        }
+
+        public async Task<List<RecordErrorDto>> GetRecordError(DateTime date)
+        {
+            var stationArray = new List<string> { Station.CHECK_IN, Station.CHECK_OUT };
+            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && stationArray.Contains(x.Station)).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            return data;
+
+        }
+        public async Task<List<RecordErrorDto>> GetAccessFailed(DateTime date)
+        {
+            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Station == Station.ACCESS_CONTROL).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
 
         }

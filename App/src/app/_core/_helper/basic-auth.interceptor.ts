@@ -22,27 +22,12 @@ export class BasicAuthInterceptor implements HttpInterceptor {
             //          The system does not work due to network error. Please press F5 to try again!
             //   `);
             console.log('An error occurred: status = 0');
-          alert("Internet bị lỗi. Vui lòng thử lại! Internet error , please try again !");
-            return throwError(
-              'Something bad happened; please try again later.');
-        } else {
-            // The backend returned an unsuccessful response code.
-            switch (error.status) {
-                case 401:
-                    // this.authService.clearLocalStorage();
-                    // this.router.navigate(['login'], {
-                    //     queryParams: { returnUrl: this.router.routerState.snapshot.url },
-                    // });
-                    console.log('Unauthorized');
-                    break;
-                case 400:
-                    console.log(error?.error);
-                    errorMessage = error?.error;
-                    break;
-                case 500:
-                    console.log("Máy chủ đang gặp vấn đề. Vui lòng thử lại sau!<br> The server error. Please try again after sometime!");
-                    break;
+            if (!error.url.includes("Ping")) {
+              alert("Internet bị lỗi. Vui lòng thử lại! Internet error , please try again !");
             }
+            return throwError(
+              'A client-side or network error occurred. Handle it accordingly');
+        } else {
             // The response body may contain clues as to what went wrong.
             console.log(
                 `Backend returned code ${error.status}, ` +

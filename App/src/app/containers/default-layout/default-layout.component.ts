@@ -1,7 +1,8 @@
+import { Subscription } from 'rxjs';
 import { navItemsCheckIn, navItemsCheckOut } from './../../_nav';
 import { AccountTypeConstant } from './../../_core/_constants/system.constant';
 
-import { AfterViewInit, Component, HostListener, OnInit } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { AuthService } from '../../_core/_service/auth.service';
 import { AlertifyService } from '../../_core/_service/alertify.service';
 import { Router } from '@angular/router';
@@ -24,13 +25,14 @@ import * as signalr from '../../../assets/js/ec-client.js';
 import { HubConnectionState } from '@microsoft/signalr';
 import { navItems, navItemsAccessControl, navItemsManager, navItemsUser } from 'src/app/_nav';
 import { Authv2Service } from 'src/app/_core/_service/authv2.service';
+import { PingService } from 'src/app/_core/_service/ping.service';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './default-layout.component.html',
   styleUrls: ['default-layout.component.css']
 })
-export class DefaultLayoutComponent implements OnInit, AfterViewInit {
+export class DefaultLayoutComponent implements OnInit, AfterViewInit, OnDestroy {
   public sidebarMinimized = false;
   public navItems = navItems;
   public navAdmin: any;
@@ -56,6 +58,7 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
   menus: any;
   modalReference: any;
   accountType: any;
+  ping: number;
   @HostListener('window:scroll', ['$event'])
   onScroll(e) {
     console.log('window', e);
@@ -68,6 +71,7 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
   sidebarToggler: any;
   asideMenuToggler: any;
   mobileSidebarToggler: any;
+  subscription: Subscription = new Subscription();
   constructor(
     private authService: AuthService,
     private authenticationService: Authv2Service,
@@ -82,7 +86,9 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     private spinner: NgxSpinnerService,
     private cookieService: CookieService,
     private modalService: NgbModal,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private pingService:PingService
+
 
   ) {
     this.vi = require('../../../assets/ej2-lang/vi.json');
@@ -93,16 +99,19 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     this.userName = user?.fullName;
     this.userID = user?.id;
   }
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
   toggleMinimize(e) {
     this.sidebarMinimized = e;
   }
   onActivate(event) {
     window.scroll(0,0);
-    console.log(event);
-    //or document.body.scrollTop = 0;
-    //or document.querySelector('body').scrollTo(0,0)
   }
   ngOnInit(): void {
+   this.subscription= this.pingService.pingStream.subscribe(ping => {
+      this.ping = ping;
+    });
     this.sidebarToggler = 'lg';
     this.asideMenuToggler = 'lg';
     this.mobileSidebarToggler = true;
@@ -133,8 +142,8 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     this.navEc = new Nav().getNavEc();
 
     // this.getAvatar();
-    this.currentUser = JSON.parse(localStorage.getItem('user')).fullName;
-    this.accountType = JSON.parse(localStorage.getItem('user')).accountType;
+    this.currentUser = JSON.parse(localStorage.getItem('user'))?.fullName;
+    this.accountType = JSON.parse(localStorage.getItem('user'))?.accountType;
 
     if (this.accountType == AccountTypeConstant.MANAGER) {
       this.navItems = navItemsManager
@@ -161,14 +170,13 @@ export class DefaultLayoutComponent implements OnInit, AfterViewInit {
     this.page = 1;
     this.pageSize = 10;
 
-    this.userid = JSON.parse(localStorage.getItem('user')).id;
+    this.userid = JSON.parse(localStorage.getItem('user'))?.id;
     // this.getMenu();
     this.onService();
     this.currentTime = moment().format('hh:mm:ss A');
     setInterval(() => this.updateCurrentTime(), 1 * 1000);
   }
   ngAfterViewInit() {
-    // this.getBuilding();
   }
   index() {
     if (this.accountType == AccountTypeConstant.MANAGER) {

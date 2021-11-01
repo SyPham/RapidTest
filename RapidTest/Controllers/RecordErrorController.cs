@@ -19,7 +19,11 @@ namespace RapidTest.Controllers
         {
             _service = service;
         }
-       
+        [HttpGet]
+        public async Task<ActionResult> Ping()
+        {
+            return Ok(await Task.FromResult(true)); 
+        }
         [HttpGet]
         public async Task<ActionResult> GetAllAsync()
         {
@@ -35,6 +39,18 @@ namespace RapidTest.Controllers
         public async Task<ActionResult> GetRecordError()
         {
             return Ok(await _service.GetRecordError());
+        }
+        [HttpGet]
+        public async Task<ActionResult> filterAccessFailed(DateTime date)
+        {
+            var data = await _service.GetAccessFailed(date);
+            return Ok(data);
+        }
+        [HttpGet]
+        public async Task<ActionResult> filterRecordError(DateTime date)
+        {
+            var data = await _service.GetRecordError(date);
+            return Ok(data);
         }
         [HttpPost]
         public async Task<ActionResult> AddAsync([FromBody] RecordErrorDto model)
