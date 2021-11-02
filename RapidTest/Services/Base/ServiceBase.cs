@@ -32,6 +32,9 @@ namespace RapidTest.Services.Base
         Task<PagedList<TDto>> SearchAsync(PaginationParams param, object text);
         TDto GetById(object id);
         Task<TDto> GetByIdAsync(object id);
+
+
+
     }
     public class ServiceBase<T, TDto> : IServiceBase<T, TDto> where T : class
     {

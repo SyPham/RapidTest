@@ -1,4 +1,4 @@
-import { DataManager, WebApiAdaptor } from '@syncfusion/ej2-data';
+import { DataManager, WebApiAdaptor,UrlAdaptor } from '@syncfusion/ej2-data';
 import { Employee } from './../../../_core/_model/employee';
 import { Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -72,6 +72,8 @@ export class StaffInfoComponent implements OnInit {
   searchOptions: { fields: string[]; operator: string; key: string; ignoreCase: boolean; };
   selectedRowIndex = undefined;
   checkedAll = false;
+  sortSettings = { columns: [{ field: 'id', direction: 'Descending' }] };
+
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -152,8 +154,6 @@ export class StaffInfoComponent implements OnInit {
     if (args.target.className === "e-checkselectall e-focus" && args.checked) {
       this.grid.pageSettings.pageSize = 150;
       this.checkedAll = true;
-
-
     } else {
       this.grid.pageSettings.pageSize = 12;
       this.checkedAll = false;
@@ -165,14 +165,19 @@ export class StaffInfoComponent implements OnInit {
 
   }
   loadData() {
+    const accessToken = localStorage.getItem('token');
     this.data = new DataManager({
-      url: `${this.baseUrl}Employee/Filter`,
-      adaptor: new WebApiAdaptor
+      url: `${this.baseUrl}Employee/LoadData`,
+      insertUrl: `${this.baseUrl}Employee/Add`,
+      updateUrl: `${this.baseUrl}Employee/Update`,
+      adaptor: new UrlAdaptor,
+      headers: [{ authorization: `Bearer ${accessToken}` }]
   });
   }
   loadSettingData() {
     this.serviceSetting.getAll().subscribe(data => {
       this.settingData = data.filter(x=> x.settingType == 'CHECK_OUT');
+      this.settingId = this.settingData.filter(x=> x.isDefault)[0].id || 0;
     }, (err) => this.spinner.hide());
   }
   loadPrintOffData() {
@@ -195,7 +200,12 @@ export class StaffInfoComponent implements OnInit {
       this.refresh();
       this.selectedData = [];
 
-    }, (err) => this.alertify.warning("Faild to update print!"));
+    }, (err) => {
+      this.alertify.warning("Faild to update print!");
+      this.refresh();
+      this.selectedData = [];
+      this.loadPrintOffData();
+    });
   }
   onChange(args, data) {
     data.seaInform = args.checked;
@@ -354,7 +364,22 @@ export class StaffInfoComponent implements OnInit {
     }
     this.configurePrint(html);
   }
-
+  actionComplete(args: any) {
+    if(args.requestType === 'save') {
+      if (args.action == 'add') {
+        this.alertify.success(MessageConstants.CREATED_OK_MSG);
+        this.createModel = {} as Employee;
+        this.gender = "";
+        this.isPrint = "OFF";
+        this.seaInform = true;
+      } else if (args.action == 'edit') {
+        this.editModel = {} as Employee;
+        this.alertify.success(MessageConstants.UPDATED_OK_MSG);
+        this.gender = "";
+        this.seaInform = true;
+      }
+    }
+  }
   actionBegin(args) {
     if (args.requestType === 'searching')
     {
@@ -379,7 +404,7 @@ export class StaffInfoComponent implements OnInit {
         gender: this.gender,
         isPrint: this.isPrint,
         settingId: this.settingId,
-        birthDate: "",
+        birthDate: (args.data.birthDate as Date).toLocaleDateString(),
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
         department: args.data.department,
         factoryId: args.data.factoryId || 0,
@@ -407,7 +432,8 @@ export class StaffInfoComponent implements OnInit {
         args.cancel = true;
         return;
       }
-      this.create();
+      args.data = this.createModel;
+      args.data.kind = this.settingData.filter(x=>x.id == this.settingId)[0].name;
     }
     if (args.requestType === 'save' && args.action === 'edit') {
       this.editModel = {
@@ -422,7 +448,7 @@ export class StaffInfoComponent implements OnInit {
         gender: this.gender,
         settingId: this.settingId,
         birthDay: (args.data.birthDate as Date).toLocaleDateString(),
-        birthDate: args.data.birthDate,
+        birthDate: (args.data.birthDate as Date).toLocaleDateString(),
         createdBy: args.data.createdBy,
         createdTime: args.data.createdTime,
         modifiedBy: JSON.parse(localStorage.getItem('user')).id,
@@ -430,29 +456,8 @@ export class StaffInfoComponent implements OnInit {
         departmentId: args.data.departmentId,
         testDate: args.data.testDate,
       };
-      this.update().subscribe(
-        (res) => {
-          if (res.success === true && res.statusCode == 200) {
-            this.alertify.success(MessageConstants.UPDATED_OK_MSG);
-            args.data = res.data;
-            this.grid.updateRow(args.index, res.data);
-            this.editModel = {} as Employee;
-            this.gender = "";
-            this.seaInform = true;
-          } else{
-            this.alertify.warning(res.message, true);
-            this.grid.updateRow(args.index, args.data);
-
-            this.editModel = {} as Employee;
-            this.gender = "";
-            this.seaInform = true;
-
-          }
-        },
-        (error) => {
-          this.alertify.warning(MessageConstants.SYSTEM_ERROR_MSG);
-        }
-      );;
+      args.data = this.editModel;
+      args.data.kind = this.settingData.filter(x=>x.id == this.settingId)[0].name;
     }
     if (args.requestType === 'delete') {
       this.delete(args.data[0].id);

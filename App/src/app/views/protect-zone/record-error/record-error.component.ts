@@ -31,6 +31,7 @@ export class RecordErrorComponent implements OnInit {
     this.date = (args.value as Date);
     this.filter();
   }
+
   excelQueryCellInfo(args: ExcelQueryCellInfoEventArgs) {
     args.style =  {
       wrapText :true,
@@ -52,7 +53,7 @@ export class RecordErrorComponent implements OnInit {
         gender: x.gender,
         station: x.station,
         kind: x.kind,
-        errorKind: x.errorKind,
+        errorKind: x.errorKind.replace('<br />','\r\n' ),
         createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm')
       }
     });
@@ -80,7 +81,19 @@ export class RecordErrorComponent implements OnInit {
     const date = this.date.toLocaleDateString();
     this.service.filterRecordError(date).subscribe(
       (res) => {
-      this.data = res;
+      this.data = res.map((x, index)=> {
+        return {
+          id: x.id,
+          code: x.code,
+          fullName: x.fullName,
+          department: x.department,
+          gender: x.gender,
+          station: x.station,
+          kind: x.kind,
+          errorKind: x.errorKind.replace('\r\n', '<br />'),
+          createdTime: x.createdTime
+        }
+      });
       },
       (error) => {
         this.data = [];

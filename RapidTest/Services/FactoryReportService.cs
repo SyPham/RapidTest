@@ -89,22 +89,23 @@ namespace RapidTest.Services
             }
         }
         /// <summary>
-        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
         /// Using background threads to logging
         /// </summary>
         /// <param name="employeeId">Mã nhân viên có thể để null</param>
         /// <param name="station">Trạm nào bị lỗi</param>
         /// <param name="reason">Thông tin lỗi</param>
-        private void Logging(int? employeeId, string station, string reason, Employee employee, int accountId)
+        private void Logging(int? employeeId, string station, string reason, int accountId)
         {
             _ = Task.Run(async () =>
             {
 
-                var lastCheckInDateTime = employee == null ? null : employee.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
-                var lastCheckOutDateTime = employee == null ? null : employee.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+               
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
                     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    var emp = await context.Employees.FirstOrDefaultAsync(x=> x.Id == employeeId);
+                    var lastCheckInDateTime = emp == null ? null : emp.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                    var lastCheckOutDateTime = emp == null ? null : emp.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
                     await context.RecordError.AddAsync(new RecordError
                     (
                         employeeId,
@@ -132,7 +133,6 @@ namespace RapidTest.Services
                               null,
                               Station.ACCESS_CONTROL,
                               $"(QR Code Input: {code}) " + ErrorKindMessage.WRONG_CODE,
-                              null,
                               accountId
                               );
                     return new OperationResult
@@ -151,7 +151,6 @@ namespace RapidTest.Services
                              employee.Id,
                              Station.ACCESS_CONTROL,
                              ErrorKindMessage.BLACK_LIST,
-                              employee,
                               accountId
                              );
                     return new OperationResult
@@ -170,7 +169,6 @@ namespace RapidTest.Services
                             employee.Id,
                             Station.ACCESS_CONTROL,
                             ErrorKindMessage.NOT_CHECK_IN_ACCESS_CONTROL,
-                            employee,
                               accountId
                             );
                     return new OperationResult
@@ -189,7 +187,6 @@ namespace RapidTest.Services
                             employee.Id,
                             Station.ACCESS_CONTROL,
                             ErrorKindMessage.DEADLINE_IS_OVER,
-                              employee,
                               accountId
                             );
                     return new OperationResult
@@ -242,7 +239,6 @@ namespace RapidTest.Services
                        null,
                        Station.ACCESS_CONTROL,
                        $"(QR Code Input: {code}) " + $"{Station.ACCESS_CONTROL}: {ex.Message}",
-                        null,
                         accountId
                        );
             }

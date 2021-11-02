@@ -20,7 +20,7 @@ namespace RapidTest.DTO
         public string Kind { get; set; }
         public string TestDate { get; set; }
 
-        public string BirthDate { get; set; } // Leo
+        public DateTime BirthDate { get; set; } // Leo
         public DateTime BirthDay { get; set; } // Leo
         public int CreatedBy { get; set; }
         public int? ModifiedBy { get; set; }

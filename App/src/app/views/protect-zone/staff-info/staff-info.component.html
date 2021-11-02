@@ -35,9 +35,11 @@
           (checkBoxChange)='checkBoxChange($event)'
           (toolbarClick)='toolbarClick($event)'
           (actionBegin)="actionBegin($event)"
+          (actionComplete)="actionComplete($event)"
           (created)='created()'
           (dataBound)='dataBound()'
           (rowSelected)='rowSelected($event)'
+          [sortSettings]='sortSettings'
           [selectedRowIndex]='selectedRowIndex'       >
           <e-columns>
             <e-column type='checkbox' width='30'></e-column>
@@ -51,7 +53,7 @@
                 <ejs-dropdownlist [(ngModel)]='gender' placeholder='Select gender' [dataSource]='genderData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
-            <e-column field="birthDate" textAlign='Center' [width]="120" editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
+            <e-column field="birthDate" textAlign='Center' [width]="120" format='MM/dd/yyyy' editType='datepickeredit' headerText="{{ 'Birth Date'}}"> </e-column>
             <e-column field="seaInform" textAlign='Center' headerText="{{ 'SEA Inform'}}">
               <ng-template #template let-data>
                 <ejs-switch [checked]="data.seaInform" (change)='onChange($event, data)'></ejs-switch>
@@ -81,7 +83,7 @@
   </div>
 
   <div class="col-md-12">
-    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; left: 999999999999px;">
+    <table class="table table-hover" id="qrcode" height='450' width='200' style="position: absolute; left: 999999999999px;; top: 999999999999px;">
       <tbody>
         <ng-container *ngFor="let item of selectedData">
           <tr *ngIf="selectedData.length > 0">

@@ -126,7 +126,6 @@ namespace RapidTest.Services
             }
         }
         /// <summary>
-        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
         /// Using background threads to logging
         /// </summary>
         /// <param name="employeeId">Mã nhân viên có thể để null</param>

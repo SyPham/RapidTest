@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RapidTest.Constants;
 using System.IO;
+using Syncfusion.JavaScript;
 
 namespace RapidTest.Controllers
 {
@@ -30,6 +31,9 @@ namespace RapidTest.Controllers
         {
             return Ok(await _service.GetAllAsync());
         }
+
+        #region CURD, sort, filter, EJ2 Grid WebApiAdaptor
+        
         [HttpGet]
         public async Task<ActionResult> Filter()
         {
@@ -41,21 +45,43 @@ namespace RapidTest.Controllers
             var data = await _service.Filter(skip, take, orderBy, filter);
             return Ok(data);
         }
+        [HttpPost]
+        [HttpPut]
+        public async Task<ActionResult> Filter([FromBody] EmployeeDto model)
+        {
+            if (model.Id == 0)
+            {
+                return StatusCodeResult(await _service.AddAsync(model));
+            }
+            return StatusCodeResult(await _service.UpdateAsync(model));
+        } 
+        #endregion
+
+        #region CURD, sort, filter, EJ2 Grid UrlAdaptor
+        [HttpPost]
+        public async Task<ActionResult> LoadData([FromBody] DataManager request)
+        {
+
+            var data = await _service.LoadData(request);
+            return Ok(data);
+        }
+        [HttpPost]
+        public async Task<ActionResult> AddAsync([FromBody] CRUDModel<EmployeeDto> model)
+        {
+            return StatusCodeResult(await _service.AddAsync(model.Value));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> UpdateAsync([FromBody] CRUDModel<EmployeeDto> model)
+        {
+            return StatusCodeResult(await _service.UpdateAsync(model.Value));
+        }
+        #endregion
+
         [HttpGet]
         public async Task<ActionResult> CheckIn2(string code, int testKindId)
         {
             return Ok(await _service.CheckIn(code, testKindId));
-        }
-        [HttpPost]
-        public async Task<ActionResult> AddAsync([FromBody] EmployeeDto model)
-        {
-            return StatusCodeResult(await _service.AddAsync(model));
-        }
-
-        [HttpPut]
-        public async Task<ActionResult> UpdateAsync([FromBody] EmployeeDto model)
-        {
-            return StatusCodeResult(await _service.UpdateAsync(model));
         }
 
         [HttpDelete]

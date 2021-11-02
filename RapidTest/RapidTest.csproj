@@ -25,6 +25,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="5.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
+    <PackageReference Include="Syncfusion.EJ.AspNet.Core" Version="19.3.0.47" />
   </ItemGroup>
 
   <ItemGroup>

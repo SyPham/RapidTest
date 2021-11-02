@@ -29,7 +29,7 @@ namespace RapidTest.Helpers.AutoMapper
                  .ForMember(d => d.Gender, o => o.MapFrom(s => s.Gender == true ? "NAM" : "NỮ"))
                  .ForMember(d => d.IsPrint, o => o.MapFrom(s => s.IsPrint == true ? "ON" : "OFF"))
                 .ForMember(d => d.Department, o => o.MapFrom(s => s.Department.Code))
-                .ForMember(d => d.BirthDate, o => o.MapFrom(s => s.BirthDate.ToString("MM/dd/yyyy")))
+                .ForMember(d => d.BirthDay, o => o.MapFrom(s => s.BirthDate))
                 .ForMember(d => d.FactoryName, o => o.MapFrom(s => s.Factory.Name))
                   .ForMember(d => d.Kind, o => o.MapFrom(s =>
                 s.SettingId != null ?

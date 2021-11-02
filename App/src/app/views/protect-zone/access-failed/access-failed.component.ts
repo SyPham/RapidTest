@@ -51,7 +51,7 @@ export class AccessFailedComponent implements OnInit {
         department: x.department,
         gender: x.gender,
         station: x.station,
-        errorKind: x.errorKind,
+        errorKind: x.errorKind.replace('<br />','\r\n' ),
         createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
         lastCheckInDateTime: this.datePipe.transform(x.lastCheckInDateTime, 'MM-dd-yyyy HH:mm'),
         lastCheckOutDateTime: this.datePipe.transform(x.lastCheckOutDateTime, 'MM-dd-yyyy HH:mm'),
@@ -82,7 +82,20 @@ export class AccessFailedComponent implements OnInit {
     const date = this.datePipe.transform(this.date, 'MM-dd-yyyy');
     this.service.filterAccessFailed(date).subscribe(
       (res) => {
-      this.data = res;
+      this.data = res.map((x, index)=> {
+        return {
+          code: x.code,
+          fullName: x.fullName,
+          department: x.department,
+          gender: x.gender,
+          station: x.station,
+          errorKind: x.errorKind.replace('\r\n', '<br />'),
+          createdTime: x.createdTime,
+          lastCheckInDateTime: x.lastCheckInDateTime,
+          lastCheckOutDateTime: x.lastCheckOutDateTime,
+        }
+      });
+
       },
       (error) => {
         this.data = [];

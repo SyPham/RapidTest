@@ -45,13 +45,11 @@ namespace RapidTest.Services
         {
             var data = await _repo.FindAll(x => x.Station == Station.CHECK_IN || x.Station == Station.CHECK_OUT).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
-
         }
         public async Task<List<RecordErrorDto>> GetAccessFailed()
         {
             var data = await _repo.FindAll(x=> x.Station == Station.ACCESS_CONTROL).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
-
         }
 
         public async Task<List<RecordErrorDto>> GetRecordError(DateTime date)
@@ -59,13 +57,11 @@ namespace RapidTest.Services
             var stationArray = new List<string> { Station.CHECK_IN, Station.CHECK_OUT };
             var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && stationArray.Contains(x.Station)).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
-
         }
         public async Task<List<RecordErrorDto>> GetAccessFailed(DateTime date)
         {
             var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Station == Station.ACCESS_CONTROL).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
-
         }
     }
 }

@@ -12,7 +12,10 @@ using RapidTest.DTO;
 using RapidTest.Helpers;
 using RapidTest.Models;
 using RapidTest.Services.Base;
+using Syncfusion.JavaScript;
+using Syncfusion.JavaScript.DataSources;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -37,6 +40,9 @@ namespace RapidTest.Services
         Task<bool> CheckCode(string code);
         Task<byte[]> ExportExcel();
         Task<object> Filter(int skip, int take, string orderby, string code);
+        Task<object> LoadData(DataManager dm);
+        Task<OperationResult> Insert(CRUDModel<EmployeeDto> value);
+
     }
     public class EmployeeService : ServiceBase<Employee, EmployeeDto>, IEmployeeService
     {
@@ -231,7 +237,6 @@ namespace RapidTest.Services
             return operationResult;
         }
         /// <summary>
-        /// Link: https://docs.microsoft.com/en-us/aspnet/core/performance/performance-best-practices?view=aspnetcore-5.0#avoid-blocking-calls
         /// Using background threads to logging
         /// </summary>
         /// <param name="employeeId">Mã nhân viên có thể để null</param>
@@ -963,12 +968,10 @@ namespace RapidTest.Services
             }
             else
             {
-                var newfiltersplits = filter;
-                var filtersplits = newfiltersplits.Split('(', ')', ' ');
-                var filterfield = filtersplits[1];
-                var filtervalue = string.Empty;
-                if (filtersplits.Length == 32)
-                    filtervalue = filter.Split('(', ')', '\'')[3];
+                //var newfiltersplits = filter;
+                //var filtersplits = newfiltersplits.Split('(', ')', ' ');
+                //var filterfield = filtersplits[1];
+                var filtervalue = filter.Split('(', ')', '\'')[3].ToLowerCase();
                 var source = _repo.FindAll()
                     .ProjectTo<EmployeeDto>(_configMapper)
                     .Where(x => x.Code.ToLower().Contains(filtervalue)
@@ -985,6 +988,33 @@ namespace RapidTest.Services
                 };
             }
 
+        }
+
+        public async Task<object> LoadData(DataManager data)
+        {
+            IQueryable<EmployeeDto> datasource = _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper);
+            var count = await datasource.CountAsync();
+            if (data.Where != null) // for filtering
+                datasource = QueryableDataOperations.PerformWhereFilter(datasource, data.Where, data.Where[0].Condition);
+            if (data.Sorted != null)//for sorting
+                datasource = QueryableDataOperations.PerformSorting(datasource, data.Sorted);
+            if (data.Search != null)
+                datasource = QueryableDataOperations.PerformSearching(datasource, data.Search);
+            count = await datasource.CountAsync();
+            if (data.Skip >= 0)//for paging
+                datasource = QueryableDataOperations.PerformSkip(datasource, data.Skip);
+            if (data.Take > 0)//for paging
+                datasource = QueryableDataOperations.PerformTake(datasource, data.Take);
+            return new
+            {
+                Result = await datasource.ToListAsync(),
+                Count = count
+            };
+        }
+
+        public Task<OperationResult> Insert(CRUDModel<EmployeeDto> value)
+        {
+            throw new NotImplementedException();
         }
     }
 }
