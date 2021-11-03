@@ -345,7 +345,7 @@ namespace RapidTest.Services
 
                     return new OperationResult
                     {
-                        StatusCode = HttpStatusCode.Forbidden,
+                        StatusCode = HttpStatusCode.NotAcceptable,
                         Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
                         Success = true,
                         Data = null
@@ -383,12 +383,15 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                var ExceptionMsg = ex.Message.ToString();
+                var ExceptionType = ex.GetType().Name.ToString();
+                var ExceptionSource = ex.StackTrace.ToString();
                 Logging(
-                   null,
-                   Station.CHECK_IN,
-                    $"(QR Code Input: {code}) " + $"{Station.CHECK_IN}: {ex.Message}",
+                    null,
+                    Station.SERVER_ERROR,
+                    $"(QR Code Input: {code}) " + $"{Station.CHECK_IN}: {ExceptionMsg}, {ExceptionType}, {ExceptionSource}",
                         accountId
-                   );
+                    );
             }
             return operationResult;
         }

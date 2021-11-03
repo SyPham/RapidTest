@@ -46,15 +46,15 @@ export class AccessFailedComponent implements OnInit {
     const data = this.data.map((x, index)=> {
       return {
         number: index + 1,
-        code: x.code,
-        fullName: x.fullName,
-        department: x.department,
-        gender: x.gender,
-        station: x.station,
+        code: x.code || "N/A",
+        fullName: x.fullName || "N/A",
+        department: x.department || "N/A",
+        gender: x.gender || "N/A",
+        station: x.station || "N/A",
         errorKind: x.errorKind.replace('<br />','\r\n' ),
         createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
-        lastCheckInDateTime: this.datePipe.transform(x.lastCheckInDateTime, 'MM-dd-yyyy HH:mm'),
-        lastCheckOutDateTime: this.datePipe.transform(x.lastCheckOutDateTime, 'MM-dd-yyyy HH:mm'),
+        lastCheckInDateTime: x.lastCheckInDateTime || "N/A",
+          lastCheckOutDateTime: x.lastCheckOutDateTime || "N/A",
       }
     });
 
@@ -84,15 +84,16 @@ export class AccessFailedComponent implements OnInit {
       (res) => {
       this.data = res.map((x, index)=> {
         return {
-          code: x.code,
-          fullName: x.fullName,
-          department: x.department,
-          gender: x.gender,
-          station: x.station,
+          code: x.code || "N/A",
+          fullName: x.fullName || "N/A",
+          department: x.department || "N/A",
+          gender: x.gender || "N/A",
+          station: x.station || "N/A",
           errorKind: x.errorKind.replace('\r\n', '<br />'),
           createdTime: x.createdTime,
-          lastCheckInDateTime: x.lastCheckInDateTime,
-          lastCheckOutDateTime: x.lastCheckOutDateTime,
+          lastCheckInDateTime:  this.datePipe.transform(x.lastCheckInDateTime, 'MM-dd-yyyy HH:mm') || "N/A",
+        lastCheckOutDateTime: this.datePipe.transform(x.lastCheckOutDateTime, 'MM-dd-yyyy HH:mm') || "N/A",
+
         }
       });
 

@@ -47,14 +47,14 @@ export class RecordErrorComponent implements OnInit {
     const data = this.data.map((x, index)=> {
       return {
         number: index + 1,
-        code: x.code,
-        fullName: x.fullName,
-        department: x.department,
-        gender: x.gender,
-        station: x.station,
-        kind: x.kind,
+        code: x.code || "N/A",
+        fullName: x.fullName || "N/A",
+        department: x.department || "N/A",
+        gender: x.gender || "N/A",
+        station: x.station || "N/A",
+        kind: x.kind || "N/A",
         errorKind: x.errorKind.replace('<br />','\r\n' ),
-        createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm')
+        createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm') || "N/A"
       }
     });
 
@@ -84,12 +84,12 @@ export class RecordErrorComponent implements OnInit {
       this.data = res.map((x, index)=> {
         return {
           id: x.id,
-          code: x.code,
-          fullName: x.fullName,
-          department: x.department,
-          gender: x.gender,
-          station: x.station,
-          kind: x.kind,
+          code: x.code || "N/A",
+          fullName: x.fullName || "N/A",
+          department: x.department || "N/A",
+          gender: x.gender || "N/A",
+          station: x.station || "N/A",
+          kind: x.kind || "N/A",
           errorKind: x.errorKind.replace('\r\n', '<br />'),
           createdTime: x.createdTime
         }

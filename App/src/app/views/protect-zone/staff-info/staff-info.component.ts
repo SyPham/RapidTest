@@ -1,8 +1,8 @@
-import { DataManager, WebApiAdaptor,UrlAdaptor } from '@syncfusion/ej2-data';
+import { DataManager, Query ,UrlAdaptor } from '@syncfusion/ej2-data';
 import { Employee } from './../../../_core/_model/employee';
 import { Component, OnInit, TemplateRef, ViewChild, ViewEncapsulation } from '@angular/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { GridComponent, SelectionService } from '@syncfusion/ej2-angular-grids';
+import { EditService, GridComponent, IEditCell, SelectionService } from '@syncfusion/ej2-angular-grids';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { EmployeeService } from 'src/app/_core/_service/employee.service';
@@ -12,12 +12,11 @@ import { MessageConstants } from 'src/app/_core/_constants/system';
 import { SettingService } from 'src/app/_core/_service/setting.service';
 import { Setting } from 'src/app/_core/_model/setting';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
-
 @Component({
   selector: 'app-staff-info',
   templateUrl: './staff-info.component.html',
   styleUrls: ['./staff-info.component.scss'],
-  providers: [SelectionService],
+  providers: [SelectionService, EditService],
   encapsulation: ViewEncapsulation.None
 })
 export class StaffInfoComponent implements OnInit {
@@ -73,7 +72,7 @@ export class StaffInfoComponent implements OnInit {
   selectedRowIndex = undefined;
   checkedAll = false;
   sortSettings = { columns: [{ field: 'id', direction: 'Descending' }] };
-
+  focusField: any;
   constructor(
     public modalService: NgbModal,
     private alertify: AlertifyService,
@@ -364,7 +363,28 @@ export class StaffInfoComponent implements OnInit {
     }
     this.configurePrint(html);
   }
+  recordDoubleClick(args) {
+    this.focusField = args.column.field;
+  }
   actionComplete(args: any) {
+    if (args.requestType === 'add') {
+      (args.form.elements.namedItem('fullName')as HTMLInputElement).focus();
+   }
+    if (args.requestType === 'beginEdit') {
+      if (this.focusField === 'kind' ) {
+        setTimeout(function(args){
+          (args.form.elements.namedItem('testDate')as HTMLInputElement).focus();
+          }.bind(this),0, args);
+      } else if (this.focusField === 'isPrint') {
+        setTimeout(function(args){
+          args.form.elements[10].focus();
+          }.bind(this),0, args);
+      }
+      else {
+        (args.form.elements.namedItem(this.focusField || 'fullName')as HTMLInputElement).focus();
+      }
+
+  }
     if(args.requestType === 'save') {
       if (args.action == 'add') {
         this.alertify.success(MessageConstants.CREATED_OK_MSG);

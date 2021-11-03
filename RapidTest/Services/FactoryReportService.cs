@@ -104,8 +104,8 @@ namespace RapidTest.Services
                 {
                     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
                     var emp = await context.Employees.FirstOrDefaultAsync(x=> x.Id == employeeId);
-                    var lastCheckInDateTime = emp == null ? null : emp.CheckIns.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
-                    var lastCheckOutDateTime = emp == null ? null : emp.Reports.OrderByDescending(x => x.Id).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                    var lastCheckInDateTime = emp == null ? null : emp.CheckIns.Where(x=> x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                    var lastCheckOutDateTime = emp == null ? null : emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
                     await context.RecordError.AddAsync(new RecordError
                     (
                         employeeId,
@@ -187,7 +187,7 @@ namespace RapidTest.Services
                             employee.Id,
                             Station.ACCESS_CONTROL,
                             ErrorKindMessage.DEADLINE_IS_OVER,
-                              accountId
+                            accountId
                             );
                     return new OperationResult
                     {
@@ -235,12 +235,15 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                var ExceptionMsg = ex.Message.ToString();
+                var ExceptionType = ex.GetType().Name.ToString();
+                var ExceptionSource = ex.StackTrace.ToString();
                 Logging(
-                       null,
-                       Station.ACCESS_CONTROL,
-                       $"(QR Code Input: {code}) " + $"{Station.ACCESS_CONTROL}: {ex.Message}",
+                    null,
+                    Station.SERVER_ERROR,
+                    $"(QR Code Input: {code}) " + $"{Station.ACCESS_CONTROL}: {ExceptionMsg}, {ExceptionType}, {ExceptionSource}",
                         accountId
-                       );
+                    );
             }
             return operationResult;
         }

@@ -77,6 +77,11 @@
         <div [innerHTML]="message"></div>
       </div>
     </div>
+    <div class="card" style="width: 60%;" *ngIf="success == 406">
+      <div class="card-body bg-warning w3-text-black">
+        <div [innerHTML]="message"></div>
+      </div>
+    </div>
     <div class="card" style="width: 60%;" *ngIf="success == 400">
       <div class="card-body bg-danger">
        <h2>Please check in first!</h2>

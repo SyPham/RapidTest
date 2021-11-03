@@ -39,6 +39,7 @@
           (created)='created()'
           (dataBound)='dataBound()'
           (rowSelected)='rowSelected($event)'
+          (recordDoubleClick)='recordDoubleClick($event)'
           [sortSettings]='sortSettings'
           [selectedRowIndex]='selectedRowIndex'       >
           <e-columns>
@@ -64,13 +65,13 @@
             </e-column>
             <e-column field="isPrint" textAlign='Center' headerText="{{ 'Print: ON/OFF'}}">
               <ng-template #editTemplate let-data>
-                <ejs-dropdownlist [(ngModel)]='isPrint' placeholder='Select print' [dataSource]='isPrintData'></ejs-dropdownlist>
+                <ejs-dropdownlist [(ngModel)]='isPrint' [allowFiltering]='true' placeholder='Select print' [dataSource]='isPrintData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
 
             <e-column field="kind" textAlign='Center' headerText="{{ 'Kind'}}">
               <ng-template #editTemplate let-data>
-                <ejs-dropdownlist [(ngModel)]='settingId' [fields]='settingFields' placeholder='Select a kind' [dataSource]='settingData'></ejs-dropdownlist>
+                <ejs-dropdownlist [(ngModel)]='settingId' [allowFiltering]='true' [fields]='settingFields' placeholder='Select a kind' [dataSource]='settingData'></ejs-dropdownlist>
               </ng-template>
             </e-column>
             <e-column field="testDate" textAlign='Center' [width]="120"  headerText="{{ 'Test Date'}}"> </e-column>

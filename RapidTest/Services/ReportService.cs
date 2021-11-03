@@ -214,7 +214,7 @@ namespace RapidTest.Services
 
                 if (request.KindId == 0)
                 {
-                    operationResult = new OperationResult
+                    return new OperationResult
                     {
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = $"<h2>Please select a test kind! <br><span>Vui lòng chọn loại xét nghiệm!</span></h2>",
@@ -286,7 +286,7 @@ namespace RapidTest.Services
                          );
                     return new OperationResult
                     {
-                        StatusCode = HttpStatusCode.Forbidden,
+                        StatusCode = HttpStatusCode.NotAcceptable,
                         Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
                         Success = true,
                         Data = null
@@ -333,10 +333,13 @@ namespace RapidTest.Services
             catch (Exception ex)
             {
                 operationResult = ex.GetMessageError();
+                var ExceptionMsg = ex.Message.ToString();
+                var ExceptionType = ex.GetType().Name.ToString();
+                var ExceptionSource = ex.StackTrace.ToString();
                 Logging(
                     null,
-                    Station.CHECK_OUT,
-                    $"(QR Code Input: {request.QRCode}) " + $"{Station.CHECK_OUT}: {ex.Message}",
+                    Station.SERVER_ERROR,
+                    $"(QR Code Input: {request.QRCode}) " + $"{Station.CHECK_OUT}: {ExceptionMsg}, {ExceptionType}, {ExceptionSource}",
                         accountId
                     );
             }

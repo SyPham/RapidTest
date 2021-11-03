@@ -60,6 +60,11 @@
         <div [innerHTML]="message"></div>
       </div>
     </div>
+    <div class="card" style="width: 60%;" *ngIf="success == 406">
+      <div class="card-body bg-warning w3-text-black">
+        <div [innerHTML]="message"></div>
+      </div>
+    </div>
     <div class="card" style="width: 60%;" *ngIf="success == 404">
       <div class="card-body bg-danger">
        <h2>Not found this person. No entry. <br>Please establish data in Staff info page ! </h2>
