@@ -17,12 +17,22 @@ namespace RapidTest.Installer
         {
             var connetionString = configuration.GetConnectionString("DefaultConnection");
             // Configure DbContext with Scoped lifetime   
+        #if DEBUG
             services.AddDbContext<DataContext>(options =>
-            {
-                options.UseSqlServer(connetionString,
-                o => o.MigrationsAssembly("RapidTest"));
-                options.UseLazyLoadingProxies();
-            });
+                        {
+                            options.UseSqlServer(connetionString,
+                            o => o.MigrationsAssembly("RapidTest"));
+                            options.UseLazyLoadingProxies();
+                        });
+        #else
+                                  services.AddDbContextPool<DataContext>(options =>
+                                 {
+                                     options.UseSqlServer(connetionString,
+                                     o => o.MigrationsAssembly("RapidTest"));
+                                     options.UseLazyLoadingProxies();
+                                 });
+        #endif
+
             // this assumes DataContext is already registered in container
             // if not - register it first
             services.AddScoped<Func<DataContext>>((provider) => () => provider.GetService<DataContext>());
