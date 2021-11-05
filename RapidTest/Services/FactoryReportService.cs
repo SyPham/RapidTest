@@ -142,7 +142,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = "<h2>Not found this person. No entry.Please establish data in Staff info page!<br>Không tìm thấy anh/chị trong hệ thống! Không được vào!</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Sai so the"
                     };
                 }
                 var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
@@ -160,7 +161,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = $"<h2>This person is in SEA blacklist , do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Danh sach den"
                     };
                 }
 
@@ -178,7 +180,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotFound,
                         Message = "There's no data. Can not enter the factory. Please do rapid - test.",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Chua check out"
                     };
                 }
 
@@ -196,7 +199,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotFound,
                         Message = "There's no data. Can not enter the factory. Please do rapid - test.",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Het han"
                     };
 
                 }
@@ -220,7 +224,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.OK,
                         Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
                         Success = true,
-                        Data = employee
+                        Data = employee,
+                        ErrorCode = "Xin moi qua"
                     };
                 }
                 else

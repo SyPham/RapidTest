@@ -12,5 +12,6 @@ namespace RapidTest.DTO
         public string Message { set; get; }
         public bool Success { set; get; }
         public object Data { set; get; }
+        public string ErrorCode { set; get; }
     }
 }

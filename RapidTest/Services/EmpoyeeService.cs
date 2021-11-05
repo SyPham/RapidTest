@@ -283,7 +283,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotFound,
                         Message = "Not found this person. No entry.Please establish data in Staff info page!",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Sai so the"
                     };
                 }
 
@@ -329,7 +330,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Danh sach den"
                     };
                 }
                 var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
@@ -348,7 +350,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Xin moi qua"
                     };
                 }
                 // Nếu đi sai ngày thi log ra db
@@ -377,7 +380,8 @@ namespace RapidTest.Services
                     StatusCode = HttpStatusCode.OK,
                     Message = $"<h2>Thời gian kết quả xét nghiệm {checkOutTime}<br>Check out time is at {checkOutTime}</h2> ",
                     Success = true,
-                    Data = employee
+                    Data = employee,
+                    ErrorCode = "Xin moi qua"
                 };
             }
             catch (Exception ex)

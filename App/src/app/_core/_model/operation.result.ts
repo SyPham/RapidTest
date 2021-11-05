@@ -5,4 +5,5 @@ export interface OperationResult {
   message: string;
   success: boolean;
   data: any;
+  errorCode: any;
 }

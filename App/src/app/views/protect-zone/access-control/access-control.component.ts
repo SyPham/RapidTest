@@ -24,6 +24,12 @@ export class AccessControlComponent implements OnInit, OnDestroy {
   employeeData :Employee;
   successBeepUrl = environment.apiUrl.replace('api/', '') + 'audio/successBeep.mp3';
   errorBeepUrl= environment.apiUrl.replace('api/', '') + 'audio/errorBeep.mp3';
+
+  xinMoiQuaUrl= environment.apiUrl.replace('api/', '') + 'audio/xin-moi-qua.mp3';
+  chuaCheckOutUrl= environment.apiUrl.replace('api/', '') + 'audio/chua-check-out.mp3';
+  hetHanUrl= environment.apiUrl.replace('api/', '') + 'audio/het-han.mp3';
+  danhSachDenUrl= environment.apiUrl.replace('api/', '') + 'audio/danh-sach-den.mp3';
+  saiSoTheUrl= environment.apiUrl.replace('api/', '') + 'audio/sai-so-the.mp3';
   constructor(
     private alertify: AlertifyService,
     private service: FactoryReportService
@@ -71,9 +77,17 @@ export class AccessControlComponent implements OnInit, OnDestroy {
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
           this.message = res.message;
-          this.successBeep();
-        } else {
-          this.errorBeep();
+        }
+        if (res.errorCode == 'Xin moi qua') {
+          this.xinMoiQua();
+        } else if (res.errorCode == 'Chua check out') {
+          this.chuaCheckOut();
+        } else if (res.errorCode == 'Het han') {
+          this.hetHan();
+        } else if (res.errorCode == 'Danh sach den') {
+          this.danhSachDen();
+        } else if (res.errorCode == 'Sai so the') {
+          this.saiSoThe();
         }
       },
       (error) => {
@@ -88,6 +102,26 @@ export class AccessControlComponent implements OnInit, OnDestroy {
 }
 errorBeep() {
   var snd = new Audio(this.errorBeepUrl);
+  snd.play();
+}
+xinMoiQua() {
+  var snd = new Audio(this.xinMoiQuaUrl);
+  snd.play();
+}
+chuaCheckOut() {
+  var snd = new Audio(this.chuaCheckOutUrl);
+  snd.play();
+}
+hetHan() {
+  var snd = new Audio(this.hetHanUrl);
+  snd.play();
+}
+danhSachDen() {
+  var snd = new Audio(this.danhSachDenUrl);
+  snd.play();
+}
+saiSoThe() {
+  var snd = new Audio(this.saiSoTheUrl);
   snd.play();
 }
 }

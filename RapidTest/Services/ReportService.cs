@@ -172,7 +172,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotFound,
                         Message = "The QR Code not exist!",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Sai so the"
                     };
                 }
                 if (!employee.SEAInform)
@@ -208,7 +209,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Danh sach den"
                     };
                 }
 
@@ -271,7 +273,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.Forbidden,
                         Message = $"<h2>Please wait until {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Chua du thoi gian"
                     };
                 }
                 var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
@@ -289,7 +292,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.NotAcceptable,
                         Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Xin moi qua"
                     };
                 }
 
@@ -315,7 +319,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.OK,
                         Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
                         Success = true,
-                        Data = employee
+                        Data = employee,
+                        ErrorCode = "Xin moi qua"
                     };
                 }
                 else
