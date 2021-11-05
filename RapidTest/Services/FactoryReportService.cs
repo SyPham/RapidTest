@@ -106,6 +106,7 @@ namespace RapidTest.Services
                     var emp = await context.Employees.FirstOrDefaultAsync(x=> x.Id == employeeId);
                     var lastCheckInDateTime = emp == null ? null : emp.CheckIns.Where(x=> x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
                     var lastCheckOutDateTime = emp == null ? null : emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
+                    var entryFactoryExpiryTime = emp == null ? null : emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.ExpiryTime).FirstOrDefault();
                     await context.RecordError.AddAsync(new RecordError
                     (
                         employeeId,
@@ -114,7 +115,8 @@ namespace RapidTest.Services
                         DateTime.Now,
                         accountId,
                         lastCheckInDateTime,
-                        lastCheckOutDateTime
+                        lastCheckOutDateTime,
+                        entryFactoryExpiryTime
                    ));
                     await context.SaveChangesAsync();
                 }

@@ -50,16 +50,17 @@ export class AccessFailedReportComponent implements OnInit {
         fullName: x.fullName || "N/A",
         department: x.department || "N/A",
         gender: x.gender || "N/A",
-        station: x.station || "N/A",
         errorKind: x.errorKind.replace('<br />','\r\n' ),
         createdTime: this.datePipe.transform(x.createdTime, 'MM-dd-yyyy HH:mm'),
         lastCheckInDateTime: x.lastCheckInDateTime || "N/A",
-          lastCheckOutDateTime: x.lastCheckOutDateTime || "N/A",
+        lastCheckOutDateTime: x.lastCheckOutDateTime || "N/A",
+        entryFactoryExpiryTime: x.entryFactoryExpiryTime || "N/A",
+
       }
     });
 
 
-  const fileName = `Access failed ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}.xlsx`
+  const fileName = `Access failed Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}.xlsx`
   const excelExportProperties: ExcelExportProperties = {
     dataSource: data,
     hierarchyExportMode: 'All',
@@ -88,11 +89,11 @@ export class AccessFailedReportComponent implements OnInit {
           fullName: x.fullName || "N/A",
           department: x.department || "N/A",
           gender: x.gender || "N/A",
-          station: x.station || "N/A",
           errorKind: x.errorKind.replace('\r\n', '<br />'),
           createdTime: x.createdTime,
           lastCheckInDateTime:  this.datePipe.transform(x.lastCheckInDateTime, 'MM-dd-yyyy HH:mm') || "N/A",
         lastCheckOutDateTime: this.datePipe.transform(x.lastCheckOutDateTime, 'MM-dd-yyyy HH:mm') || "N/A",
+        entryFactoryExpiryTime: this.datePipe.transform(x.entryFactoryExpiryTime, 'MM-dd-yyyy HH:mm') || "N/A",
 
         }
       });

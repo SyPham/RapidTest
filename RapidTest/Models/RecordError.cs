@@ -20,10 +20,11 @@ namespace RapidTest.Models
             CreatedBy = createdBy;
         }
 
-        public RecordError(int? employeeId, string station, string errorKind, DateTime createdTime, int createdBy, DateTime? lastCheckInDateTime, DateTime? lastCheckOutDateTime) : this(employeeId, station, errorKind, createdTime,createdBy)
+        public RecordError(int? employeeId, string station, string errorKind, DateTime createdTime, int createdBy, DateTime? lastCheckInDateTime, DateTime? lastCheckOutDateTime, DateTime? entryFactoryExpiryTime) : this(employeeId, station, errorKind, createdTime,createdBy)
         {
             LastCheckInDateTime = lastCheckInDateTime;
             LastCheckOutDateTime = lastCheckOutDateTime;
+            EntryFactoryExpiryTime = entryFactoryExpiryTime;
         }
 
         [Key]
@@ -31,6 +32,7 @@ namespace RapidTest.Models
         public int? EmployeeId { get; set; }
         public DateTime? LastCheckInDateTime { get; set; } // today check in
         public DateTime? LastCheckOutDateTime { get; set; } // today check out
+        public DateTime? EntryFactoryExpiryTime { get; set; } // today check out
         [MaxLength(20)]
         public string Station { get; set; }
         [MaxLength(500)]

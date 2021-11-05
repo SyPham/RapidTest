@@ -13,6 +13,7 @@ namespace RapidTest.DTO
         public string Station { get; set; }
         public DateTime? LastCheckInDateTime { get; set; }
         public DateTime? LastCheckOutDateTime { get; set; }
+        public DateTime? EntryFactoryExpiryTime { get; set; }
         public string ErrorKind { get; set; }
         public int CreatedBy { get; set; }
         public DateTime CreatedTime { get; set; }

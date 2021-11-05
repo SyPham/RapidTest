@@ -9,12 +9,13 @@ using RapidTest.Models;
 using RapidTest.Services.Base;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
 namespace RapidTest.Services
 {
-    public interface IRecordErrorService: IServiceBase<RecordError, RecordErrorDto>
+    public interface IRecordErrorService : IServiceBase<RecordError, RecordErrorDto>
     {
         Task<List<RecordErrorDto>> GetRecordError();
         Task<List<RecordErrorDto>> GetRecordError(DateTime date);
@@ -41,14 +42,25 @@ namespace RapidTest.Services
             _mapper = mapper;
             _configMapper = configMapper;
         }
-        public  async Task<List<RecordErrorDto>> GetRecordError()
+        public async Task<List<RecordErrorDto>> GetRecordError()
         {
             var data = await _repo.FindAll(x => x.Station == Station.CHECK_IN || x.Station == Station.CHECK_OUT).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
         public async Task<List<RecordErrorDto>> GetAccessFailed()
         {
-            var data = await _repo.FindAll(x=> x.Station == Station.ACCESS_CONTROL).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            var data2 = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL && x.EmployeeId > 0 && x.EntryFactoryExpiryTime == null).ToListAsync();
+            foreach (var item in data2)
+            {
+                var emp = item.Employee;
+                var entryFactoryExpiryTime =emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.ExpiryTime).FirstOrDefault();
+
+                item.EntryFactoryExpiryTime = entryFactoryExpiryTime;
+            }
+            _repo.UpdateRange(data2);
+            await _unitOfWork.SaveChangeAsync();
+
+            var data = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
 
