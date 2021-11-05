@@ -1,3 +1,4 @@
+import { AccessFailedReportComponent } from './views/protect-zone/access-failed-report/access-failed-report.component';
 import { RecordErrorComponent } from './views/protect-zone/record-error/record-error.component';
 import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
 import { CheckInReportComponent } from './views/protect-zone/check-in-report/check-in-report.component';
@@ -115,6 +116,14 @@ export const routes: Routes = [
         component: ReportFactoryComponent,
         data: {
           title: 'Access Control Report'
+        },
+        canActivate: [AuthLocalGuard]
+      },
+      {
+        path: 'access-failed-report',
+        component: AccessFailedReportComponent,
+        data: {
+          title: 'Access Failed Report'
         },
         canActivate: [AuthLocalGuard]
       },

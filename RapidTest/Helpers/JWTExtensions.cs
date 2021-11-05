@@ -32,6 +32,8 @@ namespace RapidTest.Helpers
             var handler = new JwtSecurityTokenHandler();
             string authHeader = token.ToSafetyString();
             authHeader = authHeader.Replace("Bearer ", "");
+            if (authHeader == string.Empty)
+                return 0;
             var jsonToken = handler.ReadToken(authHeader);
             var tokenS = handler.ReadToken(authHeader) as JwtSecurityToken;
             return tokenS.Claims.First(x => x.Type.Equals("nameid")).Value.ToInt();

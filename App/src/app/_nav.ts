@@ -71,6 +71,11 @@ export const navItems: INavData[] = [
     icon: 'icon-puzzle',
   },
   {
+    name: 'Access Failed Report',
+    url: '/access-failed-report',
+    icon: 'icon-puzzle',
+  },
+  {
     name: 'Record Error',
     url: '/record-error',
     icon: 'icon-puzzle',
@@ -132,6 +137,11 @@ export const navItemsManager: INavData[] = [
   {
     name: 'Access Control Report',
     url: '/report-factory',
+    icon: 'icon-puzzle',
+  },
+  {
+    name: 'Access Failed Report',
+    url: '/access-failed-report',
     icon: 'icon-puzzle',
   },
   {

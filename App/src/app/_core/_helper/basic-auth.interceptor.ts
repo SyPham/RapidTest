@@ -23,7 +23,7 @@ export class BasicAuthInterceptor implements HttpInterceptor {
             //   `);
             console.log('An error occurred: status = 0');
             if (!error.url.includes("Ping")) {
-              alert("Internet bị lỗi. Vui lòng thử lại! Internet error , please try again !");
+              alert("Hệ thống không phản hồi. Vui lòng tải lại trang (F5) ! System does not response , please refresh website (F5)!");
             }
             return throwError(
               'A client-side or network error occurred. Handle it accordingly');

@@ -29,8 +29,8 @@ namespace RapidTest.Models
         [Key]
         public int Id { get; set; }
         public int? EmployeeId { get; set; }
-        public DateTime? LastCheckInDateTime { get; set; }
-        public DateTime? LastCheckOutDateTime { get; set; }
+        public DateTime? LastCheckInDateTime { get; set; } // today check in
+        public DateTime? LastCheckOutDateTime { get; set; } // today check out
         [MaxLength(20)]
         public string Station { get; set; }
         [MaxLength(500)]

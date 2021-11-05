@@ -1,3 +1,4 @@
+import { AccessFailedReportComponent } from './views/protect-zone/access-failed-report/access-failed-report.component';
 import { RecordErrorComponent } from './views/protect-zone/record-error/record-error.component';
 import { AccessDayComponent } from './views/protect-zone/access-day/access-day.component';
 import { BlackListComponent } from './views/protect-zone/black-list/black-list.component';
@@ -132,7 +133,8 @@ const rapidTestComponent = [
   BlackListComponent,
   AccessDayComponent,
   RecordErrorComponent,
-  AccessFailedComponent
+  AccessFailedComponent,
+  AccessFailedReportComponent
 ];
 @NgModule({
   imports: [

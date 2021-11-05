@@ -1,0 +1,55 @@
+<div class="row">
+  <div class="col-md-12 mb-2 d-flex justify-content-start align-items-center">
+
+    <div class="font-weight-bold px-3">{{'Filter' | translate}}:</div>
+    <ejs-datepicker class="pr-3" (change)='dateOnchange($event)' [(ngModel)]="date"></ejs-datepicker>
+
+    <button class="btn btn-sm btn-secondary mr-3" (click)="reset()"><i class="fa fa-times"></i></button>
+   <button type="button" class="btn btn-secondary mx-3" (click)='excelExport()'>Export Excel</button>
+
+  </div>
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-body table-responsive p-0">
+        <ejs-grid #grid
+          id='grid'
+          [dataSource]="data"
+          [allowPaging]='true'
+          [allowResizing]='true'
+          [allowSorting]='true'
+          [showColumnMenu]='true'
+          gridLines='Both'
+          [pageSettings]='pageSettings'
+          [allowExcelExport]='true'
+          [allowSorting]='true'
+          [sortSettings]='sortSettings'
+          [toolbar]='toolbarOptions'
+          allowTextWrap='true'
+          (dataBound)='dataBound()'
+          (excelQueryCellInfo)='excelQueryCellInfo($event)'
+        >
+          <e-columns>
+            <e-column field="number" textAlign='Center' width="80" isPrimaryKey="true" headerText="#">
+              <ng-template #template let-data>
+                {{NO(data.index)}}
+              </ng-template>
+              <ng-template #editTemplate let-data>
+                #
+              </ng-template>
+            </e-column>
+            <e-column field="code" textAlign='Center' [width]="90" headerText="{{ 'Code'}}"> </e-column>
+            <e-column field="department" textAlign='Center' headerText="{{ 'Department'}}"> </e-column>
+            <e-column field="fullName" textAlign='Left' headerTextAlign='Center' headerText="{{ 'FullName'}}"> </e-column>
+            <e-column field="gender" textAlign='Center' [width]="90" headerText="{{ 'Gender'}}"> </e-column>
+            <e-column field="station" textAlign='Center' headerText="{{ 'Station'}}"> </e-column>
+            <e-column field="errorKind" headerTextAlign='Center' textAlign='Left' [disableHtmlEncode]='false' headerText="{{ 'Error Kind'}}"> </e-column>
+            <e-column field="createdTime" type='date' format='MM-dd-yyy HH:mm' textAlign='Center' headerText="{{ 'Access control'}}"> </e-column>
+            <e-column field="lastCheckInDateTime" textAlign='Center' headerText="{{ 'Check in time'}}"> </e-column>
+            <e-column field="lastCheckOutDateTime" textAlign='Center' headerText="{{ 'Check out time'}}"> </e-column>
+          </e-columns>
+        </ejs-grid>
+      </div>
+      <!-- /.card-body -->
+    </div>
+  </div>
+</div>
