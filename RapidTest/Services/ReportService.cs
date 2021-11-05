@@ -243,7 +243,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.BadRequest,
                         Message = "Please check in first!",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Chua check in"
                     };
                 }
                 if (employee.Setting == null)

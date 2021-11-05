@@ -302,7 +302,8 @@ namespace RapidTest.Services
                         StatusCode = HttpStatusCode.BadRequest,
                         Message = "No entry.Please wait for SEA inform !",
                         Success = true,
-                        Data = null
+                        Data = null,
+                        ErrorCode = "Sai so the"
                     };
                 }
 
