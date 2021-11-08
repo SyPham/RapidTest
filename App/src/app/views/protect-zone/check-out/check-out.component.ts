@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Employee } from 'src/app/_core/_model/employee';
+import { ErrorCode } from 'src/app/_core/_model/error-code';
 import { TestKind } from 'src/app/_core/_model/test-kind';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { RapidTestReportService } from 'src/app/_core/_service/rapid.test.report.service';
@@ -98,16 +99,18 @@ export class CheckOutComponent implements OnInit, OnDestroy {
         if (res.success === true && res.statusCode == 200) {
           this.fullName = res.data.fullName;
         }
-        if (res.errorCode == 'Xin moi qua') {
+        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
           this.xinMoiQua();
-        } else if (res.errorCode == 'Chua check in') {
+        } else if (res.errorCode == ErrorCode.CHUA_CHECK_IN) {
           this.chuaCheckIn();
-        } else if (res.errorCode == 'Chua du thoi gian') {
+        } else if (res.errorCode == ErrorCode.CHUA_DU_THOI_GIAN) {
           this.chuaDuThoiGian();
-        } else if (res.errorCode == 'Danh sach den') {
+        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
           this.danhSachDen();
-        } else if (res.errorCode == 'Sai so the') {
+        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
           this.saiSoThe();
+        } else {
+          this.errorBeep();
         }
       },
       (error) => {

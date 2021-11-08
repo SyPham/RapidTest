@@ -262,6 +262,23 @@ namespace RapidTest.Services
                 }
             });
         }
+        private void UpdateReport(int employeeId, DateTime checkInTime)
+        {
+            _ = Task.Run(async () =>
+            {
+
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                   var item = await context.RecordError.FirstOrDefaultAsync(x=> x.Station == Station.ACCESS_CONTROL &&  x.EmployeeId == employeeId && x.CreatedTime.Date == DateTime.Today.Date);
+                   if (item != null )
+                    {
+                        item.LastCheckInDateTime = checkInTime;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            });
+        }
         public async Task<OperationResult> CheckIn(string code, int testKindId)
         {
 
@@ -284,7 +301,7 @@ namespace RapidTest.Services
                         Message = "Not found this person. No entry.Please establish data in Staff info page!",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Sai so the"
+                        ErrorCode = ErrorCode.SAI_SO_THE
                     };
                 }
 
@@ -303,7 +320,7 @@ namespace RapidTest.Services
                         Message = "No entry.Please wait for SEA inform !",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Sai so the"
+                        ErrorCode = ErrorCode.SAI_SO_THE
                     };
                 }
 
@@ -332,7 +349,7 @@ namespace RapidTest.Services
                         Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Danh sach den"
+                        ErrorCode = ErrorCode.DANH_SACH_DEN
                     };
                 }
                 var checkExist = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == testKindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
@@ -352,7 +369,7 @@ namespace RapidTest.Services
                         Message = $"<h2>Số thẻ {code} đã đăng ký xét nghiệm! <br> Already checked in!</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Xin moi qua"
+                        ErrorCode = ErrorCode.XIN_MOI_QUA
                     };
                 }
                 // Nếu đi sai ngày thi log ra db
@@ -382,8 +399,9 @@ namespace RapidTest.Services
                     Message = $"<h2>Thời gian kết quả xét nghiệm {checkOutTime}<br>Check out time is at {checkOutTime}</h2> ",
                     Success = true,
                     Data = employee,
-                    ErrorCode = "Xin moi qua"
+                    ErrorCode = ErrorCode.XIN_MOI_QUA
                 };
+                UpdateReport(employee.Id, data.CreatedTime);
             }
             catch (Exception ex)
             {

@@ -150,6 +150,23 @@ namespace RapidTest.Services
                 }
             });
         }
+        private void UpdateReport(int employeeId, DateTime checkOutTime)
+        {
+            _ = Task.Run(async () =>
+            {
+
+                using (var scope = _serviceScopeFactory.CreateScope())
+                {
+                    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+                    var item = await context.RecordError.FirstOrDefaultAsync(x => x.Station == Station.ACCESS_CONTROL && x.EmployeeId == employeeId && x.CreatedTime.Date == DateTime.Today.Date);
+                    if (item != null)
+                    {
+                        item.LastCheckOutDateTime = checkOutTime;
+                        await context.SaveChangesAsync();
+                    }
+                }
+            });
+        }
         public async Task<OperationResult> ScanQRCode(ScanQRCodeRequestDto request)
         {
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
@@ -173,7 +190,7 @@ namespace RapidTest.Services
                         Message = "The QR Code not exist!",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Sai so the"
+                        ErrorCode = ErrorCode.SAI_SO_THE
                     };
                 }
                 if (!employee.SEAInform)
@@ -210,7 +227,7 @@ namespace RapidTest.Services
                         Message = $"<h2>This person is in SEA blacklist, do not allow him or her pass this station<br>Người này nằm trong danh sách đen của nhân sự, không được để anh ấy hoặc cô ấy đi qua chốt này</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Danh sach den"
+                        ErrorCode = ErrorCode.DANH_SACH_DEN
                     };
                 }
 
@@ -244,7 +261,7 @@ namespace RapidTest.Services
                         Message = "Please check in first!",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Chua check in"
+                        ErrorCode = ErrorCode.CHUA_CHECK_IN
                     };
                 }
                 if (employee.Setting == null)
@@ -275,7 +292,7 @@ namespace RapidTest.Services
                         Message = $"<h2>Please wait until {checkOutHour}!<br><span>Vui lòng đợt đến {checkOutHour}!</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Chua du thoi gian"
+                        ErrorCode = ErrorCode.CHUA_DU_THOI_GIAN
                     };
                 }
                 var checkExist = await _repo.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).AnyAsync();
@@ -294,7 +311,7 @@ namespace RapidTest.Services
                         Message = $"<h2>Số thẻ {request.QRCode} đã có kết quả xét nghiệm! <br> Already checked out !</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Xin moi qua"
+                        ErrorCode = ErrorCode.XIN_MOI_QUA
                     };
                 }
 
@@ -321,7 +338,7 @@ namespace RapidTest.Services
                         Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
                         Success = true,
                         Data = employee,
-                        ErrorCode = "Xin moi qua"
+                        ErrorCode = ErrorCode.XIN_MOI_QUA
                     };
                 }
                 else
@@ -334,6 +351,7 @@ namespace RapidTest.Services
                         Data = employee
                     };
                 }
+                UpdateReport(employee.Id, data.CreatedTime);
 
             }
             catch (Exception ex)

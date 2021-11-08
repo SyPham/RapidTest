@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { Employee } from 'src/app/_core/_model/employee';
+import { ErrorCode } from 'src/app/_core/_model/error-code';
 import { AlertifyService } from 'src/app/_core/_service/alertify.service';
 import { FactoryReportService } from 'src/app/_core/_service/factory.report.service';
 import { environment } from 'src/environments/environment';
@@ -78,16 +79,18 @@ export class AccessControlComponent implements OnInit, OnDestroy {
           this.fullName = res.data.fullName;
           this.message = res.message;
         }
-        if (res.errorCode == 'Xin moi qua') {
+        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
           this.xinMoiQua();
-        } else if (res.errorCode == 'Chua check out') {
+        } else if (res.errorCode == ErrorCode.CHUA_CHECK_OUT) {
           this.chuaCheckOut();
-        } else if (res.errorCode == 'Het han') {
+        } else if (res.errorCode == ErrorCode.HET_HAN) {
           this.hetHan();
-        } else if (res.errorCode == 'Danh sach den') {
+        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
           this.danhSachDen();
-        } else if (res.errorCode == 'Sai so the') {
+        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
           this.saiSoThe();
+        } else {
+          this.errorBeep();
         }
       },
       (error) => {

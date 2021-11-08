@@ -143,7 +143,7 @@ namespace RapidTest.Services
                         Message = "<h2>Not found this person. No entry.Please establish data in Staff info page!<br>Không tìm thấy anh/chị trong hệ thống! Không được vào!</h2>",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Sai so the"
+                        ErrorCode = ErrorCode.SAI_SO_THE
                     };
                 }
                 var checkBlackList = await _repoBlackList.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AnyAsync();
@@ -181,7 +181,7 @@ namespace RapidTest.Services
                         Message = "There's no data. Can not enter the factory. Please do rapid - test.",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Chua check out"
+                        ErrorCode = ErrorCode.CHUA_CHECK_OUT
                     };
                 }
 
@@ -200,7 +200,7 @@ namespace RapidTest.Services
                         Message = "There's no data. Can not enter the factory. Please do rapid - test.",
                         Success = true,
                         Data = null,
-                        ErrorCode = "Het han"
+                        ErrorCode = ErrorCode.HET_HAN
                     };
 
                 }
@@ -225,7 +225,7 @@ namespace RapidTest.Services
                         Message = $"<h2>Result is negative. Record successfully! ,<br><span>Kết quả là âm tính. Được phép vào nhà máy!</span></h2>",
                         Success = true,
                         Data = employee,
-                        ErrorCode = "Xin moi qua"
+                        ErrorCode = ErrorCode.XIN_MOI_QUA
                     };
                 }
                 else

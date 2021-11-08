@@ -7,6 +7,7 @@ import { debounceTime } from 'rxjs/operators';
 import { TestKind } from 'src/app/_core/_model/test-kind';
 import { environment } from 'src/environments/environment';
 import { PingService } from 'src/app/_core/_service/ping.service';
+import { ErrorCode } from 'src/app/_core/_model/error-code';
 
 @Component({
   selector: 'app-check-in',
@@ -94,12 +95,14 @@ export class CheckInComponent implements OnInit,OnDestroy  {
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
         }
-        if (res.errorCode == 'Xin moi qua') {
+        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
           this.xinMoiQua();
-        } else if (res.errorCode == 'Danh sach den') {
+        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
           this.danhSachDen();
-        } else if (res.errorCode == 'Sai so the') {
+        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
           this.saiSoThe();
+        } else {
+          this.errorBeep();
         }
       },
       (error) => {
