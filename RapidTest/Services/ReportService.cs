@@ -162,6 +162,7 @@ namespace RapidTest.Services
                     if (item != null)
                     {
                         item.LastCheckOutDateTime = checkOutTime;
+                        context.RecordError.Update(item);
                         await context.SaveChangesAsync();
                     }
                 }

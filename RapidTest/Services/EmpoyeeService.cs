@@ -274,6 +274,7 @@ namespace RapidTest.Services
                    if (item != null )
                     {
                         item.LastCheckInDateTime = checkInTime;
+                        context.RecordError.Update(item);
                         await context.SaveChangesAsync();
                     }
                 }
