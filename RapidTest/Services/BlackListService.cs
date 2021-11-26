@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using NetUtility;
 using RapidTest.Constants;
 using RapidTest.Data;
 using RapidTest.DTO;
@@ -64,17 +65,36 @@ namespace RapidTest.Services
             //}
             //await _unitOfWork.SaveChangeAsync();
 
-            return await _repo.FindAll(x=>x.IsDelete == false).ProjectTo<BlackListDto>(_configMapper).ToListAsync();
+            return await _repo.FindAll(x=>x.IsDelete == false)
+
+                     .Include(x => x.Employee)
+                    .ThenInclude(x => x.Department)
+                .ProjectTo<BlackListDto>(_configMapper).ToListAsync();
 
         }
         public override async Task<OperationResult> AddAsync(BlackListDto model)
         {
             try
             {
-
+                string code = model.Code.ToSafetyString().Trim();
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
-                var employee = await _repoEmployee.FindAll(x => x.Code == model.Code).FirstOrDefaultAsync();
+                var employee = await _repoEmployee.FindAll(x => x.Code == code)
+                    .Include(x => x.Reports)
+                    .Include(x => x.CheckIns)
+                    .Include(x=> x.FactoryReports)
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync();
+                if (employee == null)
+                {
+                    return new OperationResult
+                    {
+                        StatusCode = HttpStatusCode.BadRequest,
+                        Message = "Số thẻ không tồn tại! Vui lòng thử lại!",
+                        Success = false,
+                        Data = model
+                    };
+                }
                 var check = await _repo.FindAll(x => x.EmployeeId == employee.Id && DateTime.Now.Date == x.CreatedTime.Date).AnyAsync();
                 if (check)
                 {
@@ -124,7 +144,7 @@ namespace RapidTest.Services
             {
                 var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
                 int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
-                var employee = await _repoEmployee.FindAll(x => x.Code == model.Code).FirstOrDefaultAsync();
+                var employee = await _repoEmployee.FindAll(x => x.Code == model.Code).AsNoTracking().FirstOrDefaultAsync();
 
                 var item = await _repo.FindByIdAsync(model.Id);
                 item.EmployeeId = employee.Id;

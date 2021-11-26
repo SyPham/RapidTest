@@ -22,14 +22,12 @@ namespace RapidTest.Installer
                         {
                             options.UseSqlServer(connetionString,
                             o => o.MigrationsAssembly("RapidTest"));
-                            options.UseLazyLoadingProxies();
                         });
         #else
                                   services.AddDbContextPool<DataContext>(options =>
                                  {
                                      options.UseSqlServer(connetionString,
                                      o => o.MigrationsAssembly("RapidTest"));
-                                     options.UseLazyLoadingProxies();
                                  });
         #endif
 

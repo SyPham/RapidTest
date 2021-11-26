@@ -95,6 +95,8 @@ namespace RapidTest.Services
         public override async Task<List<EmployeeDto>> GetAllAsync()
         {
             return await _repo.FindAll().AsNoTracking()
+                .Include(x=>x.Department)
+                .Include(x=>x.Factory)
                 .ProjectTo<EmployeeDto>(_configMapper).OrderBy(x => x.IsPrint).ToListAsync();
         }
 
@@ -287,7 +289,7 @@ namespace RapidTest.Services
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
-                var employee = await _repo.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                var employee = await _repo.FindAll(x => x.Code == code).Include(x=> x.Setting).FirstOrDefaultAsync();
                 if (employee == null)
                 {
                     Logging(
@@ -450,12 +452,19 @@ namespace RapidTest.Services
                             var departmentName = workSheet.Cells[rowIterator, 3].Value.ToSafetyString();
                             var fullName = workSheet.Cells[rowIterator, 4].Value.ToSafetyString();
                             var gender = workSheet.Cells[rowIterator, 5].Value.ToSafetyString();
-                            var birthDateTemp = workSheet.Cells[rowIterator, 6].Value.ToLong();
+                            var birthDateTemp = workSheet.Cells[rowIterator, 6].Value;
                             var SEAInform = workSheet.Cells[rowIterator, 7].Value.ToSafetyString();
                             var isPrint = workSheet.Cells[rowIterator, 8].Value.ToSafetyString();
                             var kind = workSheet.Cells[rowIterator, 9].Value.ToSafetyString();
                             var testDate = workSheet.Cells[rowIterator, 10].Value.ToSafetyString();
-                            DateTime birthDate = DateTime.FromOADate(birthDateTemp);
+                            DateTime birthDate = DateTime.Now;
+                            if (birthDateTemp.ToLong() == 0 && birthDateTemp != null)
+                            {
+                                birthDate = Convert.ToDateTime(birthDateTemp.ToSafetyString());
+                            } else
+                            {
+                                birthDate = DateTime.FromOADate(birthDateTemp.ToLong());
+                            }
                             if (!factoryName.IsNullOrEmpty()
                                 && !fullName.IsNullOrEmpty()
                                 && !code.IsNullOrEmpty()
@@ -613,13 +622,13 @@ namespace RapidTest.Services
 
         public async Task<List<EmployeeDto>> GetPrintOff()
         {
-            return await _repo.FindAll(x => !x.IsPrint).OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
+            return await _repo.FindAll(x => !x.IsPrint).AsNoTracking().OrderBy(x => x.Id).ProjectTo<EmployeeDto>(_configMapper).ToListAsync();
 
         }
 
         public async Task<object> CountWorkerScanQRCodeByToday()
         {
-            var total = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == DateTime.Now.Date).Select(x => x.EmployeeId).Distinct().CountAsync();
+            var total = await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == DateTime.Now.Date).AsNoTracking().Select(x => x.EmployeeId).Distinct().CountAsync();
             return total;
         }
 
@@ -775,7 +784,10 @@ namespace RapidTest.Services
         {
             try
             {
-                var data = await _repo.FindAll().Select(x => new ExportExcelRequest
+                var data = await _repo.FindAll()
+                    .Include(x => x.Department).Include(x => x.Factory).Include(x => x.Setting)
+
+                    .Select(x => new ExportExcelRequest
                 {
                     Code = x.Code,
                     FullName = x.FullName,
@@ -895,7 +907,9 @@ namespace RapidTest.Services
             try
             {
 
-                var data = await _repo.FindAll().Select(x => new
+                var data = await _repo.FindAll()
+                    .Include(x => x.Department).Include(x => x.Factory).Include(x => x.Setting)
+                    .Select(x => new
                 {
                     Factory = x.Factory.Name,
                     Code = x.Code,
@@ -983,6 +997,7 @@ namespace RapidTest.Services
             {
 
                 var source = _repo.FindAll()
+                    .Include(x => x.Department).Include(x => x.Factory).Include(x => x.Setting)
                .ProjectTo<EmployeeDto>(_configMapper).OrderByDescending(x => x.Id).EJ2OrderBy(orderby);
 
                 var count = await source.CountAsync();
@@ -1000,6 +1015,7 @@ namespace RapidTest.Services
                 //var filterfield = filtersplits[1];
                 var filtervalue = filter.Split('(', ')', '\'')[3].ToLowerCase();
                 var source = _repo.FindAll()
+                    .Include(x => x.Department).Include(x => x.Factory).Include(x => x.Setting)
                     .ProjectTo<EmployeeDto>(_configMapper)
                     .Where(x => x.Code.ToLower().Contains(filtervalue)
                || x.Department.ToLower().Contains(filtervalue)
@@ -1019,7 +1035,9 @@ namespace RapidTest.Services
 
         public async Task<object> LoadData(DataManager data)
         {
-            IQueryable<EmployeeDto> datasource = _repo.FindAll().ProjectTo<EmployeeDto>(_configMapper);
+            IQueryable<EmployeeDto> datasource = _repo.FindAll()
+                    .Include(x => x.Department).Include(x => x.Factory).Include(x => x.Setting)
+                .ProjectTo<EmployeeDto>(_configMapper);
             var count = await datasource.CountAsync();
             if (data.Where != null) // for filtering
                 datasource = QueryableDataOperations.PerformWhereFilter(datasource, data.Where, data.Where[0].Condition);

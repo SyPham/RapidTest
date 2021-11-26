@@ -53,6 +53,7 @@ namespace RapidTest.Services
            
             // tim oc cua usser login
             return await _repoAccount.FindAll(x => x.AccountId == accountId)
+                .Include(x=> x.AccountGroup)
                 .Where(x=> x.AccountGroup.Position != 100)
                 .Select(x=>x.AccountGroup)
                 .ProjectTo<AccountGroupDto>(_configMapper).ToListAsync();

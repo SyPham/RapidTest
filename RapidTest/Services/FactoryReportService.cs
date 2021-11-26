@@ -27,6 +27,7 @@ namespace RapidTest.Services
     }
     public class FactoryReportService : ServiceBase<FactoryReport, FactoryReportDto>, IFactoryReportService
     {
+        private readonly IRepositoryBase<CheckIn> _repoCheckIn;
         private readonly IRepositoryBase<FactoryReport> _repo;
         private readonly IRepositoryBase<RecordError> _repoRecordError;
         private readonly IRepositoryBase<BlackList> _repoBlackList;
@@ -41,6 +42,7 @@ namespace RapidTest.Services
         private OperationResult operationResult;
 
         public FactoryReportService(
+            IRepositoryBase<CheckIn> repoCheckIn,
             IRepositoryBase<FactoryReport> repo,
             IRepositoryBase<RecordError> repoRecordError,
             IRepositoryBase<BlackList> repoBlackList,
@@ -55,6 +57,7 @@ namespace RapidTest.Services
             )
             : base(repo, unitOfWork, mapper, configMapper)
         {
+            _repoCheckIn = repoCheckIn;
             _repo = repo;
             _repoRecordError = repoRecordError;
             _repoBlackList = repoBlackList;
@@ -75,6 +78,10 @@ namespace RapidTest.Services
             {
 
                 var data = (await _repo.FindAll(x => !x.IsDelete && x.FactoryEntryTime.Date == startDate.Date)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
                     .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
@@ -83,7 +90,11 @@ namespace RapidTest.Services
             else
             {
                 var data = (await _repo.FindAll(x => !x.IsDelete && x.FactoryEntryTime.Date == startDate.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
+                    .ProjectTo<FactoryReportDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
 
                 return data;
             }
@@ -104,9 +115,9 @@ namespace RapidTest.Services
                 {
                     var context = scope.ServiceProvider.GetRequiredService<DataContext>();
                     var emp = await context.Employees.FirstOrDefaultAsync(x=> x.Id == employeeId);
-                    var lastCheckInDateTime = emp == null ? null : emp.CheckIns.Where(x=> x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
-                    var lastCheckOutDateTime = emp == null ? null : emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefault();
-                    var entryFactoryExpiryTime = emp == null ? null : emp.Reports.Where(x => x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.ExpiryTime).FirstOrDefault();
+                    var lastCheckInDateTime = emp == null ? null : await context.CheckIn.Where(x=> x.EmployeeId == emp.Id && x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefaultAsync();
+                    var lastCheckOutDateTime = emp == null ? null : await context.Reports.Where(x => x.EmployeeId == emp.Id && x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.CreatedTime).FirstOrDefaultAsync();
+                    var entryFactoryExpiryTime = emp == null ? null : await context.Reports.Where(x => x.EmployeeId == emp.Id && x.CreatedTime.Date == DateTime.Now.Date).Select(x => (DateTime?)x.ExpiryTime).FirstOrDefaultAsync();
                     await context.RecordError.AddAsync(new RecordError
                     (
                         employeeId,

@@ -128,7 +128,7 @@ namespace RapidTest.Services
         }
         public override async Task<List<AccountDto>> GetAllAsync()
         {
-            var data = await _repo.FindAll().ProjectTo<AccountDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll().Include(x=> x.AccountType).ProjectTo<AccountDto>(_configMapper).ToListAsync();
             return data;
 
         }
@@ -163,13 +163,20 @@ namespace RapidTest.Services
 
         public async Task<AccountDto> GetByUsername(string username)
         {
-            var result = await _repo.FindAll(x => x.Username.ToLower() == username.ToLower()).ProjectTo<AccountDto>(_configMapper).FirstOrDefaultAsync();
+            var result = await _repo.FindAll(x => x.Username.ToLower() == username.ToLower())
+                    .Include(x => x.AccountType).Include(x => x.AccountGroupAccount)
+                .ProjectTo<AccountDto>(_configMapper).FirstOrDefaultAsync();
             return result;
         }
 
        public async Task<object> GetAccounts()
         {
-            var query = await _repo.FindAll(x => x.AccountType.Code != "SYSTEM").Select(x=> new { 
+            var query = await _repo.FindAll()
+
+                .Include(x => x.AccountType)
+                .Include(x => x.AccountGroupAccount)
+                .Where(x => x.AccountType.Code != "SYSTEM")
+                .Select(x=> new { 
             x.Username,
             x.Id,
             x.FullName,

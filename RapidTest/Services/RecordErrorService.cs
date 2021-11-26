@@ -44,12 +44,18 @@ namespace RapidTest.Services
         }
         public async Task<List<RecordErrorDto>> GetRecordError()
         {
-            var data = await _repo.FindAll(x => x.Station == Station.CHECK_IN || x.Station == Station.CHECK_OUT).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll(x => x.Station == Station.CHECK_IN || x.Station == Station.CHECK_OUT)
+                .Include(x=> x.Employee)
+                .ThenInclude(x=> x.Department)
+                .ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
         public async Task<List<RecordErrorDto>> GetAccessFailed()
         {
-            var data2 = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL && x.EmployeeId > 0 && x.EntryFactoryExpiryTime == null).ToListAsync();
+            var data2 = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL && x.EmployeeId > 0 && x.EntryFactoryExpiryTime == null)
+                .Include(x => x.Employee)
+                .ThenInclude(x => x.Reports)
+                .ToListAsync();
             foreach (var item in data2)
             {
                 var emp = item.Employee;
@@ -60,19 +66,28 @@ namespace RapidTest.Services
             _repo.UpdateRange(data2);
             await _unitOfWork.SaveChangeAsync();
 
-            var data = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL).ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll(x => x.Station == Station.ACCESS_CONTROL)
+                   .Include(x => x.Employee)
+                .ThenInclude(x => x.Department)
+                .ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
 
         public async Task<List<RecordErrorDto>> GetRecordError(DateTime date)
         {
             var stationArray = new List<string> { Station.CHECK_IN, Station.CHECK_OUT };
-            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && stationArray.Contains(x.Station)).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && stationArray.Contains(x.Station))
+                   .Include(x => x.Employee)
+                .ThenInclude(x => x.Department)
+                .AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
         public async Task<List<RecordErrorDto>> GetAccessFailed(DateTime date)
         {
-            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Station == Station.ACCESS_CONTROL).AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
+            var data = await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Station == Station.ACCESS_CONTROL)
+                   .Include(x => x.Employee)
+                .ThenInclude(x => x.Department)
+                .AsNoTracking().ProjectTo<RecordErrorDto>(_configMapper).ToListAsync();
             return data;
         }
     }

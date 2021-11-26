@@ -97,7 +97,15 @@ namespace RapidTest.Services
             if (string.IsNullOrEmpty(code))
             {
                 var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date)
-               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
+                       .Include(x => x.Employee)
+                        .ThenInclude(x => x.CheckIns)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.FactoryReports)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
+                     .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
 
                 var count = await source.CountAsync();
                 var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
@@ -112,7 +120,15 @@ namespace RapidTest.Services
             else
             {
                 var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
-               .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.CheckIns)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.FactoryReports)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
+                    .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
 
                 var count = await source.CountAsync();
                 var items = count > 0 ? await source.Skip(skip).Take(take).ToListAsync() : new List<ReportDto> { };
@@ -174,7 +190,9 @@ namespace RapidTest.Services
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
-                var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode).FirstOrDefaultAsync();
+                var employee = await _repoEmployee.FindAll(x => x.Code == request.QRCode)
+                    .AsNoTracking()
+                    .Include(x => x.Setting).FirstOrDefaultAsync();
                 if (employee == null)
                 {
 
@@ -183,7 +201,7 @@ namespace RapidTest.Services
                         Station.CHECK_OUT,
                         $"(QR Code Input: {request.QRCode}) " + ErrorKindMessage.WRONG_CODE,
                         accountId
-                        
+
                         );
                     return new OperationResult
                     {
@@ -536,13 +554,25 @@ namespace RapidTest.Services
             if (string.IsNullOrEmpty(code))
             {
                 var data = (await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == date.Date)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
+                          .Include(x => x.Employee)
+                        .ThenInclude(x => x.Reports)
                .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
             else
             {
                 var data = (await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
-              .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
+              .Include(x => x.Employee)
+                        .ThenInclude(x => x.Department)
+                     .Include(x => x.Employee)
+                        .ThenInclude(x => x.Setting)
+                          .Include(x => x.Employee)
+                        .ThenInclude(x => x.Reports)
+                    .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
         }

@@ -41,11 +41,19 @@ namespace RapidTest.Data
     }
     public class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
-        private readonly DataContext _context;
-        public RepositoryBase(DataContext context)
+        private readonly DbContext _context;
+
+        private readonly DbFactory _dbFactory;
+        public RepositoryBase(DbFactory dbFactory)
         {
-            _context = context;
+            _dbFactory = dbFactory;
+            _context = dbFactory.DbContext;
         }
+        //private readonly DataContext _context;
+        //public RepositoryBase(DataContext context)
+        //{
+        //    _context = context;
+        //}
         public void Add(T entity)
         {
             _context.Add(entity);
