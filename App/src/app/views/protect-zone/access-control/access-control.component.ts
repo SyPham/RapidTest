@@ -78,20 +78,23 @@ export class AccessControlComponent implements OnInit, OnDestroy {
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
           this.message = res.message;
-        }
-        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
-          this.xinMoiQua();
-        } else if (res.errorCode == ErrorCode.CHUA_CHECK_OUT) {
-          this.chuaCheckOut();
-        } else if (res.errorCode == ErrorCode.HET_HAN) {
-          this.hetHan();
-        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
-          this.danhSachDen();
-        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
-          this.saiSoThe();
+          this.successBeep();
         } else {
           this.errorBeep();
         }
+        // if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
+        //   this.xinMoiQua();
+        // } else if (res.errorCode == ErrorCode.CHUA_CHECK_OUT) {
+        //   this.chuaCheckOut();
+        // } else if (res.errorCode == ErrorCode.HET_HAN) {
+        //   this.hetHan();
+        // } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
+        //   this.danhSachDen();
+        // } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
+        //   this.saiSoThe();
+        // } else {
+        //   this.errorBeep();
+        // }
       },
       (error) => {
         this.success = 500;

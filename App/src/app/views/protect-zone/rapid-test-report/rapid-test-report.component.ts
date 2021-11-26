@@ -63,15 +63,13 @@ export class RapidTestReportComponent implements OnInit {
   }
   downloadExcel() {
     this.spinner.show();
+    const fileName = `Rapid Test Report ${this.datePipe.transform(new Date(), 'MM-dd-yyyy')}`
     const date  = this.datePipe.transform(this.startDate, 'MM/dd/yyyy');
     this.service.exportExcel(date).subscribe((data: any) => {
       const downloadURL = window.URL.createObjectURL(data.body);
       const link = document.createElement('a');
       link.href = downloadURL;
-      const y = new Date().getFullYear();
-      const d = new Date().getDay();
-      const m = new Date().getMonth() + 1;
-      link.download = `Rapid Test Report ${m}${d}${y}.xlsx`;
+      link.download = fileName + '.xlsx';
       link.click();
       this.spinner.hide();
     }, () => this.spinner.hide());

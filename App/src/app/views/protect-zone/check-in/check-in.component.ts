@@ -94,16 +94,19 @@ export class CheckInComponent implements OnInit,OnDestroy  {
         this.success = res.statusCode;
         if (res.success && res.statusCode == 200) {
           this.fullName = res.data.fullName;
-        }
-        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
-          this.xinMoiQua();
-        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
-          this.danhSachDen();
-        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
-          this.saiSoThe();
+          this.successBeep();
         } else {
           this.errorBeep();
         }
+        // if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
+        //   this.xinMoiQua();
+        // } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
+        //   this.danhSachDen();
+        // } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
+        //   this.saiSoThe();
+        // } else {
+        //   this.errorBeep();
+        // }
       },
       (error) => {
         this.success = 500;

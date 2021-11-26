@@ -128,7 +128,7 @@ namespace RapidTest.Services
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             try
             {
-                var employee = await _repoEmployee.FindAll(x => x.Code == code).FirstOrDefaultAsync();
+                var employee = await _repoEmployee.FindAll(x => x.Code == code).AsNoTracking().FirstOrDefaultAsync();
                 if (employee == null)
                 {
                     Logging(
@@ -166,7 +166,7 @@ namespace RapidTest.Services
                     };
                 }
 
-                var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                var testing = await _repoReport.FindAll(x => x.EmployeeId == employee.Id && !x.IsDelete).AsNoTracking().OrderByDescending(x => x.Id).FirstOrDefaultAsync();
                 if (testing == null)
                 {
                     Logging(

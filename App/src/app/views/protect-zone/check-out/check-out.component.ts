@@ -98,20 +98,23 @@ export class CheckOutComponent implements OnInit, OnDestroy {
 
         if (res.success === true && res.statusCode == 200) {
           this.fullName = res.data.fullName;
-        }
-        if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
-          this.xinMoiQua();
-        } else if (res.errorCode == ErrorCode.CHUA_CHECK_IN) {
-          this.chuaCheckIn();
-        } else if (res.errorCode == ErrorCode.CHUA_DU_THOI_GIAN) {
-          this.chuaDuThoiGian();
-        } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
-          this.danhSachDen();
-        } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
-          this.saiSoThe();
+          this.successBeep();
         } else {
           this.errorBeep();
         }
+        // if (res.errorCode == ErrorCode.XIN_MOI_QUA) {
+        //   this.xinMoiQua();
+        // } else if (res.errorCode == ErrorCode.CHUA_CHECK_IN) {
+        //   this.chuaCheckIn();
+        // } else if (res.errorCode == ErrorCode.CHUA_DU_THOI_GIAN) {
+        //   this.chuaDuThoiGian();
+        // } else if (res.errorCode == ErrorCode.DANH_SACH_DEN) {
+        //   this.danhSachDen();
+        // } else if (res.errorCode == ErrorCode.SAI_SO_THE) {
+        //   this.saiSoThe();
+        // } else {
+        //   this.errorBeep();
+        // }
       },
       (error) => {
           this.errorBeep();
