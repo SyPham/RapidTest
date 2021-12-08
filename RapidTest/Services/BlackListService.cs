@@ -66,7 +66,6 @@ namespace RapidTest.Services
             //await _unitOfWork.SaveChangeAsync();
 
             return await _repo.FindAll(x=>x.IsDelete == false)
-
                      .Include(x => x.Employee)
                     .ThenInclude(x => x.Department)
                 .ProjectTo<BlackListDto>(_configMapper).ToListAsync();

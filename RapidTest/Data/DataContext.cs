@@ -65,10 +65,10 @@ namespace RapidTest.Data
             }
             return base.SaveChangesAsync(cancellationToken);
         }
-        #if DEBUG
-                protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.LogTo(Console.WriteLine).EnableSensitiveDataLogging().EnableDetailedErrors();
-        #endif
+        //#if DEBUG
+        //        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //=> optionsBuilder.LogTo(Console.WriteLine).EnableSensitiveDataLogging().EnableDetailedErrors();
+        //#endif
 
     }
 }

@@ -119,7 +119,7 @@ namespace RapidTest.Services
             }
             else
             {
-                var source = _repo.FindAll(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
+                var source = _repo.FindAll()
                      .Include(x => x.Employee)
                         .ThenInclude(x => x.CheckIns)
                      .Include(x => x.Employee)
@@ -128,6 +128,7 @@ namespace RapidTest.Services
                         .ThenInclude(x => x.Department)
                      .Include(x => x.Employee)
                         .ThenInclude(x => x.Setting)
+                    .Where(x => !x.IsDelete && x.CreatedTime.Date == startDate.Date && x.Employee.Code.Contains(code))
                     .ProjectTo<ReportDto>(_configMapper).OrderByDescending(x => x.CreatedTime).EJ2OrderBy(orderby);
 
                 var count = await source.CountAsync();
@@ -263,9 +264,9 @@ namespace RapidTest.Services
                 var teskind = await _repoTestKind.FindAll(x => x.Id == request.KindId).FirstOrDefaultAsync();
                 var checkIn = new CheckIn();
                 if (teskind.Name == TestKindConstant.RAPID_TEST_TEXT)
-                    checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                    checkIn = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.CreatedTime.Date == DateTime.Now.Date && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
                 else
-                    checkIn = await _repoCheckIn.FindAll(x => x.Employee.Code == employee.Code && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
+                    checkIn = await _repoCheckIn.FindAll(x => x.EmployeeId == employee.Id && x.TestKindId == request.KindId && x.TestKindId == TestKindConstant.PCR && !x.IsDelete).OrderByDescending(x => x.Id).FirstOrDefaultAsync();
                 if (checkIn == null)
                 {
                     Logging(
@@ -565,13 +566,14 @@ namespace RapidTest.Services
             }
             else
             {
-                var data = (await _repoCheckIn.FindAll(x => !x.IsDelete && x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
-              .Include(x => x.Employee)
+                var data = (await _repoCheckIn.FindAll()
+                        .Include(x => x.Employee)
                         .ThenInclude(x => x.Department)
                      .Include(x => x.Employee)
                         .ThenInclude(x => x.Setting)
                           .Include(x => x.Employee)
                         .ThenInclude(x => x.Reports)
+                        .Where(x => !x.IsDelete && x.CreatedTime.Date == date.Date && x.Employee.Code.Contains(code))
                     .ProjectTo<CheckInDto>(_configMapper).OrderByDescending(a => a.Id).ToListAsync()).DistinctBy(x => new { x.Code, x.CreatedTime }).ToList();
                 return data;
             }
@@ -585,7 +587,7 @@ namespace RapidTest.Services
 
         public async Task<OperationResult> DeleteCheckIn(object id)
         {
-            var item = _repoCheckIn.FindById(id);
+            var item = await _repoCheckIn.FindByIdAsync(id);
             item.IsDelete = true;
             item.DeletedTime = DateTime.Now;
 
@@ -609,7 +611,7 @@ namespace RapidTest.Services
         }
         public override async Task<OperationResult> DeleteAsync(object id)
         {
-            var item = _repo.FindById(id);
+            var item = await _repo.FindByIdAsync(id);
             item.IsDelete = true;
             item.DeletedTime = DateTime.Now;
 
@@ -681,7 +683,11 @@ namespace RapidTest.Services
             var employeeDict = ReadExcel(file);
             int userid = createdBy.ToInt();
             List<String> employeeKeys = employeeDict.Keys.ToList();
-            var data = (await _repo.FindAll(x => x.Employee.SEAInform && employeeKeys.Contains(x.Employee.Code)).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToDictionary(x => x.Employee.Code, x => x);
+            var data = (await _repo.FindAll().Include(x=> x.Employee)
+                        .Where(x => x.Employee.SEAInform && employeeKeys.Contains(x.Employee.Code))
+                        .OrderByDescending(x => x.CreatedTime).ToListAsync())
+                        .DistinctBy(x => x.EmployeeId)
+                        .ToDictionary(x => x.Employee.Code, x => x);
 
             try
             {
@@ -716,7 +722,11 @@ namespace RapidTest.Services
             var accessToken = _httpContextAccessor.HttpContext.Request.Headers["Authorization"];
             int accountId = JWTExtensions.GetDecodeTokenById(accessToken);
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            var data = (await _repo.FindAll(x => x.Employee.SEAInform).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).AsEnumerable();
+            var data = (await _repo.FindAll()
+                .Include(x=> x.Employee)
+                .Where(x => x.Employee.SEAInform)
+                .OrderByDescending(x => x.CreatedTime)
+                .ToListAsync()).DistinctBy(x => x.EmployeeId).AsEnumerable();
             if ((file != null) && (file.Length > 0) && !string.IsNullOrEmpty(file.FileName))
             {
                 try
@@ -772,7 +782,11 @@ namespace RapidTest.Services
         {
             try
             {
-                var data = (await _repo.FindAll(x => x.Employee.SEAInform).Select(x => new
+                var data = (await _repo.FindAll()
+                    .Include(x=> x.Employee)
+                    .Where(x => x.Employee.SEAInform)
+                    .AsNoTracking()
+                    .Select(x => new
                 {
                     Code = x.Employee.Code,
                     FullName = x.Employee.FullName,
@@ -875,14 +889,16 @@ namespace RapidTest.Services
         {
             try
             {
-                var data = (await _repo.FindAll(x => x.Employee.SEAInform).Select(x => new
+                var data = (await _repo.FindAll().Include(x=> x.Employee)
+                    .Where(x => x.Employee.SEAInform)
+                    .Select(x => new
                 {
                     Code = x.Employee.Code,
                     FullName = x.Employee.FullName,
                     ExpiryTime = x.ExpiryTime,
                     x.EmployeeId,
                     x.CreatedTime
-                }).OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
+                }).AsNoTracking().OrderByDescending(x => x.CreatedTime).ToListAsync()).DistinctBy(x => x.EmployeeId).ToList();
                 var currentTime = DateTime.Now;
                 ExcelPackage.LicenseContext = LicenseContext.Commercial;
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
@@ -979,7 +995,13 @@ namespace RapidTest.Services
         {
             try
             {
-                var data = (await _repo.FindAll(x => x.CreatedTime.Date == date.Date && x.Employee.SEAInform).AsNoTracking().Select(x => new
+                var data = (await _repo.FindAll()
+                .Include(x=> x.Employee)
+                .ThenInclude(x=> x.CheckIns)
+                 .Include(x=> x.Employee)
+                .ThenInclude(x=> x.FactoryReports)
+                .Where(x => x.CreatedTime.Date == date.Date && x.Employee.SEAInform)
+                .AsNoTracking().Select(x => new
                 {
                     Code = x.Employee.Code,
                     FullName = x.Employee.FullName,
